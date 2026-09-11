@@ -40,9 +40,18 @@ st.set_page_config(page_title="Fourth & Value", page_icon="🏈", layout="wide")
 st.markdown("""
 <style>
   .block-container { padding-top: 2.2rem; max-width: 1900px; }
-  .lu { border:1px solid rgba(128,128,128,.28); border-radius:8px; padding:.55rem .6rem; height:100%; }
-  .lu h4 { margin:0; font-size:.82rem; letter-spacing:.03em; opacity:.75; }
-  .stk { font-size:.72rem; opacity:.65; margin:.1rem 0 .35rem 0; }
+  .lu { border:1px solid rgba(128,128,128,.28); border-radius:8px; height:100%;
+        overflow:hidden; }
+  /* The heading bar is painted, not tinted, so it reads the same in either
+     theme -- a translucent bar over a dark background loses its contrast. */
+  .bar { background:#1f2430; color:#ffffff; font-weight:700; font-size:.8rem;
+         letter-spacing:.05em; padding:.34rem .6rem; }
+  .body { padding:.4rem .6rem .55rem .6rem; }
+  .cst { font-size:.73rem; opacity:.85; text-align:right; padding:.05rem 0 .12rem 0;
+         overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .stk { font-size:.72rem; opacity:.7; margin:0 0 .35rem 0; }
+  .tick { color:#3ecf6e; font-weight:700; }
+  .notick { color:#c9713a; }
   /* Fixed columns are kept as narrow as the content allows, because the name
      is the only field a person actually reads and it is the one that clips. */
   .row { display:flex; align-items:baseline; gap:.3rem; font-size:.82rem;
@@ -59,8 +68,6 @@ st.markdown("""
   .must { color:#ff4b4b; }
   .foot { display:flex; justify-content:space-between; font-size:.76rem;
           opacity:.7; padding-top:.4rem; }
-  .cst { font-size:.73rem; opacity:.8; padding-top:.3rem;
-         border-top:1px solid rgba(128,128,128,.18); margin-top:.3rem; }
 </style>""", unsafe_allow_html=True)
 
 
@@ -235,15 +242,18 @@ with tab_board:
                         f'<span class="tm">{p["team"]}</span>'
                         f'<span class="sal">{p["salary"] // 100 / 10:.1f}k</span></div>')
                 entry = entries[i - 1] if i - 1 < len(entries) else None
-                contest = (f'<div class="cst">{entry.contest["name"]} · ${entry.fee:,.0f}</div>'
-                           if entry else '<div class="cst">no contest — budget spent</div>')
+                contest = (f'{entry.contest["name"]} · ${entry.fee:,.0f}'
+                           if entry else 'no contest — budget spent')
+                mark = ('<span class="tick">✓</span>' if is_stacked(l)
+                        else '<span class="notick">✗</span>')
                 col.markdown(
-                    f'<div class="lu"><h4>LINEUP {i}</h4>'
-                    f'<div class="stk">{qb["team"]} stack · bring-back from {qb["opponent"]}</div>'
+                    f'<div class="lu"><div class="bar">LINEUP {i}</div><div class="body">'
+                    f'<div class="cst" title="{contest}">{contest}</div>'
+                    f'<div class="stk">{mark} {qb["team"]} stack · bring-back from {qb["opponent"]}</div>'
                     f'{"".join(body)}'
-                    f'<div class="foot"><span>{"✓ stacked" if is_stacked(l) else "no stack"}</span>'
+                    f'<div class="foot"><span></span>'
                     f'<span>${sum(p["salary"] for p in l):,} · {projection(l):.1f} pts</span></div>'
-                    f'{contest}</div>', unsafe_allow_html=True)
+                    f'</div></div>', unsafe_allow_html=True)
             st.write("")
 
         spent = sum(e.fee for e in entries)
