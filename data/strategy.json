@@ -61,6 +61,18 @@
    "evidence": "lib/stacking.ts FLEX_POSITIONS · scripts/test-flex.mjs · evidence/flex-2026-09-08.txt"
   },
   {
+   "id": "wr1-stack",
+   "claim": "A stack should always include the quarterback's WR1, not just any two pass catchers.",
+   "source": "User, 2026-09-11, on seeing a Philadelphia stack without DeVonta Smith",
+   "domain": "lineup",
+   "verdict": "null",
+   "plain": "No difference either way. Requiring the quarterback's highest-priced receiver in every stack scores the same as letting any two of his pass catchers in. It is slightly worse on average points and best-of-10, slightly better on the chance of a tournament-winning week, and not one of the three clears its interval. Since nothing is lost, it is fine to keep on as a preference -- it simply is not an edge.",
+   "result": "268 week-trials, 2017-2024, 10 lineups each. Average points -0.54 (95% CI -1.63 to 0.55); best-of-10 -1.06 (CI -3.34 to 1.22); P(180+) 1.604% against 1.493%, difference +0.112 percentage points, interval spans zero",
+   "sample": "134 weeks x 2 seeds",
+   "detail": "The reason this needed measuring rather than asserting is that it cuts both ways. WR1 is usually the receiver most correlated with his quarterback, which is the entire mechanism a stack relies on. But he is also the highest-owned receiver on his team, so forcing him into every lineup on that quarterback removes variety from the portfolio -- and portfolio diversity is the one property this project HAS measured as load-bearing, with core-plus-variants losing 20 points of best-of-10 against a diverse set.\n\nThe two effects appear to cancel. Worth noting the directional split: the only metric pointing in favour is P(180+), which is the metric that detected the stacking effect in the first place when average points did not move at all. A +0.112 percentage point shift on a 1.49% base is a 7.5% relative improvement, which would matter if it were real. It cannot be confirmed at this sample size -- detecting a shift that small in a rare event needs far more than 134 weeks.\n\nWR1 is defined as the team's highest-SALARIED receiver. Salary is the market's view of the depth chart and is set with current role information, while the projection on a historical slate is a trailing average that cannot tell a promoted receiver from a demoted one.",
+   "evidence": "scripts/test-wr1-stack.mjs, evidence/wr1-stack-2026-09-11.txt"
+  },
+  {
    "id": "cheap-wr-double",
    "claim": "Finding one cheap receiver who doubles his projection is the key to winning a tournament.",
    "source": "User, 2026-09-11",

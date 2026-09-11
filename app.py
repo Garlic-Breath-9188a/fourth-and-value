@@ -144,10 +144,11 @@ with st.sidebar:
 
     st.markdown("### Stacking")
     require_wr1 = st.checkbox("Stack must include the QB's WR1", value=True,
-                              help="WR1 is the team's highest-priced receiver — salary is the "
-                                   "market's view of the depth chart, and it is current, which "
-                                   "the projection is not. NOT a measured setting: the stacking "
-                                   "test allowed any two pass catchers.")
+                              help="WR1 is the team's highest-priced receiver. Measured over "
+                                   "268 week-trials: no difference either way. Slightly worse on "
+                                   "average and best-of-10, slightly better on the chance of a "
+                                   "big week, none of the three clearing its interval. Nothing "
+                                   "is lost by leaving it on; it is just not an edge.")
 
     st.markdown("### Injury wire")
     use_live = st.checkbox("Cross-check the salary file", value=True,
