@@ -1,0 +1,18 @@
+{
+  "_comment": "When each shipped data file was actually captured from its source. Recorded explicitly because a file's modification time resets whenever it is copied, which made the app report the day it was deployed as the day the slate was pulled. Update these when you refresh the files.",
+  "slate": {
+    "captured": "2026-09-04",
+    "source": "DraftKings salary export, Week 1 2026",
+    "note": "813 players, 16 games across the full week; the app filters to one slate."
+  },
+  "contests": {
+    "captured": "2026-09-03",
+    "source": "DraftKings lobby, hand-transcribed from screenshots",
+    "note": "Prize pools and fees are stable; entry counts move."
+  },
+  "variance": {
+    "captured": "2026-09-02",
+    "source": "Historical box scores 2000-2025",
+    "note": "Each player's own scoring spread. 367 of 481 matched on the Week 1 slate."
+  }
+}

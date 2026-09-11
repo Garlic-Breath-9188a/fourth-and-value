@@ -6,7 +6,6 @@ measured constant is in fv/rules.py next to the result that set it.
 """
 from __future__ import annotations
 import json
-from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -22,12 +21,19 @@ from fv.entry import plan, rake_pct
 
 DATA = Path(__file__).resolve().parent / "data"
 
-# Read off the file itself rather than hard-coded, so it cannot drift from the
-# data actually shipped. This is when the snapshot was taken, not "now" -- a
-# page that stamps itself with the current time implies a freshness it has not
-# got.
-SLATE_CAPTURED = datetime.fromtimestamp(
-    (DATA / "DKSalaries.csv").stat().st_mtime).strftime("%-d %b %Y")
+def _captured(key: str) -> str:
+    """
+    When a shipped data file was actually captured from its source.
+
+    Recorded in data/manifest.json rather than read from the file's modification
+    time: mtime resets whenever a file is copied, so the first version of this
+    reported the day the app was deployed as the day the slate was pulled --
+    a freshness claim that was wrong by a week and looked authoritative.
+    """
+    try:
+        return json.loads((DATA / "manifest.json").read_text())[key]["captured"]
+    except Exception:
+        return "unknown"
 
 st.set_page_config(page_title="Fourth & Value", page_icon="🏈", layout="wide")
 
@@ -129,11 +135,11 @@ st.title("Fourth & Value")
 st.caption(f"{slate.label} · {slate.game_count} games · {len(pool)} players")
 
 f1, f2, f3 = st.columns([1.1, 1.1, 2.4])
-f1.metric("Slate file", SLATE_CAPTURED,
+f1.metric("Slate captured", _captured("slate"),
           help="When the DraftKings salary export in this build was taken. Player "
                "availability comes from that file's Status column and is only as fresh "
                "as the file.")
-f2.metric("Contest board", lobby.get("captured", "unknown"),
+f2.metric("Contest board", _captured("contests"),
           help="When the tournament list was transcribed from the lobby.")
 f3.warning("**No live injury feed in this build.** Availability is whatever the salary "
            "file said when it was exported — check DraftKings before you enter.", icon="⚠️")
@@ -325,8 +331,8 @@ with tab_about:
 
 | Source | What it provides | Freshness |
 |---|---|---|
-| **DraftKings salary export** | The slate: players, salaries, positions, kickoffs, and the status flag used to drop anyone Out, Doubtful or on injured reserve | Snapshot, {SLATE_CAPTURED} |
-| **DraftKings lobby** | 109 tournaments with fees, prize pools, entry caps and lock times, hand-transcribed from screenshots | Snapshot, {lobby.get("captured", "unknown")} |
+| **DraftKings salary export** | The slate: players, salaries, positions, kickoffs, and the status flag used to drop anyone Out, Doubtful or on injured reserve | Captured {_captured("slate")} |
+| **DraftKings lobby** | 109 tournaments with fees, prize pools, entry caps and lock times, hand-transcribed from screenshots | Captured {_captured("contests")} |
 | **Historical box scores, 2000–2025** | Each player's own scoring spread, which is where the upside number comes from. 367 of 481 players matched; the rest are labelled | Through 2025 |
 | **nflverse** | Defensive scoring history, used to rebuild defence results that the box-score data does not carry | Through 2025 |
 | **Published DFS strategy writing** | 91 individual claims, broken out and measured. The Strategy tab is the result | 12 articles + one strategy hub |
