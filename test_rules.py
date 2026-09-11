@@ -10,6 +10,7 @@ from datetime import datetime
 from pathlib import Path
 
 from fv import rules
+from fv import entered as ent
 from fv.slate import parse_kickoff, kickoff_windows, slate_options, main_slate, restrict, in_slate
 from fv.pool import load_salaries, keep_starting_quarterbacks, apply_ceilings, rosterable, load_json
 from fv.roster import order_roster, stack_role, is_stacked, fill_dk_template, DK_SLOTS
@@ -254,6 +255,52 @@ class DkTemplate(unittest.TestCase):
         out, notes = fill_dk_template("name,salary\nfoo,1\n", lineups)
         self.assertEqual(out, "")
         self.assertIn("DraftKings upload template", notes[0])
+
+
+class Entered(unittest.TestCase):
+    """Tracking what has been entered, and keeping it off the next board."""
+
+    def test_identity_is_the_roster_not_the_slot(self):
+        """Lineup 3 is different nine players after a seed change."""
+        pool, _ = live_pool()
+        a = build_portfolio(pool, 3, seed=1, attempts=6000)
+        self.assertNotEqual(ent.roster_key(a[0]), ent.roster_key(a[1]))
+        shuffled = list(reversed(a[0]))
+        self.assertEqual(ent.roster_key(a[0]), ent.roster_key(shuffled),
+                         "player order must not change a roster's identity")
+
+    def test_record_forget_and_total(self):
+        pool, _ = live_pool()
+        lineups = build_portfolio(pool, 2, seed=2, attempts=6000)
+        store = {}
+        ent.record(store, lineups[0], {"name": "NFL $40K Pylon", "id": "x1"}, 3)
+        ent.record(store, lineups[1], {"name": "NFL $175K Fair Catch", "id": "x2"}, 12)
+        self.assertEqual(ent.total_fees(store), 15)
+        self.assertTrue(ent.is_entered(store, lineups[0]))
+        ent.forget(store, lineups[0])
+        self.assertFalse(ent.is_entered(store, lineups[0]))
+        self.assertEqual(ent.total_fees(store), 12)
+
+    def test_export_has_a_row_per_entry_in_slot_order(self):
+        pool, _ = live_pool()
+        lineups = build_portfolio(pool, 1, seed=3, attempts=4000)
+        store = {}
+        ent.record(store, lineups[0], {"name": "NFL $40K Pylon", "id": "x1"}, 3)
+        rows = list(csv.reader(io.StringIO(ent.to_csv(store))))
+        self.assertEqual(rows[0][2:], list(DK_SLOTS))
+        self.assertEqual(len(rows), 2)
+        self.assertEqual(rows[1][0], "NFL $40K Pylon")
+
+    def test_entered_rosters_are_excluded_from_a_rebuild(self):
+        """The point of the feature: never offered the same nine players twice."""
+        pool, _ = live_pool()
+        first = build_portfolio(pool, 10, seed=4, attempts=8000)
+        avoid = {ent.roster_key(first[0]), ent.roster_key(first[1])}
+        rebuilt = build_portfolio(pool, 10 + len(avoid), seed=4, attempts=8000)
+        fresh = [l for l in rebuilt if ent.roster_key(l) not in avoid][:10]
+        self.assertEqual(len(fresh), 10, "board should still fill after excluding")
+        for l in fresh:
+            self.assertNotIn(ent.roster_key(l), avoid)
 
 
 class EntryPlan(unittest.TestCase):

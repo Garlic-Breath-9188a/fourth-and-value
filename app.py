@@ -11,7 +11,7 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
-from fv import rules, context, injuries
+from fv import rules, context, injuries, sources, entered as ent
 from fv.pool import (load_salaries, keep_starting_quarterbacks, apply_ceilings,
                      rosterable, load_json)
 from fv.slate import slate_options, main_slate, restrict
@@ -101,12 +101,26 @@ def load_strategy():
 
 @st.cache_data(show_spinner=True)
 def portfolio(ids, count, seed, ceiling_weight, qb_exposure, rb_exposure, must_play,
-              require_wr1):
+              require_wr1, avoid_keys):
+    """
+    `avoid_keys` holds the rosters already entered. They are built extra and
+    then filtered out, rather than being forbidden during construction, so the
+    board still comes back full after you have entered several.
+    """
     pool = [p for p in load_pool() if p["id"] in set(ids)]
-    return build_portfolio(pool, count, seed=seed, ceiling_weight=ceiling_weight,
-                           qb_exposure=qb_exposure, rb_exposure=rb_exposure,
-                           must_play=set(must_play), require_wr1=require_wr1)
+    avoid = set(avoid_keys)
+    want = count + len(avoid)
+    built = build_portfolio(pool, want, seed=seed, ceiling_weight=ceiling_weight,
+                            qb_exposure=qb_exposure, rb_exposure=rb_exposure,
+                            must_play=set(must_play), require_wr1=require_wr1)
+    fresh = [l for l in built if ent.roster_key(l) not in avoid]
+    return fresh[:count]
 
+
+if "entered" not in st.session_state:
+    st.session_state.entered = {}
+if "contests_done" not in st.session_state:
+    st.session_state.contests_done = set()
 
 all_rows = load_pool()
 options = slate_options(all_rows)
@@ -195,7 +209,8 @@ tab_board, tab_pool, tab_entry, tab_strategy, tab_about = st.tabs(
     ["Lineups", "Player pool", "Entry plan", "Strategy", "About"])
 
 lineups = portfolio(tuple(p["id"] for p in pool), n_lineups, seed,
-                    ceiling_weight, qb_exposure, rb_exposure, must_play, require_wr1)
+                    ceiling_weight, qb_exposure, rb_exposure, must_play, require_wr1,
+                    tuple(sorted(st.session_state.entered)))
 lock_label = f"{slate.locks_at.strftime('%-m/%-d %-I:%M')}p"
 entries, entry_notes = plan(lobby["contests"], budget, len(lineups), lock_label)
 
@@ -263,6 +278,16 @@ with tab_board:
                     f'<div class="foot"><span></span>'
                     f'<span>${sum(p["salary"] for p in l):,} · {projection(l):.1f} pts</span></div>'
                     f'</div></div>', unsafe_allow_html=True)
+                was = ent.is_entered(st.session_state.entered, l)
+                now = col.checkbox("Entered", value=was, key=f"entered_{ent.roster_key(l)}")
+                if now and not was and entry:
+                    ent.record(st.session_state.entered, l, entry.contest, entry.fee)
+                    st.rerun()
+                elif now and not was and not entry:
+                    col.caption("No contest assigned — raise the budget first.")
+                elif was and not now:
+                    ent.forget(st.session_state.entered, l)
+                    st.rerun()
             st.write("")
 
         spent = sum(e.fee for e in entries)
@@ -301,6 +326,31 @@ with tab_board:
         st.caption("Projections here are DraftKings' AvgPointsPerGame — last season's average, "
                    "not a forecast. No matchup, role or injury information is in them.")
 
+        st.divider()
+        st.markdown("### Contests entered")
+        saved = st.session_state.entered
+        if not saved:
+            st.caption("Tick **Entered** under a lineup once you have submitted it. Saved "
+                       "lineups are kept off the board when you generate new ones, so you do "
+                       "not enter the same nine players twice.")
+        else:
+            st.metric("Committed", f"${ent.total_fees(saved):,.2f}",
+                      f"{len(saved)} lineup{'s' if len(saved) != 1 else ''}")
+            for key, e in list(saved.items()):
+                with st.container(border=True):
+                    head, kill = st.columns([7, 1])
+                    head.markdown(f"**{e['contest']}** · ${e['fee']:,.0f}")
+                    head.caption(" · ".join(f'{slot} {p["name"]}'
+                                            for slot, p in order_roster(e["players"])))
+                    if kill.button("Remove", key=f"rm_{key}"):
+                        saved.pop(key, None)
+                        st.rerun()
+            st.download_button("Export what you entered", ent.to_csv(saved),
+                               file_name="contests-entered.csv", mime="text/csv")
+            st.caption("This list lives in your browser session — it survives switching tabs "
+                       "and rebuilding lineups, but not a refresh. Export it if you want to "
+                       "keep it.")
+
 with tab_pool:
     used = {}
     for l in lineups:
@@ -336,14 +386,32 @@ with tab_entry:
     for n in entry_notes:
         st.warning(n)
     if entries:
-        st.dataframe(pd.DataFrame([{
-            "Lineup": i + 1, "Contest": e.contest["name"], "Fee": f"${e.fee:,.0f}",
-            "Prizes": f"${e.contest['totalPrizes']:,}",
-            "Rake": f"{rake_pct(e.contest)}%" if rake_pct(e.contest) is not None else "—",
+        table = pd.DataFrame([{
+            "Entered": f"{i}|{e.contest['id']}" in st.session_state.contests_done,
+            "Lineup": i + 1, "Contest": e.contest["name"], "Fee": e.fee,
+            "Prizes": e.contest["totalPrizes"],
+            "Rake %": rake_pct(e.contest),
             "Limit": e.contest["maxEntriesPerUser"],
             "Why this one": e.reason,
-        } for i, e in enumerate(entries)]), width="stretch", hide_index=True)
-        st.metric("Total", f"${sum(e.fee for e in entries):,.0f} of ${budget:,.0f}")
+        } for i, e in enumerate(entries)])
+        edited = st.data_editor(
+            table, width="stretch", hide_index=True, key="entry_plan_editor",
+            disabled=[c for c in table.columns if c != "Entered"],
+            column_config={
+                "Entered": st.column_config.CheckboxColumn("Entered", width="small"),
+                "Fee": st.column_config.NumberColumn("Fee", format="$%d"),
+                "Prizes": st.column_config.NumberColumn("Prizes", format="$%d"),
+                "Rake %": st.column_config.NumberColumn("Rake %", format="%.1f%%"),
+            })
+        st.session_state.contests_done = {
+            f"{i}|{entries[i].contest['id']}"
+            for i, flag in enumerate(edited["Entered"]) if flag}
+        done = edited[edited["Entered"]]
+        m1, m2, m3 = st.columns(3)
+        m1.metric("Entered so far", f"${done['Fee'].sum():,.0f}",
+                  f"{len(done)} of {len(entries)} contests")
+        m2.metric("Still to enter", f"${table['Fee'].sum() - done['Fee'].sum():,.0f}")
+        m3.metric("Plan total", f"${table['Fee'].sum():,.0f} of ${budget:,.0f}")
     st.caption(
         "Rake is what DraftKings keeps, measured against a full field. Across this "
         "109-contest board $3–$5 contests keep 15.0% and $100+ keep 9.7% — buying up is the "
@@ -354,68 +422,71 @@ with tab_entry:
 
 with tab_strategy:
     S = load_strategy()
-    st.markdown("### Every idea this project tested, and what happened")
-    st.caption("This exists because the expensive mistake is re-implementing something that "
-               "was already measured and rejected. A null result stays on the list — a deleted "
-               "row cannot stop the idea being retried.")
+    st.markdown("### Every idea this project has tested")
+    st.caption("This exists because the expensive mistake is re-implementing something already "
+               "measured and rejected. Nothing is deleted when it fails — a removed row cannot "
+               "stop the idea being tried again.")
 
     counts = {}
     for r in S["ledger"]:
         counts[r["verdict"]] = counts.get(r["verdict"], 0) + 1
     cols = st.columns(len(S["verdictOrder"]))
     for col, v in zip(cols, S["verdictOrder"]):
-        col.metric(S["verdictLabel"][v], counts.get(v, 0))
+        col.metric(S["verdictLabel"][v], counts.get(v, 0), help=S["verdictMeaning"][v])
 
-    st.dataframe(pd.DataFrame([{
-        "Verdict": S["verdictLabel"][r["verdict"]],
-        "Area": S["domainLabel"][r["domain"]],
-        "Idea": r["claim"],
-        "What it means": r["plain"],
-        "Measurement": r["result"],
-        "Sample": r["sample"],
-    } for r in sorted(S["ledger"], key=lambda r: S["verdictOrder"].index(r["verdict"]))]),
-        width="stretch", hide_index=True, height=420)
-
-    with st.expander("What the verdicts mean"):
-        for v in S["verdictOrder"]:
-            st.markdown(f"**{S['verdictLabel'][v]}** — {S['verdictMeaning'][v]}")
+    for v in S["verdictOrder"]:
+        rows = sorted([r for r in S["ledger"] if r["verdict"] == v],
+                      key=lambda r: r["claim"].lower())
+        if not rows:
+            continue
+        with st.expander(f"{S['verdictLabel'][v]} — {len(rows)}", expanded=(v == "adopted")):
+            st.caption(S["verdictMeaning"][v])
+            for r in rows:
+                st.markdown(f"**{r['claim']}**")
+                st.markdown(r["plain"])
+                if r.get("result"):
+                    st.caption(f"{r['result']} · {r['sample']}")
+                st.divider()
 
     st.markdown("### Claims from the strategy articles")
-    st.caption(f"{len(S['claims'])} individual claims pulled out of published DFS strategy "
-               f"writing, measured over {S['slatesMeasured']} slates as residuals against "
-               f"DraftKings salary — i.e. does the price already account for it. One standard "
-               f"deviation is about {S['pointsPerSd']} DK points.")
+    st.caption(f"{len(S['claims'])} individual claims pulled out of published DFS writing and "
+               f"measured over {S['slatesMeasured']} slates. The effect is how much better or "
+               f"worse a player does than his DraftKings price implies — in DK points, so "
+               f"+1.5 means about a point and a half above what you paid for.")
     st.warning("**Do not add these up.** The same effect appears in several rows measured on "
-               "different subsets, volume traits select overlapping players, and no nine players "
-               "can be at home, indoors, high-volume and in good matchups at once. Measured at "
-               "the lineup level, home and dome together are worth +1.55 points, against ~3.6 if "
-               "they simply added across a roster.")
-    def claim_row(c):
-        ci = c.get("ci") or []
-        effect = c.get("effect")
-        return {
-            "Status": S["statusLabel"][c["status"]],
-            "Group": S["groupLabel"].get(c.get("group", ""), c.get("group", "")),
+               "different groups of players, and no nine players can be at home, indoors, "
+               "high-volume and in good matchups at once. Home and dome together are worth "
+               "+1.55 points to a lineup, against the ~3.6 you would get by adding them up.")
+
+    # Plain-language section headings. "Unsupported" is split into the two ways
+    # a claim can fail, because "we measured the opposite" and "we could not
+    # tell either way" are different answers and collapsing them loses that.
+    SECTIONS = [
+        ("supported", "Supported — the measurement backs the claim", True),
+        ("reversed", "Unsupported — measured, and it went the other way", False),
+        ("null", "Unsupported — measured, no effect found", False),
+        ("untested", "Not yet tested", False),
+        ("blocked", "Cannot be tested with the data we have", False),
+    ]
+
+    def claim_table(rows):
+        return pd.DataFrame([{
             "Claim": c["claim"],
-            "Effect (SD)": effect,
-            "In DK points": round(effect * S["pointsPerSd"], 2) if effect is not None else None,
-            "95% CI": f"{ci[0]}…{ci[1]}" if len(ci) == 2 else "",
-            "Slates": c.get("slates"),
-            # A modelled total or spread is a weaker test than real Vegas lines,
-            # so a null from one is weak evidence rather than a settled answer.
-            "Proxy?": "modelled" if c.get("modelled") else "",
-            "Articles": c.get("articles", ""),
+            "Where it came from": sources.sites(c.get("articles", "")),
+            "Effect (DK points)": (round(c["effect"] * S["pointsPerSd"], 2)
+                                   if c.get("effect") is not None else None),
             "Note": c.get("note", ""),
-        }
+        } for c in rows])
 
-    st.dataframe(pd.DataFrame([claim_row(c) for c in sorted(
-        S["claims"], key=lambda c: (S["statusOrder"].index(c["status"]),
-                                    -abs(c.get("effect") or 0)))]),
-        width="stretch", hide_index=True, height=420)
-
-    with st.expander("What the statuses mean"):
-        for v in S["statusOrder"]:
-            st.markdown(f"**{S['statusLabel'][v]}** — {S['statusMeaning'][v]}")
+    for status, heading, default_open in SECTIONS:
+        rows = sorted([c for c in S["claims"] if c["status"] == status],
+                      key=lambda c: c["claim"].lower())
+        if not rows:
+            continue
+        with st.expander(f"{heading} — {len(rows)}", expanded=default_open):
+            st.caption(S["statusMeaning"][status])
+            st.dataframe(claim_table(rows), width="stretch", hide_index=True,
+                         height=min(600, 80 + 35 * len(rows)))
 
 with tab_about:
     st.markdown(f"""
