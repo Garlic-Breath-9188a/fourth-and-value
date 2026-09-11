@@ -11,7 +11,7 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
-from fv import rules, context
+from fv import rules, context, injuries
 from fv.pool import (load_salaries, keep_starting_quarterbacks, apply_ceilings,
                      rosterable, load_json)
 from fv.slate import slate_options, main_slate, restrict
@@ -77,6 +77,16 @@ def load_lobby():
     return json.loads((DATA / "lobby-week1-2026.json").read_text())
 
 
+@st.cache_data(ttl=21600, show_spinner="Checking the injury wire…")
+def live_injuries():
+    """
+    Cached for six hours. Sleeper asks callers not to pull the full player file
+    more than once a day; six hours is well inside that and still catches a
+    Friday practice report before a Sunday lock.
+    """
+    return injuries.index(injuries.fetch())
+
+
 @st.cache_data(show_spinner=False)
 def load_strategy():
     return json.loads((DATA / "strategy.json").read_text())
@@ -124,12 +134,24 @@ with st.sidebar:
                                 "time, a different seed gives a different ten. Change it to see "
                                 "alternatives; keep it to reproduce what you entered.")
 
+    st.markdown("### Injury wire")
+    use_live = st.checkbox("Cross-check the salary file", value=True,
+                           help="Pulls current injury status from Sleeper and removes anyone "
+                                "the wire says cannot play, even if the salary file still "
+                                "lists them as available.")
+
     st.markdown("### Must-play")
     names = {f'{p["name"]} — {p["position"]} {p["team"]} ${p["salary"]:,}': p["id"]
              for p in sorted(pool, key=lambda p: -p["projection"])}
     forced = st.multiselect("Include somewhere", list(names), max_selections=8,
                             help="Each appears in at least one lineup — not all of them.")
     must_play = tuple(names[n] for n in forced)
+
+feed = live_injuries() if use_live else {}
+conflicts = injuries.cross_check(pool, feed) if feed else []
+blocked = {c["id"] for c in conflicts if c["live_status"] in injuries.BLOCKING}
+if blocked:
+    pool = [p for p in pool if p["id"] not in blocked]
 
 st.title("Fourth & Value")
 st.caption(f"{slate.label} · {slate.game_count} games · {len(pool)} players")
@@ -141,8 +163,17 @@ f1.metric("Slate captured", _captured("slate"),
                "as the file.")
 f2.metric("Contest board", _captured("contests"),
           help="When the tournament list was transcribed from the lobby.")
-f3.warning("**No live injury feed in this build.** Availability is whatever the salary "
-           "file said when it was exported — check DraftKings before you enter.", icon="⚠️")
+if use_live and feed:
+    f3.metric("Injury wire", f"{len(feed)} flagged",
+              help="Live from Sleeper, refreshed every six hours. Players the wire says "
+                   "cannot play are removed from the pool even when the salary file still "
+                   "lists them as available.")
+elif use_live:
+    f3.error("**Injury wire unreachable.** Falling back to the salary file's own Status "
+             "column, which is frozen at export time.", icon="⚠️")
+else:
+    f3.warning("**Injury cross-check is off.** Availability is whatever the salary file said "
+               "when it was exported.", icon="⚠️")
 
 tab_board, tab_pool, tab_entry, tab_strategy, tab_about = st.tabs(
     ["Lineups", "Player pool", "Entry plan", "Strategy", "About"])
@@ -153,6 +184,26 @@ lock_label = f"{slate.locks_at.strftime('%-m/%-d %-I:%M')}p"
 entries, entry_notes = plan(lobby["contests"], budget, len(lineups), lock_label)
 
 with tab_board:
+    if conflicts:
+        removed = [c for c in conflicts if c["live_status"] in injuries.BLOCKING]
+        doubt = [c for c in conflicts if c["live_status"] not in injuries.BLOCKING]
+        with st.expander(f"⚕️ Injury wire disagrees with the salary file on "
+                         f"{len(conflicts)} players — {len(removed)} removed", expanded=bool(removed)):
+            st.dataframe(pd.DataFrame([{
+                "Player": c["name"], "Pos": c["position"], "Team": c["team"],
+                "Salary file": c["status"], "Injury wire": c["live_status"],
+                "Body part": c["body_part"] or "—",
+                "Removed": "yes" if c["live_status"] in injuries.BLOCKING else "no",
+                "Note": c["note"][:90],
+            } for c in conflicts]), width="stretch", hide_index=True)
+            st.caption("The wire is live; the salary file is frozen at export. Where they "
+                       "disagree the wire is usually newer — but check DraftKings before "
+                       "entering, because only their ruling decides whether a lineup is legal.")
+            if doubt:
+                st.caption("Players merely listed questionable are kept. A hamstring or calf "
+                           "return is the exception worth acting on: those miss their price by "
+                           "0.185 and 0.438 SD. Knee, ankle, shoulder, concussion and groin "
+                           "returns are all priced correctly and are not faded.")
     if dropped:
         st.info(f"Not on this slate, so excluded: {', '.join(dropped)}")
     if not lineups:
