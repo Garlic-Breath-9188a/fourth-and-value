@@ -170,7 +170,8 @@ def projection(lineup) -> float:
 def build_portfolio(players: list[dict], count: int = 10, seed: int = 1,
                     ceiling_weight: float = 0.25, attempts: int = 20000,
                     must_play: set[str] | None = None,
-                    qb_exposure: int = QB_EXPOSURE_PCT) -> list[list[dict]]:
+                    qb_exposure: int = QB_EXPOSURE_PCT,
+                    rb_exposure: int = EXPOSURE_PCT) -> list[list[dict]]:
     """
     A portfolio of distinct, diversified lineups.
 
@@ -190,7 +191,8 @@ def build_portfolio(players: list[dict], count: int = 10, seed: int = 1,
             seen[key] = l
     pool = sorted(seen.values(), key=projection, reverse=True)
 
-    caps = {"QB": max(1, count * qb_exposure // 100)}
+    caps = {"QB": max(1, count * qb_exposure // 100),
+            "RB": max(1, count * rb_exposure // 100)}
     default_cap = max(1, count * EXPOSURE_PCT // 100)
     selected: list[list[dict]] = []
     uses: dict[str, int] = {}

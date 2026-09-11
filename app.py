@@ -6,12 +6,13 @@ measured constant is in fv/rules.py next to the result that set it.
 """
 from __future__ import annotations
 import json
+from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
 import streamlit as st
 
-from fv import rules
+from fv import rules, context
 from fv.pool import (load_salaries, keep_starting_quarterbacks, apply_ceilings,
                      rosterable, load_json)
 from fv.slate import slate_options, main_slate, restrict
@@ -20,6 +21,13 @@ from fv.roster import order_roster, stack_role, is_stacked, to_dk_csv
 from fv.entry import plan, rake_pct
 
 DATA = Path(__file__).resolve().parent / "data"
+
+# Read off the file itself rather than hard-coded, so it cannot drift from the
+# data actually shipped. This is when the snapshot was taken, not "now" -- a
+# page that stamps itself with the current time implies a freshness it has not
+# got.
+SLATE_CAPTURED = datetime.fromtimestamp(
+    (DATA / "DKSalaries.csv").stat().st_mtime).strftime("%-d %b %Y")
 
 st.set_page_config(page_title="Fourth & Value", page_icon="🏈", layout="wide")
 
@@ -33,12 +41,12 @@ st.markdown("""
      is the only field a person actually reads and it is the one that clips. */
   .row { display:flex; align-items:baseline; gap:.3rem; font-size:.82rem;
          padding:.14rem 0; border-bottom:1px solid rgba(128,128,128,.10); }
-  .slot { width:2.05rem; flex:none; opacity:.55; font-size:.66rem; }
+  .slot { width:2.1rem; flex:none; opacity:.55; font-size:.7rem; }
   .nm { flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis;
         white-space:nowrap; }
-  .tm { flex:none; opacity:.5; font-size:.64rem; width:1.7rem; text-align:right; }
-  .sal { flex:none; opacity:.6; font-size:.7rem; font-variant-numeric:tabular-nums;
-         width:1.9rem; text-align:right; }
+  .tm { flex:none; opacity:.72; font-size:.76rem; width:2.1rem; text-align:right; }
+  .sal { flex:none; opacity:.75; font-size:.78rem; font-variant-numeric:tabular-nums;
+         width:2.3rem; text-align:right; }
   .qb { color:#e8b53a; font-weight:600; }
   .st { color:#e8b53a; }
   .bb { color:#4da3ff; }
@@ -69,10 +77,11 @@ def load_strategy():
 
 
 @st.cache_data(show_spinner=True)
-def portfolio(ids, count, seed, ceiling_weight, qb_exposure, must_play):
+def portfolio(ids, count, seed, ceiling_weight, qb_exposure, rb_exposure, must_play):
     pool = [p for p in load_pool() if p["id"] in set(ids)]
     return build_portfolio(pool, count, seed=seed, ceiling_weight=ceiling_weight,
-                           qb_exposure=qb_exposure, must_play=set(must_play))
+                           qb_exposure=qb_exposure, rb_exposure=rb_exposure,
+                           must_play=set(must_play))
 
 
 all_rows = load_pool()
@@ -95,6 +104,10 @@ with st.sidebar:
     qb_exposure = st.slider("Max one QB may appear (%)", 10, 100, rules.QB_EXPOSURE_PCT, step=10,
                             help="Tighter caps were measured over 101 weeks and did not help — "
                                  "the chance of a big week fell from 1.12% to 0.83% at 20%.")
+    rb_exposure = st.slider("Max one RB may appear (%)", 10, 100, rules.EXPOSURE_PCT, step=10,
+                            help="Running backs are the most concentrated position in a "
+                                 "portfolio because few are worth playing. This cap is not a "
+                                 "measured setting — no test has been run on it.")
     ceiling_weight = st.slider("Ceiling weight", 0.0, 1.0, 0.25, 0.05,
                                help="0 chases each player's expected score; 1 chases his best-case "
                                     "score, favouring boom-or-bust players. Whether moving this "
@@ -115,11 +128,21 @@ with st.sidebar:
 st.title("Fourth & Value")
 st.caption(f"{slate.label} · {slate.game_count} games · {len(pool)} players")
 
+f1, f2, f3 = st.columns([1.1, 1.1, 2.4])
+f1.metric("Slate file", SLATE_CAPTURED,
+          help="When the DraftKings salary export in this build was taken. Player "
+               "availability comes from that file's Status column and is only as fresh "
+               "as the file.")
+f2.metric("Contest board", lobby.get("captured", "unknown"),
+          help="When the tournament list was transcribed from the lobby.")
+f3.warning("**No live injury feed in this build.** Availability is whatever the salary "
+           "file said when it was exported — check DraftKings before you enter.", icon="⚠️")
+
 tab_board, tab_pool, tab_entry, tab_strategy, tab_about = st.tabs(
     ["Lineups", "Player pool", "Entry plan", "Strategy", "About"])
 
 lineups = portfolio(tuple(p["id"] for p in pool), n_lineups, seed,
-                    ceiling_weight, qb_exposure, must_play)
+                    ceiling_weight, qb_exposure, rb_exposure, must_play)
 lock_label = f"{slate.locks_at.strftime('%-m/%-d %-I:%M')}p"
 entries, entry_notes = plan(lobby["contests"], budget, len(lineups), lock_label)
 
@@ -191,6 +214,8 @@ with tab_pool:
         "Ceiling": round(p["ceiling"], 1),
         "Pts/$1k": round(p["projection"] / (p["salary"] / 1000), 2),
         "Lineups": used.get(p["id"], 0),
+        "Context": context.summary(p),
+        "Net (SD)": context.net_sd(p),
         "Ceiling from": p["ceiling_source"],
     } for p in pool]).sort_values(["Lineups", "Proj"], ascending=False)
     c1, c2 = st.columns([1, 3])
@@ -199,7 +224,15 @@ with tab_pool:
         df = df[df["Pos"].isin(pos)]
     c2.caption(f"{len(df)} players. Backup quarterbacks and anyone Out, Doubtful or on "
                f"injured reserve are already removed.")
-    st.dataframe(df, width="stretch", hide_index=True, height=620)
+    st.dataframe(df, width="stretch", hide_index=True, height=560)
+    st.caption("**Context** lists only what this build can actually establish, with the "
+               "measured effect in standard deviations of the salary residual — one SD is "
+               "about 6.9 DK points. These are shown, not applied: measured at the lineup "
+               "level, home and dome together are worth +1.55 points, against ~3.6 if they "
+               "simply added across a roster. They do not add up.")
+    with st.expander("What this build cannot see, and what it would be worth"):
+        for label, why in context.NOT_AVAILABLE:
+            st.markdown(f"**{label}** — {why}")
 
 with tab_entry:
     for n in entry_notes:
@@ -288,6 +321,24 @@ with tab_strategy:
 
 with tab_about:
     st.markdown(f"""
+### Where the numbers come from
+
+| Source | What it provides | Freshness |
+|---|---|---|
+| **DraftKings salary export** | The slate: players, salaries, positions, kickoffs, and the status flag used to drop anyone Out, Doubtful or on injured reserve | Snapshot, {SLATE_CAPTURED} |
+| **DraftKings lobby** | 109 tournaments with fees, prize pools, entry caps and lock times, hand-transcribed from screenshots | Snapshot, {lobby.get("captured", "unknown")} |
+| **Historical box scores, 2000–2025** | Each player's own scoring spread, which is where the upside number comes from. 367 of 481 players matched; the rest are labelled | Through 2025 |
+| **nflverse** | Defensive scoring history, used to rebuild defence results that the box-score data does not carry | Through 2025 |
+| **Published DFS strategy writing** | 91 individual claims, broken out and measured. The Strategy tab is the result | 12 articles + one strategy hub |
+
+**Projections are DraftKings' own `AvgPointsPerGame`** — last season's average.
+Not a forecast. Nothing in it knows about the matchup, a changed role, a new
+offensive coordinator, or an injury.
+
+**There is no live feed of anything in this build.** No injury wire, no weather,
+no betting lines. Player availability is whatever the salary file said on the
+day it was exported. Check DraftKings before entering.
+
 ### What this is
 
 An attempt to build a DraftKings NFL lineup builder that has an edge, and an
