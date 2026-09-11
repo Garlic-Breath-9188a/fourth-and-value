@@ -5,14 +5,14 @@ Each test names the bug it prevents. They are not coverage; they are the
 specific things that were wrong on screen at some point and were fixed.
 Run with:  python3 -m unittest test_rules -v
 """
-import json, unittest
+import csv, io, json, unittest
 from datetime import datetime
 from pathlib import Path
 
 from fv import rules
 from fv.slate import parse_kickoff, kickoff_windows, slate_options, main_slate, restrict, in_slate
 from fv.pool import load_salaries, keep_starting_quarterbacks, apply_ceilings, rosterable, load_json
-from fv.roster import order_roster, stack_role, is_stacked, DK_SLOTS
+from fv.roster import order_roster, stack_role, is_stacked, fill_dk_template, DK_SLOTS
 from fv.optimize import build_portfolio, build_lineup
 from fv.entry import plan, rake_pct
 import random
@@ -196,6 +196,64 @@ class MustPlay(unittest.TestCase):
         placed = {p["id"] for l in lineups for p in l}
         self.assertEqual(picks - placed, set(), "every must-play should be placed")
         self.assertEqual(len({tuple(sorted(p["id"] for p in l)) for l in lineups}), 10)
+
+
+class Wr1Stack(unittest.TestCase):
+    """The QB's WR1 should be in the stack when that rule is on."""
+
+    def test_wr1_is_always_stacked_when_required(self):
+        pool, _ = live_pool()
+        from fv.optimize import top_receiver
+        lineups = build_portfolio(pool, 10, seed=1, attempts=8000, require_wr1=True)
+        self.assertEqual(len(lineups), 10)
+        for l in lineups:
+            qb = next(p for p in l if p["position"] == "QB")
+            wr1 = top_receiver(qb["team"], pool)
+            self.assertIsNotNone(wr1)
+            self.assertIn(wr1["id"], {p["id"] for p in l})
+            self.assertTrue(is_stacked(l))
+
+
+class DkTemplate(unittest.TestCase):
+    """DraftKings only imports its own template, and only if it survives intact."""
+
+    def _template(self, n):
+        head = "Entry ID,Contest Name,Contest ID,Entry Fee,QB,RB,RB,WR,WR,WR,TE,FLEX,DST\n"
+        return head + "".join(f"90{i},NFL Contest,555{i},$3,,,,,,,,,\n" for i in range(1, n + 1))
+
+    def test_fills_ids_and_preserves_entry_columns(self):
+        pool, _ = live_pool()
+        lineups = build_portfolio(pool, 5, seed=2, attempts=6000)
+        out, notes = fill_dk_template(self._template(5), lineups)
+        rows = list(csv.reader(io.StringIO(out)))
+        self.assertEqual(len(rows), 6)
+        for i in range(1, 6):
+            self.assertEqual(rows[i][0], f"90{i}", "entry id must survive untouched")
+            self.assertTrue(all(c for c in rows[i][4:13]), "all nine slots filled")
+        self.assertTrue(notes[0].startswith("Filled 5"))
+
+    def test_slots_match_the_board_order(self):
+        pool, _ = live_pool()
+        lineups = build_portfolio(pool, 1, seed=3, attempts=4000)
+        out, _ = fill_dk_template(self._template(1), lineups)
+        row = list(csv.reader(io.StringIO(out)))[1]
+        self.assertEqual(row[4:13], [str(p["id"]) for _, p in order_roster(lineups[0])])
+
+    def test_extra_template_rows_are_left_alone(self):
+        """Blanking a row would wipe an entry that may already hold a lineup."""
+        pool, _ = live_pool()
+        lineups = build_portfolio(pool, 2, seed=4, attempts=6000)
+        out, notes = fill_dk_template(self._template(4), lineups)
+        rows = list(csv.reader(io.StringIO(out)))
+        self.assertEqual(rows[3][4:13], [""] * 9)
+        self.assertTrue(any("left as they were" in n for n in notes))
+
+    def test_a_file_that_is_not_a_template_is_refused(self):
+        pool, _ = live_pool()
+        lineups = build_portfolio(pool, 1, seed=5, attempts=4000)
+        out, notes = fill_dk_template("name,salary\nfoo,1\n", lineups)
+        self.assertEqual(out, "")
+        self.assertIn("DraftKings upload template", notes[0])
 
 
 class EntryPlan(unittest.TestCase):

@@ -16,7 +16,7 @@ from fv.pool import (load_salaries, keep_starting_quarterbacks, apply_ceilings,
                      rosterable, load_json)
 from fv.slate import slate_options, main_slate, restrict
 from fv.optimize import build_portfolio, projection
-from fv.roster import order_roster, stack_role, is_stacked, to_dk_csv
+from fv.roster import order_roster, stack_role, is_stacked, to_dk_csv, fill_dk_template
 from fv.entry import plan, rake_pct
 
 DATA = Path(__file__).resolve().parent / "data"
@@ -100,11 +100,12 @@ def load_strategy():
 
 
 @st.cache_data(show_spinner=True)
-def portfolio(ids, count, seed, ceiling_weight, qb_exposure, rb_exposure, must_play):
+def portfolio(ids, count, seed, ceiling_weight, qb_exposure, rb_exposure, must_play,
+              require_wr1):
     pool = [p for p in load_pool() if p["id"] in set(ids)]
     return build_portfolio(pool, count, seed=seed, ceiling_weight=ceiling_weight,
                            qb_exposure=qb_exposure, rb_exposure=rb_exposure,
-                           must_play=set(must_play))
+                           must_play=set(must_play), require_wr1=require_wr1)
 
 
 all_rows = load_pool()
@@ -140,6 +141,13 @@ with st.sidebar:
                                 "that randomness: same seed gives the same ten lineups every "
                                 "time, a different seed gives a different ten. Change it to see "
                                 "alternatives; keep it to reproduce what you entered.")
+
+    st.markdown("### Stacking")
+    require_wr1 = st.checkbox("Stack must include the QB's WR1", value=True,
+                              help="WR1 is the team's highest-priced receiver — salary is the "
+                                   "market's view of the depth chart, and it is current, which "
+                                   "the projection is not. NOT a measured setting: the stacking "
+                                   "test allowed any two pass catchers.")
 
     st.markdown("### Injury wire")
     use_live = st.checkbox("Cross-check the salary file", value=True,
@@ -186,7 +194,7 @@ tab_board, tab_pool, tab_entry, tab_strategy, tab_about = st.tabs(
     ["Lineups", "Player pool", "Entry plan", "Strategy", "About"])
 
 lineups = portfolio(tuple(p["id"] for p in pool), n_lineups, seed,
-                    ceiling_weight, qb_exposure, rb_exposure, must_play)
+                    ceiling_weight, qb_exposure, rb_exposure, must_play, require_wr1)
 lock_label = f"{slate.locks_at.strftime('%-m/%-d %-I:%M')}p"
 entries, entry_notes = plan(lobby["contests"], budget, len(lineups), lock_label)
 
@@ -265,8 +273,30 @@ with tab_board:
         for n in entry_notes:
             st.caption(f"⚠️ {n}")
 
-        st.download_button("Download DraftKings CSV", to_dk_csv(lineups),
-                           file_name="fourth-and-value.csv", mime="text/csv")
+        st.markdown("#### Getting these into DraftKings")
+        e1, e2 = st.columns(2)
+        e1.download_button("Download as a plain list", to_dk_csv(lineups),
+                           file_name="fourth-and-value.csv", mime="text/csv",
+                           help="Names and IDs, for reading or pasting into a spreadsheet. "
+                                "DraftKings will not import this file.")
+        with e2.popover("Fill a DraftKings upload template"):
+            st.markdown(
+                "DraftKings only accepts **their own** template, because it carries the Entry "
+                "IDs that say which entry each row belongs to.\n\n"
+                "1. Enter your contests first — one entry per lineup.\n"
+                "2. On a contest's **Enter/Edit** screen choose **Export lineups** to get the "
+                "template.\n"
+                "3. Drop it here. Your lineups go into the nine position columns; every other "
+                "column is left exactly as it was.\n"
+                "4. Upload the file it gives you back.")
+            up = st.file_uploader("DraftKings template", type="csv", key="dk_tpl")
+            if up is not None:
+                filled, notes = fill_dk_template(up.getvalue().decode("utf-8-sig"), lineups)
+                for n in notes:
+                    (st.success if n.startswith("Filled") else st.warning)(n)
+                if filled:
+                    st.download_button("Download the filled template", filled,
+                                       file_name="dk-upload-filled.csv", mime="text/csv")
         st.caption("Projections here are DraftKings' AvgPointsPerGame — last season's average, "
                    "not a forecast. No matchup, role or injury information is in them.")
 

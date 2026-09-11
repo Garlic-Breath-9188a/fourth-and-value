@@ -15,6 +15,19 @@ from .rules import (EXPOSURE_PCT, FLEX_POSITIONS, MAX_PLAYERS_PER_TEAM, MAX_SHAR
 CATCHERS = ("WR", "TE")
 
 
+def top_receiver(team: str, players: list[dict]) -> dict | None:
+    """
+    The team's WR1, taken as its highest-salaried receiver.
+
+    Salary is used rather than projected points because salary IS the market's
+    view of the depth chart, set with current role information, while the
+    projection here is last season's average and cannot tell a promoted
+    receiver from a demoted one.
+    """
+    wrs = [p for p in players if p["position"] == "WR" and p["team"] == team]
+    return max(wrs, key=lambda p: (p["salary"], p["projection"])) if wrs else None
+
+
 def _maxima(flex_allowed) -> dict[str, int]:
     """
     Position maxima derived from the FLEX rule.
@@ -63,6 +76,8 @@ class Index:
                 self.catchers.setdefault(p["team"], []).append(p)
         for group in self.by_pos.values():
             group.sort(key=lambda p: self.weight[p["id"]], reverse=True)
+        teams = {p["team"] for p in players}
+        self.top_wr = {t: top_receiver(t, players) for t in teams}
 
 
 def _sample(pool, rng, index: "Index") -> dict | None:
@@ -82,7 +97,7 @@ def _sample(pool, rng, index: "Index") -> dict | None:
 def build_lineup(players: list[dict], rng, ceiling_weight: float = 0.25,
                  mates: int = STACK_MATES, bring_back: int = STACK_BRING_BACK,
                  flex_allowed=FLEX_POSITIONS, require: set[str] | None = None,
-                 index: "Index | None" = None) -> list[dict] | None:
+                 index: "Index | None" = None, require_wr1: bool = False) -> list[dict] | None:
     """
     One stacked lineup, or None when this attempt could not be completed.
 
@@ -116,6 +131,17 @@ def build_lineup(players: list[dict], rng, ceiling_weight: float = 0.25,
         qb = _sample([p for p in index.by_pos.get("QB", []) if p["id"] not in ids], rng, index)
         if not take(qb):
             return None
+
+    # The WR1 goes in first when required, so the remaining mates are drawn
+    # around him rather than competing with him for the same slots.
+    if require_wr1 and mates:
+        wr1 = index.top_wr.get(qb["team"])
+        if wr1 is None:
+            return None
+        if wr1["id"] not in ids:
+            if count("WR") >= MAX["WR"] or not take(wr1):
+                return None
+        mates -= 1
 
     for _ in range(mates):
         pool = [p for p in index.catchers.get(qb["team"], [])
@@ -171,7 +197,8 @@ def build_portfolio(players: list[dict], count: int = 10, seed: int = 1,
                     ceiling_weight: float = 0.25, attempts: int = 20000,
                     must_play: set[str] | None = None,
                     qb_exposure: int = QB_EXPOSURE_PCT,
-                    rb_exposure: int = EXPOSURE_PCT) -> list[list[dict]]:
+                    rb_exposure: int = EXPOSURE_PCT,
+                    require_wr1: bool = False) -> list[list[dict]]:
     """
     A portfolio of distinct, diversified lineups.
 
@@ -183,7 +210,7 @@ def build_portfolio(players: list[dict], count: int = 10, seed: int = 1,
     index = Index(players, ceiling_weight)
     seen: dict[tuple, list[dict]] = {}
     for _ in range(attempts):
-        l = build_lineup(players, rng, ceiling_weight, index=index)
+        l = build_lineup(players, rng, ceiling_weight, index=index, require_wr1=require_wr1)
         if not l:
             continue
         key = tuple(sorted(p["id"] for p in l))
@@ -208,13 +235,15 @@ def build_portfolio(players: list[dict], count: int = 10, seed: int = 1,
             uses[p["id"]] = uses.get(p["id"], 0) + 1
 
     if must_play:
-        selected = ensure_included(selected, players, must_play, rng, ceiling_weight, index)
+        selected = ensure_included(selected, players, must_play, rng, ceiling_weight,
+                                   index, require_wr1)
     return selected
 
 
 def ensure_included(lineups: list[list[dict]], players: list[dict], required,
                     rng, ceiling_weight: float = 0.25,
-                    index: "Index | None" = None) -> list[list[dict]]:
+                    index: "Index | None" = None,
+                    require_wr1: bool = False) -> list[list[dict]]:
     """
     Put each must-play player in AT LEAST ONE lineup -- not in all of them.
 
@@ -233,7 +262,8 @@ def ensure_included(lineups: list[list[dict]], players: list[dict], required,
             continue
         best = None
         for _ in range(600):
-            cand = build_lineup(players, rng, ceiling_weight, require={pid}, index=index)
+            cand = build_lineup(players, rng, ceiling_weight, require={pid}, index=index,
+                                require_wr1=require_wr1)
             if cand and (best is None or projection(cand) > projection(best)):
                 best = cand
         if best is None:
