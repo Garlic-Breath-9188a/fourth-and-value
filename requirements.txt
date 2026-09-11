@@ -1,2 +1,6 @@
-streamlit>=1.50
-pandas>=2.0
+# Pinned to versions this app has actually been run against, rather than
+# floating. An unpinned range means the deployed app can change underneath you
+# on someone else's release schedule, and a page that worked yesterday breaking
+# today is far more expensive than a stale pin.
+streamlit==1.63.0
+pandas==3.0.5
