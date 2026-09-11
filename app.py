@@ -1,9 +1,8 @@
 """
 Fourth & Value — a DraftKings NFL Classic lineup builder for large-field tournaments.
 
-The Streamlit port. The logic lives in fv/, ported from the TypeScript app in
-../app, which remains the source of record because it holds the test harnesses
-that produced every number quoted here.
+Rendering only. Every decision lives in fv/, where it can be tested, and every
+measured constant is in fv/rules.py next to the result that set it.
 """
 from __future__ import annotations
 import json
@@ -26,23 +25,31 @@ st.set_page_config(page_title="Fourth & Value", page_icon="🏈", layout="wide")
 
 st.markdown("""
 <style>
-  .block-container { padding-top: 2.2rem; max-width: 1600px; }
+  .block-container { padding-top: 2.2rem; max-width: 1900px; }
   .lu { border:1px solid rgba(128,128,128,.28); border-radius:8px; padding:.55rem .6rem; height:100%; }
-  .lu h4 { margin:0 0 .35rem 0; font-size:.82rem; letter-spacing:.03em; opacity:.75; }
-  .row { display:flex; justify-content:space-between; gap:.4rem; font-size:.83rem;
+  .lu h4 { margin:0; font-size:.82rem; letter-spacing:.03em; opacity:.75; }
+  .stk { font-size:.72rem; opacity:.65; margin:.1rem 0 .35rem 0; }
+  /* Fixed columns are kept as narrow as the content allows, because the name
+     is the only field a person actually reads and it is the one that clips. */
+  .row { display:flex; align-items:baseline; gap:.3rem; font-size:.82rem;
          padding:.14rem 0; border-bottom:1px solid rgba(128,128,128,.10); }
-  .slot { width:2.6rem; flex:none; opacity:.55; font-size:.72rem; padding-top:.1rem; }
-  .nm { flex:1 1 auto; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .sal { flex:none; opacity:.6; font-variant-numeric:tabular-nums; }
-  .qb   { color:#e8b53a; font-weight:600; }
-  .st   { color:#e8b53a; }
-  .bb   { color:#4da3ff; }
+  .slot { width:2.05rem; flex:none; opacity:.55; font-size:.66rem; }
+  .nm { flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis;
+        white-space:nowrap; }
+  .tm { flex:none; opacity:.5; font-size:.64rem; width:1.7rem; text-align:right; }
+  .sal { flex:none; opacity:.6; font-size:.7rem; font-variant-numeric:tabular-nums;
+         width:1.9rem; text-align:right; }
+  .qb { color:#e8b53a; font-weight:600; }
+  .st { color:#e8b53a; }
+  .bb { color:#4da3ff; }
+  .must { color:#ff4b4b; }
   .foot { display:flex; justify-content:space-between; font-size:.76rem;
           opacity:.7; padding-top:.4rem; }
+  .cst { font-size:.73rem; opacity:.8; padding-top:.3rem;
+         border-top:1px solid rgba(128,128,128,.18); margin-top:.3rem; }
 </style>""", unsafe_allow_html=True)
 
 
-# --------------------------------------------------------------------------- data
 @st.cache_data(show_spinner=False)
 def load_pool():
     rows = load_salaries((DATA / "DKSalaries.csv").read_text())
@@ -56,18 +63,22 @@ def load_lobby():
     return json.loads((DATA / "lobby-week1-2026.json").read_text())
 
 
+@st.cache_data(show_spinner=False)
+def load_strategy():
+    return json.loads((DATA / "strategy.json").read_text())
+
+
 @st.cache_data(show_spinner=True)
-def portfolio(ids, count, seed, ceiling_weight, qb_exposure, locked):
+def portfolio(ids, count, seed, ceiling_weight, qb_exposure, must_play):
     pool = [p for p in load_pool() if p["id"] in set(ids)]
     return build_portfolio(pool, count, seed=seed, ceiling_weight=ceiling_weight,
-                           qb_exposure=qb_exposure, locked=set(locked))
+                           qb_exposure=qb_exposure, must_play=set(must_play))
 
 
 all_rows = load_pool()
 options = slate_options(all_rows)
 lobby = load_lobby()
 
-# --------------------------------------------------------------------------- sidebar
 with st.sidebar:
     st.markdown("### Slate")
     labels = [f"{s.label} — {s.game_count} games" for s in options]
@@ -82,72 +93,93 @@ with st.sidebar:
     n_lineups = st.slider("Lineups", 1, 20, 10)
     budget = st.number_input("Weekly budget ($)", 5, 500, 40, step=5)
     qb_exposure = st.slider("Max one QB may appear (%)", 10, 100, rules.QB_EXPOSURE_PCT, step=10,
-                            help="Tighter caps were measured over 101 weeks and did not "
-                                 "help — P(180+) fell from 1.12% to 0.83% at 20%.")
+                            help="Tighter caps were measured over 101 weeks and did not help — "
+                                 "the chance of a big week fell from 1.12% to 0.83% at 20%.")
     ceiling_weight = st.slider("Ceiling weight", 0.0, 1.0, 0.25, 0.05,
-                               help="0 chases the projection, 1 chases the upside.")
-    seed = st.number_input("Seed", 1, 9999, 1, help="Same seed, same lineups.")
+                               help="0 chases each player's expected score; 1 chases his best-case "
+                                    "score, favouring boom-or-bust players. Whether moving this "
+                                    "helps is unmeasured.")
+    seed = st.number_input("Seed", 1, 9999, 1,
+                           help="Lineups are drawn at random from the good ones. The seed fixes "
+                                "that randomness: same seed gives the same ten lineups every "
+                                "time, a different seed gives a different ten. Change it to see "
+                                "alternatives; keep it to reproduce what you entered.")
 
     st.markdown("### Must-play")
-    names = {f'{p["name"]} — {p["position"]} ${p["salary"]:,}': p["id"]
+    names = {f'{p["name"]} — {p["position"]} {p["team"]} ${p["salary"]:,}': p["id"]
              for p in sorted(pool, key=lambda p: -p["projection"])}
     forced = st.multiselect("Include somewhere", list(names), max_selections=8,
-                            help="Each of these appears in at least one lineup.")
-    locked = tuple(names[n] for n in forced)
+                            help="Each appears in at least one lineup — not all of them.")
+    must_play = tuple(names[n] for n in forced)
 
 st.title("Fourth & Value")
 st.caption(f"{slate.label} · {slate.game_count} games · {len(pool)} players")
 
-tab_board, tab_pool, tab_entry, tab_about = st.tabs(
-    ["Lineups", "Player pool", "Entry plan", "About"])
+tab_board, tab_pool, tab_entry, tab_strategy, tab_about = st.tabs(
+    ["Lineups", "Player pool", "Entry plan", "Strategy", "About"])
 
 lineups = portfolio(tuple(p["id"] for p in pool), n_lineups, seed,
-                    ceiling_weight, qb_exposure, locked)
+                    ceiling_weight, qb_exposure, must_play)
+lock_label = f"{slate.locks_at.strftime('%-m/%-d %-I:%M')}p"
+entries, entry_notes = plan(lobby["contests"], budget, len(lineups), lock_label)
 
-# --------------------------------------------------------------------------- board
 with tab_board:
     if dropped:
         st.info(f"Not on this slate, so excluded: {', '.join(dropped)}")
     if not lineups:
         st.error("No lineups could be built. Loosen the must-play list.")
     else:
-        unplaced = [n for n in forced
-                    if names[n] not in {p["id"] for l in lineups for p in l}]
+        placed = {p["id"] for l in lineups for p in l}
+        unplaced = [n for n in forced if names[n] not in placed]
         if unplaced:
-            st.warning("Could not place: " + ", ".join(unplaced))
+            st.warning("Could not fit into any lineup: " + ", ".join(unplaced))
 
         st.markdown(
             '<span class="qb">■</span> QB &nbsp; <span class="st">■</span> his receiver '
-            '&nbsp; <span class="bb">■</span> bring-back (other side of the same game)',
-            unsafe_allow_html=True)
+            '&nbsp; <span class="bb">■</span> bring-back &nbsp; '
+            '<span class="must">●</span> must-play', unsafe_allow_html=True)
 
         per_row = 5
         for start in range(0, len(lineups), per_row):
             for col, (i, l) in zip(st.columns(per_row, gap="small"),
                                    enumerate(lineups[start:start + per_row], start + 1)):
-                rows_html = []
+                qb = next(p for p in l if p["position"] == "QB")
+                body = []
                 for slot, p in order_roster(l):
                     role = stack_role(p, l)
                     cls = {"QB": "qb", "STACK": "st", "BRING-BACK": "bb"}.get(role, "")
-                    rows_html.append(
+                    dot = '<span class="must">●</span> ' if p["id"] in must_play else ""
+                    body.append(
                         f'<div class="row"><span class="slot">{slot}</span>'
-                        f'<span class="nm {cls}">{p["name"]}</span>'
+                        f'<span class="nm {cls}">{dot}{p["name"]}</span>'
+                        f'<span class="tm">{p["team"]}</span>'
                         f'<span class="sal">{p["salary"] // 100 / 10:.1f}k</span></div>')
-                salary = sum(p["salary"] for p in l)
-                mark = "✓ stacked" if is_stacked(l) else "no stack"
+                entry = entries[i - 1] if i - 1 < len(entries) else None
+                contest = (f'<div class="cst">{entry.contest["name"]} · ${entry.fee:,.0f}</div>'
+                           if entry else '<div class="cst">no contest — budget spent</div>')
                 col.markdown(
-                    f'<div class="lu"><h4>LINEUP {i}</h4>{"".join(rows_html)}'
-                    f'<div class="foot"><span>{mark}</span>'
-                    f'<span>${salary:,} · {projection(l):.1f} pts</span></div></div>',
-                    unsafe_allow_html=True)
+                    f'<div class="lu"><h4>LINEUP {i}</h4>'
+                    f'<div class="stk">{qb["team"]} stack · bring-back from {qb["opponent"]}</div>'
+                    f'{"".join(body)}'
+                    f'<div class="foot"><span>{"✓ stacked" if is_stacked(l) else "no stack"}</span>'
+                    f'<span>${sum(p["salary"] for p in l):,} · {projection(l):.1f} pts</span></div>'
+                    f'{contest}</div>', unsafe_allow_html=True)
             st.write("")
+
+        spent = sum(e.fee for e in entries)
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Entry fees", f"${spent:,.0f}", f"${budget - spent:,.0f} unspent"
+                  if budget - spent else "budget fully used")
+        c2.metric("Lineups", f"{len(lineups)}", f"{sum(map(is_stacked, lineups))} stacked")
+        c3.metric("Contests", f"{len({e.contest['id'] for e in entries})}")
+        for n in entry_notes:
+            st.caption(f"⚠️ {n}")
 
         st.download_button("Download DraftKings CSV", to_dk_csv(lineups),
                            file_name="fourth-and-value.csv", mime="text/csv")
-        st.caption("Projections here are DraftKings' AvgPointsPerGame — last season's "
-                   "average, not a forecast. No matchup, role or injury information is in them.")
+        st.caption("Projections here are DraftKings' AvgPointsPerGame — last season's average, "
+                   "not a forecast. No matchup, role or injury information is in them.")
 
-# --------------------------------------------------------------------------- pool
 with tab_pool:
     used = {}
     for l in lineups:
@@ -169,31 +201,91 @@ with tab_pool:
                f"injured reserve are already removed.")
     st.dataframe(df, width="stretch", hide_index=True, height=620)
 
-# --------------------------------------------------------------------------- entry
 with tab_entry:
-    # The lobby file labels a contest by its lock time, so that is the join key
-    # between "which slate did we build for" and "which contests can take it".
-    lock_label = f"{slate.locks_at.strftime('%-m/%-d %-I:%M')}p"
-    entries, notes = plan(lobby["contests"], budget, len(lineups), lock_label)
-    for n in notes:
+    for n in entry_notes:
         st.warning(n)
     if entries:
         st.dataframe(pd.DataFrame([{
             "Lineup": i + 1, "Contest": e.contest["name"], "Fee": f"${e.fee:,.0f}",
             "Prizes": f"${e.contest['totalPrizes']:,}",
             "Rake": f"{rake_pct(e.contest)}%" if rake_pct(e.contest) is not None else "—",
-            "Entry limit": e.contest["maxEntriesPerUser"],
+            "Limit": e.contest["maxEntriesPerUser"],
+            "Why this one": e.reason,
         } for i, e in enumerate(entries)]), width="stretch", hide_index=True)
         st.metric("Total", f"${sum(e.fee for e in entries):,.0f} of ${budget:,.0f}")
     st.caption(
         "Rake is what DraftKings keeps, measured against a full field. Across this "
-        "109-contest board $3–$5 contests keep 15.0% and $100+ keep 9.7% — buying up "
-        "is the one lever here that costs nothing. It makes the hole shallower; it "
-        "does not make it a profit.")
+        "109-contest board $3–$5 contests keep 15.0% and $100+ keep 9.7% — buying up is the "
+        "one lever here that costs nothing. It makes the hole shallower; it does not make "
+        "it a profit.")
     st.caption(f"Contest data hand-transcribed from lobby screenshots ({lobby['captured']}). "
                "Prize pools and fees are stable; entry counts move.")
 
-# --------------------------------------------------------------------------- about
+with tab_strategy:
+    S = load_strategy()
+    st.markdown("### Every idea this project tested, and what happened")
+    st.caption("This exists because the expensive mistake is re-implementing something that "
+               "was already measured and rejected. A null result stays on the list — a deleted "
+               "row cannot stop the idea being retried.")
+
+    counts = {}
+    for r in S["ledger"]:
+        counts[r["verdict"]] = counts.get(r["verdict"], 0) + 1
+    cols = st.columns(len(S["verdictOrder"]))
+    for col, v in zip(cols, S["verdictOrder"]):
+        col.metric(S["verdictLabel"][v], counts.get(v, 0))
+
+    st.dataframe(pd.DataFrame([{
+        "Verdict": S["verdictLabel"][r["verdict"]],
+        "Area": S["domainLabel"][r["domain"]],
+        "Idea": r["claim"],
+        "What it means": r["plain"],
+        "Measurement": r["result"],
+        "Sample": r["sample"],
+    } for r in sorted(S["ledger"], key=lambda r: S["verdictOrder"].index(r["verdict"]))]),
+        width="stretch", hide_index=True, height=420)
+
+    with st.expander("What the verdicts mean"):
+        for v in S["verdictOrder"]:
+            st.markdown(f"**{S['verdictLabel'][v]}** — {S['verdictMeaning'][v]}")
+
+    st.markdown("### Claims from the strategy articles")
+    st.caption(f"{len(S['claims'])} individual claims pulled out of published DFS strategy "
+               f"writing, measured over {S['slatesMeasured']} slates as residuals against "
+               f"DraftKings salary — i.e. does the price already account for it. One standard "
+               f"deviation is about {S['pointsPerSd']} DK points.")
+    st.warning("**Do not add these up.** The same effect appears in several rows measured on "
+               "different subsets, volume traits select overlapping players, and no nine players "
+               "can be at home, indoors, high-volume and in good matchups at once. Measured at "
+               "the lineup level, home and dome together are worth +1.55 points, against ~3.6 if "
+               "they simply added across a roster.")
+    def claim_row(c):
+        ci = c.get("ci") or []
+        effect = c.get("effect")
+        return {
+            "Status": S["statusLabel"][c["status"]],
+            "Group": S["groupLabel"].get(c.get("group", ""), c.get("group", "")),
+            "Claim": c["claim"],
+            "Effect (SD)": effect,
+            "In DK points": round(effect * S["pointsPerSd"], 2) if effect is not None else None,
+            "95% CI": f"{ci[0]}…{ci[1]}" if len(ci) == 2 else "",
+            "Slates": c.get("slates"),
+            # A modelled total or spread is a weaker test than real Vegas lines,
+            # so a null from one is weak evidence rather than a settled answer.
+            "Proxy?": "modelled" if c.get("modelled") else "",
+            "Articles": c.get("articles", ""),
+            "Note": c.get("note", ""),
+        }
+
+    st.dataframe(pd.DataFrame([claim_row(c) for c in sorted(
+        S["claims"], key=lambda c: (S["statusOrder"].index(c["status"]),
+                                    -abs(c.get("effect") or 0)))]),
+        width="stretch", hide_index=True, height=420)
+
+    with st.expander("What the statuses mean"):
+        for v in S["statusOrder"]:
+            st.markdown(f"**{S['statusLabel'][v]}** — {S['statusMeaning'][v]}")
+
 with tab_about:
     st.markdown(f"""
 ### What this is
@@ -235,10 +327,8 @@ and nothing else in the model can see that he isn't playing.
 ### What it does not do
 
 The honest part. About twenty ideas have been tested against past seasons here,
-and **one** of them beat simply picking the highest-projected legal lineup.
-Simulation-driven selection: no better. Stars-and-scrubs: worse. Saving money at
-the cheap slots: the two cheapest players are 11% of a lineup's swing, so it's
-the wrong place to look.
+and **one** of them beat simply picking the highest-projected legal lineup. The
+full list is on the Strategy tab, failures included.
 
 The projections in this build are DraftKings' own season averages — backward
 looking, with no matchup or injury information in them.

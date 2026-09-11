@@ -81,10 +81,17 @@ def _sample(pool, rng, index: "Index") -> dict | None:
 
 def build_lineup(players: list[dict], rng, ceiling_weight: float = 0.25,
                  mates: int = STACK_MATES, bring_back: int = STACK_BRING_BACK,
-                 flex_allowed=FLEX_POSITIONS, locked: set[str] | None = None,
+                 flex_allowed=FLEX_POSITIONS, require: set[str] | None = None,
                  index: "Index | None" = None) -> list[dict] | None:
-    """One stacked lineup, or None when this attempt could not be completed."""
-    locked = locked or set()
+    """
+    One stacked lineup, or None when this attempt could not be completed.
+
+    `require` seeds the roster with specific players. It is for building a
+    single lineup around someone on purpose -- it is NOT the must-play feature,
+    which means "somewhere in the portfolio" and is handled by ensure_included.
+    Conflating the two put a must-play quarterback in all ten lineups.
+    """
+    require = require or set()
     index = index or Index(players, ceiling_weight)
     MAX = _maxima(flex_allowed)
     chosen: list[dict] = []
@@ -99,7 +106,7 @@ def build_lineup(players: list[dict], rng, ceiling_weight: float = 0.25,
         return sum(1 for p in chosen if p["position"] == pos)
 
     for p in players:
-        if p["id"] in locked:
+        if p["id"] in require:
             take(p)
     if len(chosen) > ROSTER_SIZE:
         return None
@@ -162,7 +169,7 @@ def projection(lineup) -> float:
 
 def build_portfolio(players: list[dict], count: int = 10, seed: int = 1,
                     ceiling_weight: float = 0.25, attempts: int = 20000,
-                    locked: set[str] | None = None,
+                    must_play: set[str] | None = None,
                     qb_exposure: int = QB_EXPOSURE_PCT) -> list[list[dict]]:
     """
     A portfolio of distinct, diversified lineups.
@@ -175,7 +182,7 @@ def build_portfolio(players: list[dict], count: int = 10, seed: int = 1,
     index = Index(players, ceiling_weight)
     seen: dict[tuple, list[dict]] = {}
     for _ in range(attempts):
-        l = build_lineup(players, rng, ceiling_weight, locked=locked, index=index)
+        l = build_lineup(players, rng, ceiling_weight, index=index)
         if not l:
             continue
         key = tuple(sorted(p["id"] for p in l))
@@ -192,10 +199,49 @@ def build_portfolio(players: list[dict], count: int = 10, seed: int = 1,
             break
         if any(len({p["id"] for p in l} & {q["id"] for q in s}) > MAX_SHARED_PLAYERS for s in selected):
             continue
-        if any(uses.get(p["id"], 0) >= caps.get(p["position"], default_cap)
-               for p in l if p["id"] not in (locked or set())):
+        if any(uses.get(p["id"], 0) >= caps.get(p["position"], default_cap) for p in l):
             continue
         selected.append(l)
         for p in l:
             uses[p["id"]] = uses.get(p["id"], 0) + 1
+
+    if must_play:
+        selected = ensure_included(selected, players, must_play, rng, ceiling_weight, index)
     return selected
+
+
+def ensure_included(lineups: list[list[dict]], players: list[dict], required,
+                    rng, ceiling_weight: float = 0.25,
+                    index: "Index | None" = None) -> list[list[dict]]:
+    """
+    Put each must-play player in AT LEAST ONE lineup -- not in all of them.
+
+    Rebuilds a single lineup around the missing player rather than swapping him
+    in, because a swap at quarterback would leave the stack pointing at the old
+    quarterback's team. The lineup sacrificed is the weakest one that does not
+    already carry another must-play.
+
+    A player who cannot be placed is left unplaced and reported, rather than
+    silently dropped or forced in by relaxing a roster rule.
+    """
+    index = index or Index(players, ceiling_weight)
+    out = list(lineups)
+    for pid in required:
+        if any(pid in {p["id"] for p in l} for l in out):
+            continue
+        best = None
+        for _ in range(600):
+            cand = build_lineup(players, rng, ceiling_weight, require={pid}, index=index)
+            if cand and (best is None or projection(cand) > projection(best)):
+                best = cand
+        if best is None:
+            continue
+        protected = set(required) - {pid}
+        for i in sorted(range(len(out)), key=lambda i: projection(out[i])):
+            if protected & {p["id"] for p in out[i]}:
+                continue
+            trial = out[:i] + [best] + out[i + 1:]
+            if len({tuple(sorted(p["id"] for p in l)) for l in trial}) == len(trial):
+                out = trial
+                break
+    return out

@@ -20,10 +20,32 @@ MEANINGFUL_STEP = 1.5   # a bigger contest must be at least this multiple to be 
 class Entry:
     contest: dict
     lineup_index: int
+    reason: str = ""
 
     @property
     def fee(self) -> float:
         return self.contest["entryFee"]
+
+
+def _reason(chosen: dict, same_fee: list[dict]) -> str:
+    """Why this contest and not another at the same price."""
+    bits: list[str] = []
+    rake = rake_pct(chosen)
+    others = [c for c in same_fee if c["id"] != chosen["id"]]
+    rivals = [r for r in (rake_pct(c) for c in others) if r is not None]
+    if rake is not None:
+        if rivals and rake < min(rivals):
+            bits.append(f"keeps the least of the {len(same_fee)} tournaments at this price "
+                        f"({rake}%, next best {min(rivals)}%)")
+        else:
+            bits.append(f"{rake}% rake")
+    if chosen.get("maxEntriesPerUser") == 1:
+        bits.append("single-entry, so nobody can play 150 lineups against your one")
+    elif chosen.get("maxEntriesPerUser", 1) >= 100:
+        bits.append(f"but opponents may enter up to {chosen['maxEntriesPerUser']} lineups")
+    if chosen.get("totalPrizes", 0) >= 250_000:
+        bits.append(f"${chosen['totalPrizes']:,} pool, so the top end is worth chasing")
+    return "; ".join(bits) if bits else "only tournament at this price on the slate"
 
 
 def playable(contests: list[dict], lock_label: str | None) -> list[dict]:
@@ -105,7 +127,7 @@ def plan(contests: list[dict], budget: float, lineups: int,
         best = min(options, key=lambda c: (rake_pct(c) if rake_pct(c) is not None else 99,
                                            -c["totalPrizes"]))
         filled[best["id"]] = filled.get(best["id"], 0) + 1
-        entries.append(Entry(best, i))
+        entries.append(Entry(best, i, _reason(best, [c for c in pool if c["entryFee"] == fee])))
 
     left = budget - sum(e.fee for e in entries)
     if left >= base:

@@ -1,0 +1,1430 @@
+{
+ "ledger": [
+  {
+   "id": "ceiling-from-spread",
+   "claim": "Build the ceiling from each player's own scoring spread, not a flat multiple.",
+   "source": "Found while reviewing what the tournament controls actually do",
+   "domain": "projection",
+   "verdict": "adopted",
+   "plain": "The ceiling used to be the projection times a fixed number per position — which means it ranked nobody differently. Two receivers projected at 12 points got the same ceiling whether one was a metronome and the other boom-or-bust. So the ceiling slider, the tournament control, could not do the one thing it exists for. It now uses each player's own history: 367 of 481 players on the live slate get a real ceiling and the other 114 keep the old estimate and are labelled as such.",
+   "result": "Average actual points +0.75 (95% CI 0.08 to 1.42). Best-of-10 +0.96 (95% CI −1.01 to 2.93, spans zero). Reorders 93% of receivers against 0% before",
+   "sample": "168 held-out week-trials, 2020–2024",
+   "detail": "Adopted on three grounds, and the third is the one that decided it. The average clears its interval; both point estimates are positive; and the flat multiple is a DEFECT rather than a neutral baseline — a control that cannot change any decision is not a conservative choice, it is a broken one.\n\nBest-of-10 is the tournament metric and it spans zero, which is stated rather than glossed. Settling it would need about 708 week-trials against the 168 run.\n\nTwo design choices worth knowing before changing this. The spread is applied as a SHAPE scaled to today's projection rather than as a raw historical number, because an old 80th percentile comes from a season where the role may differ — its level is stale even when its shape is not. And ratios are bounded to 1.15–2.8, because a player with a tiny average and one huge week would otherwise be handed a ceiling many times his projection and dominate every lineup.\n\nTwo seasons of history are used, not one. This project measured that recency across an offseason is noise for predicting a player's MEAN, but that finding is about central tendency and does not transfer to spread, which moves slowly and needs sample above all.",
+   "evidence": "lib/playerVariance.ts · scripts/test-ceiling-source.mjs · evidence/ceiling-source-2026-09-05.txt"
+  },
+  {
+   "id": "stacking-constructive",
+   "claim": "Stack a quarterback with his own pass catchers, and add a bring-back from the opposing team.",
+   "source": "A5, A8, A9 — the most recommended tournament technique in the articles",
+   "domain": "lineup",
+   "verdict": "adopted",
+   "plain": "The articles are right, and two earlier tests here said otherwise because both measured the wrong thing. Stacking does NOT raise your average score — it is not supposed to. It makes the good weeks much better and the bad weeks slightly worse, which is exactly what a tournament pays for. A quarterback with two of his receivers plus one opponent nearly DOUBLES the chance of a 180-point week (0.25% against 0.13%), while the average goes nowhere.",
+   "result": "QB + 2 + bring-back vs no stack: mean −0.31 (spans zero), spread +1.62, 99th percentile +4.13, 99.9th +5.93, best score +5.64, P(180+) 0.25% vs 0.13%. Every tail figure clears its interval",
+   "sample": "101 held-out weeks, 202,000 scored lineups",
+   "detail": "Two earlier tests reported no effect, and the reason is instructive. Both scored best-of-10, which averages about 150 points across these weeks — while a tournament-winning score is 180-200. The metric never reached the part of the distribution the technique exists for. Measuring the whole upper tail instead, on 400 lineups per week rather than ten, the effect is unmistakable and orderly.\n\nThe trade is visible and it sharpens with more stacking. QB+1 gives up nothing on the mean and adds 1.8 points at the 99th percentile. QB+2+bring-back gives up 0.31 (not significant) and adds 5.9 at the 99.9th. QB+3+bring-back gives up 0.98 on the mean — significantly worse — and adds 6.2 at the 99.9th, nearly TRIPLING P(180+) to 0.35%.\n\nThat ordering is the mechanism, not a coincidence: correlation converts average points into variance. A touchdown pass scores twice in a stacked lineup, so the good outcomes compound and the bad ones compound too.\n\nWhich is why this is a TOURNAMENT default and must not be applied to a cash game. In a 50/50 you are paid for clearing the median and points past it buy nothing, so trading mean for tail is strictly harmful there.",
+   "evidence": "lib/stacking.ts · scripts/test-stack-tail.mjs · evidence/stack-tail-2026-09-05.txt"
+  },
+  {
+   "id": "fabricated-dst-rule",
+   "claim": "The optimizer only builds lineups DraftKings would accept.",
+   "source": "The user challenged a rule I had stated as fact",
+   "domain": "lineup",
+   "verdict": "refuted",
+   "plain": "It was enforcing a rule DraftKings does not have — no more than one player from the team your defence is facing — and was NOT enforcing one it does have, the eight-players-from-one-team limit. On the live slate that discarded 2.3% of perfectly legal lineups, and the best one it threw away projected 3.0 points higher than the best one it kept. It also made game stacks impossible to build.",
+   "result": "2.3% of valid lineups discarded on the live slate; best discarded lineup projected 3.0 points above the best allowed. Real eight-per-team limit was unenforced",
+   "sample": "18,579 lineups generated from the Week 1 2026 slate",
+   "detail": "Verified against two sources rather than by re-reading the comment that asserted it: this repo's own contestDetail.ts, transcribed from the contest pages, and DraftKings' published rules. Neither mentions defences. Both give nine players, $50,000, at least two games — and the published rules add the eight-per-team cap this codebase ignored.\n\nEvery backtest run before 2026-09-05 therefore searched a lineup space smaller than DraftKings allows. Paired comparisons between models still hold, because the same restriction applied to all of them; absolute scores come from a smaller space.\n\nThe idea is defensible as STRATEGY — your defence scores when the opposing offence fails — so it survives as AVOID_DST_OPPONENT, documented as a heuristic and defaulting to off. A tournament player often wants the opposite: a game stack taking both offences.",
+   "evidence": "lib/optimizer.ts UNROSTERABLE · MAX_PLAYERS_PER_TEAM · AVOID_DST_OPPONENT"
+  },
+  {
+   "id": "cash-spread-vs-repeat",
+   "claim": "In a cash game, play your single best lineup rather than spreading across ten.",
+   "source": "Asked after the project switched to cash games",
+   "domain": "portfolio",
+   "verdict": "null",
+   "plain": "Slightly better to repeat your best lineup, but not provably so. Repeating the top-projected lineup scored 0.77 points more per entry than spreading across ten, and cashed 1.4 points more often — and both intervals span zero. The logic for repeating is sound: a 50/50 judges every entry on its own, so ten different lineups are not ten chances at anything, they are just nine entries that are not your best. The data simply cannot resolve a gap this small.",
+   "result": "Repeat-best vs spread: +0.77 points per entry (95% CI −2.07 to 3.60); cash rate +1.4 points (95% CI −3.5 to 6.3). Both span zero",
+   "sample": "134 held-out week-trials, 2021–2024",
+   "detail": "The reason it is close rather than lopsided is that the lineup which PROJECTS best is not reliably the one that SCORES best. Concentrating into it gives up the spread that protects you from the projection being wrong, and those two effects roughly cancel.\n\nPractical read: it does not much matter, so pick on other grounds. Repeating one lineup is simpler to enter, and many cash contests are single-entry anyway, so the question often does not arise.\n\nIMPORTANT — the absolute cash rates from this test (around 87%) are NOT real cash rates. The field is sampled the way buildCandidate samples, and this project has established that such a field is far weaker than a real one; an optimised portfolio beat 98.8% of it. The comparison between approaches is valid because all of them face the same field on the same slate. The level is not. A real 50/50 breaks even near a 55% cash rate.",
+   "evidence": "scripts/test-cash-portfolio.mjs · evidence/cash-portfolio-2026-09-05.txt"
+  },
+  {
+   "id": "flex-never-te",
+   "claim": "The FLEX should be a running back or receiver, never a second tight end.",
+   "source": "User noticed 7 of 10 lineups with two tight ends; Winner's Guide A9",
+   "domain": "lineup",
+   "verdict": "adopted",
+   "plain": "One of the clearest results in this ledger, and the app had it backwards. Putting a tight end in the FLEX cuts the chance of a 180-point week from 0.25% to 0.17% — roughly a third — and it scores lower on average too, so it is not an upside-for-safety trade. It is simply worse. A running back there is best of all.",
+   "result": "P(180+): RB at FLEX 0.36%, RB-or-WR 0.30%, any 0.25%, TE 0.17%. TE Δ −0.082pp (95% CI −0.126 to −0.039); RB-or-WR Δ +0.054pp (0.026 to 0.082). Mean 96.4 for RB against 93.1 for TE",
+   "sample": "100 weeks, ~120,000 stacked lineups",
+   "detail": "Why it kept happening is the interesting part. Tight end is frequently the best points-per-dollar position on a slate — median 1.97 per $1,000 on Week 1 2026 against 1.85 for receivers — and the sampler weights value to the power 3.2, so a 7% efficiency edge becomes roughly a 25% sampling edge.\n\nBut value is measured against PROJECTION. A cheap tight end buys efficient MEDIAN points with a low ceiling, and the FLEX is the one roster slot whose entire job is upside. The optimizer was correctly maximising the wrong quantity.\n\nThe first attempt at the fix restricted only the FLEX-filling step and changed nothing — still 7 of 10. The stack step runs first and `isCatcher` counts tight ends, so a stack could take two before the FLEX was ever considered. Position maxima are now derived from which positions may fill the FLEX rather than hard-coded, which binds both steps. Result: 0 of 10, with all ten stacks intact.\n\nKept overridable rather than hard-wired: this is a measured default, not a DraftKings rule, and the claim should be re-testable on new data.",
+   "evidence": "lib/stacking.ts FLEX_POSITIONS · scripts/test-flex.mjs · evidence/flex-2026-09-08.txt"
+  },
+  {
+   "id": "qb-bust-risk",
+   "claim": "Concentrating on one quarterback risks the whole portfolio if he busts.",
+   "source": "User, on seeing one quarterback in five of ten lineups",
+   "domain": "portfolio",
+   "verdict": "confirmed-inert",
+   "plain": "The risk is real and larger than expected. When the quarterback a portfolio leans on busts, the chance that ALL TEN lineups fail to reach a cashing score jumps from 32% to 53%. Spreading across more quarterbacks reduces that every time it was tried — down to 39% at a 40% cap — and not one of those reductions clears its interval, because a bust only happens in 43% of weeks and 101 weeks gives just 27 of them. The direction is consistent and the sample cannot confirm it.",
+   "result": "Wipeout rate 32.3% overall, 52.8% on weeks the top QB busted. Spreading cuts the bust-week rate to 38.9% (QB 40%), 42.0% (30%), 45.0% (20%) — all spanning zero. Lineups killed by a bust: 4.3/10 concentrated vs 1.9/10 at a 20% cap",
+   "sample": "101 weeks, 3 seeds each; only 27–30 of those had a bust",
+   "detail": "This is a different question from the one the earlier sweep answered, and the distinction matters. That sweep asked whether spreading raises P(180+) — the UPSIDE — and found nothing. This asks whether concentration causes the portfolio to fail as a whole, which is the DOWNSIDE, and nothing had measured it.\n\nIn a tournament you are paid on your best entry, so dead lineups cost nothing provided one survives. That is why the metric is whole-portfolio failure rather than lineups killed — though concentration does kill more of them, 4.3 of 10 against 1.9.\n\nConfirming an 8.6-point reduction would take about 100 bust weeks against the 27 available, which is roughly 350 weeks of backtest, or twenty NFL seasons. This will not be settled by more computation on the data that exists.\n\nRecorded as confirmed-but-inert: the risk is demonstrated, the mitigation is unproven, and the default stays at 3 quarterbacks because that is what the upside measurement preferred. The control is exposed so the trade can be made deliberately rather than inherited.",
+   "evidence": "scripts/test-qb-bust-risk.mjs · evidence/qb-bust-risk-2026-09-07.txt"
+  },
+  {
+   "id": "positional-exposure",
+   "claim": "Cap the quarterback tighter than everyone else, so ten lineups are ten bets.",
+   "source": "User noticed the same quarterbacks repeating; Stokastic claim S27",
+   "domain": "portfolio",
+   "verdict": "null",
+   "plain": "The observation was right and the cure does not work. Ten lineups really were only using three quarterbacks, and forcing more of them in does exactly what it promises — a 20% cap takes it from 3.1 to 5.5. It just does not pay. The chance of a 180-point week falls from 1.12% to 0.83%, and the average drops too. Quarterbacks 5 and 6 on a slate are meaningfully worse than 1 and 2, and at the most predictable position in fantasy football that quality cost eats the diversity gain.",
+   "result": "QB cap 20%: distinct QBs 3.1 → 5.5, P(180+) 1.12% → 0.83% (Δ −0.297pp, CI −0.677 to 0.083), mean −0.49 (CI −1.36 to 0.39). Nothing clears its interval; no variant beat the uniform cap",
+   "sample": "101 held-out weeks, 3 seeds each, stacked portfolios",
+   "detail": "Investigating this found a genuine bug, which is the useful part. upgradePortfolio spends leftover salary with pairwise swaps under ONE exposure limit for all positions, and knew nothing about the portfolio being spread across quarterbacks — so a swap toward a better one looked like a clean gain. It was cutting 5 distinct quarterbacks to 3 even at the shipped 75% setting. Both steps now take per-position limits.\n\nThe first run of the sweep measured nothing at all because of that bug, and reported 3.4 distinct quarterbacks under a cap that arithmetically requires at least 5 for ten lineups. An impossible number means the measurement is broken, not the finding — that is what caught it.\n\nThe default stays uniform at 75%, because no variant beat it. Concentration at quarterback is not the defect it looks like: the optimizer is correctly preferring the best quarterbacks, and a slate does not contain six of them. What WAS a defect is that a cap could be set and silently ignored, and that is fixed regardless of which value ships.",
+   "evidence": "lib/stacking.ts · lib/optimizer.ts · scripts/test-qb-exposure.mjs · evidence/qb-exposure-2026-09-07.txt"
+  },
+  {
+   "id": "duplication-nonissue",
+   "claim": "Build for uniqueness, or you will split first prize with everyone who had the same lineup.",
+   "source": "Every commercial optimizer sells duplication control; the strategy articles all warn about it",
+   "domain": "portfolio",
+   "verdict": "null",
+   "plain": "Not a real problem, at least where it would matter. Across three Millionaire Makers with 740,000 entries, the winning lineup was submitted exactly ONCE every time. So were all ten of the top finishers, in every contest. 97% of distinct rosters were entered once and the typical entry shares its roster with less than one other person. This is a feature we do not need to build.",
+   "result": "Winning lineup submitted 1 time in all 3 contests. Top 10 finishers: 1 copy each, every time. Top 100: 93–96% unique. 97.1–97.8% of distinct rosters entered exactly once",
+   "sample": "3 Millionaire Makers, 740,735 entries, 2020",
+   "detail": "Duplication does exist — the most-copied roster in one contest had 223 entries behind it — but it happens to CHALKY lineups, and chalky lineups do not win. The mechanism is almost tautological once stated: winning a 250,000-entry tournament requires an unusual combination of outcomes, and a roster that many people independently arrived at is by definition not unusual.\n\nSo the uniqueness advice is aimed at a real phenomenon and the wrong end of it. Being duplicated is a symptom of being chalky, not an independent risk worth optimising against, and a lineup good enough to win is unique for free.\n\nWorth re-checking if the app is ever pointed at small-field contests, where the arithmetic changes: 200 entries in a 1,000-person contest is a very different proposition from 200 in 250,000. This measurement is Millionaire Maker only.",
+   "evidence": "scripts/test-duplication.mjs · evidence/duplication-2026-09-07.txt"
+  },
+  {
+   "id": "field-model-measured",
+   "claim": "The simulated field is a reasonable stand-in for a real DraftKings field.",
+   "source": "The app's own assumption; gated but never quantified",
+   "domain": "field",
+   "verdict": "refuted",
+   "plain": "It is not close. The simulated field scores about 33 points BELOW a real one at every level — median, 90th, 99th, even the maximum. A real Millionaire Maker field has a median around 134 and the simulation produces 100. That gap is larger than almost every effect in this ledger put together, and it means any ROI or win-probability figure built on it would be wildly optimistic. The 95% gate that suppresses those figures is not being cautious; it is the only thing standing between the user and a fabricated number.",
+   "result": "Simulated minus real: median −33.3, 90th −34.0, 99th −33.7, 99.9th −32.5, max −38.4 points. Consistent across five contests and 1.15M real entries",
+   "sample": "5 Millionaire Makers, 2020, 236,000+ entries each",
+   "detail": "This could not be measured until the 2020 archive arrived, because it needs the actual score of every entry in a real contest. Previously the field was known to be too weak only from one symptom — an optimised portfolio beat 98.8% of it — with no way to say by how much.\n\nThe gap is nearly FLAT across the distribution, which is the informative part. A field that were merely missing its tail would show a small gap at the median and a large one at the 99.9th. Instead every percentile is short by roughly the same 33 points, which says the simulated entrants are uniformly worse players rather than differently distributed ones.\n\nThe cause is almost certainly the ownership proxy, measured the same week at 30% chalk recall. Real entrants crowd onto the same popular players, and crowding raises the whole field: everyone holds the players who actually scored. Independent value-weighted sampling spreads bets across the slate and produces a field of uniformly mediocre lineups.\n\nSo the two known defects are one defect. Fixing ownership is the route to fixing the field, and the 30 contests of real ownership now committed are the raw material for it.",
+   "evidence": "scripts/test-field-model.mjs · evidence/field-model-2026-09-07.txt"
+  },
+  {
+   "id": "ownership-proxy-measured",
+   "claim": "Ownership guessed from points per dollar is good enough to build leverage on.",
+   "source": "The app's own assumption, unchecked since it was written",
+   "domain": "field",
+   "verdict": "refuted",
+   "plain": "It is not. Four million real entries from 30 completed 2020 contests finally made it checkable, and the proxy misses 7 out of every 10 chalk players. It gets the rough ordering half-right, but the players the field actually piles into — the ones leverage is entirely about — it does not find. It is also far too flat: real ownership reaches 51.7% and the guess tops out near 24%.",
+   "result": "Mean absolute error 3.58 ownership points; bias +0.02 (no tilt); correlation 0.368; rank correlation 0.558; CHALK RECALL 30%",
+   "sample": "30 contests, 4.06M entries, 29 matched slates, 2020",
+   "detail": "The obvious fix was tried and does not work. The concentration parameter was swept from 1.35 to 6.0. Raising it repairs the SHAPE — at 2.5 the proxy's 99th percentile of 26.8 closely matches the real 24.4 — but mean absolute error worsens at every step (3.58 to 4.14) and rank correlation degrades (0.558 to 0.506). Chalk recall stays at 28-30% regardless.\n\nSo the defect is not the shape parameter. Points per dollar simply does not identify who the field will pile into; turning up the concentration only makes the function more confidently wrong about the same players. The constant was left at 1.35 — the best of a bad set — rather than changed to look better on one metric while getting worse on the others.\n\nThis also explains the field model being too weak. A simulated field that spreads ownership too evenly does not crowd onto chalk the way a real one does, so it is easier to beat than reality — which is exactly the 98.8% dominance that causes simulateContest to refuse to report ROI.\n\nThe real data is now committed. Use it where it exists rather than the guess.",
+   "evidence": "lib/simulation.ts · scripts/test-ownership-proxy.mjs · evidence/ownership-proxy-2026-09-06.txt · public/data/real-ownership-2020.json"
+  },
+  {
+   "id": "punt-the-defence",
+   "claim": "Take the cheapest defence and spend the money elsewhere.",
+   "source": "Footballguys thread (arguing the opposite) vs Stokastic and the RotoWire guides",
+   "domain": "lineup",
+   "verdict": "confirmed-inert",
+   "plain": "Two sources flatly contradict each other — one says defence is the most important position, the others say punt it. Measuring settled it. A genuinely top defence does help a lot: it more than doubles your chance of a top-1% lineup. But defence salary tells you almost nothing about which defence that will be, so you cannot act on it. Since the whole price range from best to worst defence is only about $560, the cheapest one is the right answer by default.",
+   "result": "Defence salary spread $559 mean, never above $800. Top-3 defence appears in 31.7% of top-1% lineups vs a 13.7% base rate — a 2.32x lift. But correlation between defence salary and defence points is 0.089 (95% CI 0.044 to 0.135)",
+   "sample": "101 held-out weeks, 400 lineups each",
+   "detail": "The Footballguys claim was that you cannot reach the top 1% without a top-3 defence. That is false as stated — 68.3% of top-1% lineups had no top-3 defence — and defence is only 6.4% of an elite lineup's score, so it is not the most important position either.\n\nBut the overstatement was hiding something real. A 2.32x lift on reaching the top 1% is a large effect, larger than most things in this ledger. The problem is purely that it is unactionable: price does not predict which defence will deliver it.\n\nMarked inert rather than adopted because the app already effectively punts — nothing tells it to pay up at defence, and value-weighted sampling naturally prefers the cheap ones. Making it an explicit rule would need its own held-out test.\n\nWorth revisiting if a real defence projection ever exists. The 2.32x lift says the position matters; it is the PRICE that carries no information. A model that could pick the right defence, rather than the right price, would be acting on a genuinely large effect.",
+   "evidence": "scripts/test-dst-claim.mjs · evidence/dst-claim-2026-09-06.txt"
+  },
+  {
+   "id": "wind-qb-fade",
+   "claim": "Fade quarterbacks when the wind is over 15 mph.",
+   "source": "Stokastic strategy hub, September 2026",
+   "domain": "projection",
+   "verdict": "adopted",
+   "plain": "True, and now switched on. A quarterback playing in wind over 15 mph scores about 2 DraftKings points below what his price says he should, because his team throws the ball 3.6 fewer times. DraftKings does not discount the price enough. Marking him down 10% gained 2.15 actual points per lineup in the weeks where it applied. The advice to 'lean into the run instead' is wrong — running backs gain nothing, because teams throw less without running more.",
+   "result": "Player level: QB −0.292 SD (95% CI −0.477 to −0.107), about 2 DK points; pass attempts −3.62 (CI −5.64 to −1.60). Lineup level, where it applies: average +2.15 (95% CI 0.42 to 3.88), best-of-10 +2.12 (spans zero)",
+   "sample": "148 slates player-level; 41 week-trials where a windy QB was actually rostered",
+   "detail": "The lineup test had to be conditioned, and the reason is worth understanding. Only about 8% of quarterbacks play in 15+ mph wind, so an all-weeks comparison would have needed roughly 7,500 week-trials to resolve the effect — it would have returned a meaningless null indistinguishable from a real one. Conditioning on weeks where the unadjusted build actually rostered a windy quarterback concentrates the signal twelvefold, and is legitimate because windy games are known before lock. This is not selecting on the outcome.\n\nSet at 10% rather than the 20% that measured better (+2.92), because 15% measured WORSE than both — a non-monotonic sweep at 41 week-trials is noise showing through, and the conservative end of a noisy ordering is the honest pick. 10% is also closest to the player-level effect: 2 points on a roughly 19-point projection.\n\nPass catchers are NOT marked down. Their effects all point the same way (WR −0.090, TE −0.105) and every one spans zero, so including them would be acting on a direction rather than a result — and the variant that did include them was no better at the lineup level.\n\nTwo limits. Best-of-10 does not clear its interval, stated plainly — though it carries less weight than it looks, because this project has now twice found best-of-10 unable to detect a real tournament effect that a tail measurement showed clearly. And the backtest used RECORDED wind while a live lineup is built on a FORECAST, which is weaker, so live results should be expected to fall short of these figures.",
+   "evidence": "lib/weather.ts · scripts/test-wind.mjs · scripts/test-wind-lineups.mjs · evidence/wind-lineups-2026-09-05.txt"
+  },
+  {
+   "id": "injury-first-game-back",
+   "claim": "A player in his first game back from injury is worth fading.",
+   "source": "Asked directly; nflverse injury reports 2017–2025",
+   "domain": "projection",
+   "verdict": "adopted",
+   "plain": "One of the few real edges found here, and it is a cash-game edge. A player in his FIRST game back after missing time scores less than his salary says he should — because he is on a snap count. He plays 47.6% of snaps in game one against a league norm of 57%. By game two he is at 54.5% and the discount is gone, and by game three there is nothing left. So this is a one-week fade, not a lasting downgrade.",
+   "result": "Game 1 back −0.107 SD below the salary-implied baseline (95% CI −0.172 to −0.042). Game 2 +0.006 (spans zero). Game 3 +0.071 (spans zero)",
+   "sample": "2,892 return-games, 2017–2025",
+   "detail": "Only soft-tissue lower-body injuries are genuinely mispriced: hamstring −0.185 (CI −0.324…−0.046), foot −0.256 (−0.413…−0.099), calf −0.438 (−0.659…−0.217). Knee, ankle, concussion, shoulder, groin, hip and back all price correctly, which is worth noting because concussion in particular is the one people assume is mispriced.\n\nAbsences of 2–3 weeks are the worst spot (−0.231). A single missed week is priced fine (−0.047, spans zero), which fits the snap-count mechanism: one week out does not cost a role.\n\nLimits, and they matter. The NFL injury report gives a BODY PART, not a diagnosis, so an ACL tear cannot be separated from a knee bruise — any claim about a specific ligament needs a source this project does not have. Ten body parts were tested, so roughly one significant result is expected by chance alone; calf, at 31 games, is the most fragile of them and should not be leaned on by itself. Multi-season absences fall outside the window, so the very worst injuries are under-represented.\n\nSize: −0.107 SD is about 0.74 DK points for a receiver, and the hamstring and calf cells are 1.3 and 3.0 points. Against a field where 0.62 points buys a percentile near the median, that is worth having in a cash lineup.",
+   "evidence": "scripts/test-injury-return.mjs · evidence/injury-return-2026-09-05.txt"
+  },
+  {
+   "id": "revenge-game",
+   "claim": "A player facing his former team plays above himself.",
+   "source": "Asked directly; standard DFS folklore",
+   "domain": "projection",
+   "verdict": "null",
+   "plain": "Nothing there. Players facing a former team scored exactly what their salary implied — no more, no less — across 399 first meetings. It is flat at every position. This is folklore.",
+   "result": "−0.011 SD (95% CI −0.122 to 0.099) over 399 first meetings; +0.010 for any meeting",
+   "sample": "158 main slates, 2017–2025",
+   "detail": "Tested three ways, because the folklore is not precise about which it means: the first meeting after changing teams, any meeting with a former team, and the first meeting restricted to players who moved that same season. The first two are flat. The third is significantly NEGATIVE at −0.304, but that is almost certainly the team-change penalty this project already measured (movers cost 0.284 points per $1,000 in weeks 1–4) rather than anything about revenge — and at 54 games it is thin.\n\nBroken out by position, quarterbacks are the only cell with any size to it (−0.187) and its interval spans zero comfortably.",
+   "evidence": "scripts/test-revenge-game.mjs · evidence/revenge-game-2026-09-05.txt"
+  },
+  {
+   "id": "ir-selectable",
+   "claim": "The optimizer will not roster a player who cannot play.",
+   "source": "Found while wiring up an injury feed",
+   "domain": "lineup",
+   "verdict": "refuted",
+   "plain": "It would. The filter only removed players marked Out, so anyone on Injured Reserve was fully selectable — 26 of them on the Week 1 2026 slate. A player on IR is ineligible and scores zero, so this was not a bad judgment call, it was a lineup that could not legally be entered. Fixed.",
+   "result": "26 IR players selectable on the live slate before the fix; 0 after. Pool 481 → 455, or 396 with questionable players also excluded",
+   "sample": "Week 1 2026 slate",
+   "detail": "The unrosterable set now covers Out, IR, Doubtful, Suspended, PUP and NFI. Doubtful is included because the NFL's own scale puts it near a 25% chance to play, which is closer to Out than to Questionable.\n\nQuestionable is left selectable by default but can be excluded with a flag, and that flag exists specifically for cash games: in a 50/50 a single zero from a starter is usually fatal, whereas in a tournament the same player is often a deliberate edge because the doubt suppresses how many other people play him.",
+   "evidence": "lib/optimizer.ts UNROSTERABLE · isRosterable"
+  },
+  {
+   "id": "matchup-4pct",
+   "claim": "Shade a player's projection by how his opponent defends that position.",
+   "source": "DraftEdge DvP data; standard DFS practice",
+   "domain": "projection",
+   "verdict": "adopted",
+   "plain": "Works, barely. Accounting for who a player faces makes projections a little more accurate — worth about a tenth of a point across a nine-man lineup. Real, but you would never notice it in a single week.",
+   "result": "−0.0122 mean absolute error per player-week (95% CI −0.0176 to −0.0068)",
+   "sample": "135 held-out weeks, 2017–2024",
+   "detail": "The only idea so far to earn a default. Tested against a flat season average — the shape of DraftKings' AvgPointsPerGame, which is what the live pool actually uses and which carries no opponent information at all. Do not widen the ±4% cap: ±8% is statistically identical, ±15% spans zero, and ±25% is significantly worse. The gain lands in RB (−0.0151) and TE (−0.0104) while WR is flat (+0.0008), because the historical projection already had a WR opponent term — an effect appearing only where no adjustment existed is the signature of a real one. Be clear on size: about 0.11 points across a nine-man roster against an error of 5.4.",
+   "evidence": "scripts/test-matchup.mjs · evidence/matchup-accuracy-2026-09-04.txt"
+  },
+  {
+   "id": "buy-in-rake",
+   "claim": "Higher buy-in contests are better to play.",
+   "source": "Felix call, §1",
+   "domain": "contest",
+   "verdict": "adopted",
+   "plain": "Works, and it is the biggest free win in the project. A $3 contest keeps 15 cents of every dollar entered; a $150 contest keeps under 10. Same money risked, less skimmed off the top before anyone plays.",
+   "result": "$3–$5 contests keep 15.0% of fees; $151+ keep 9.6%. Spearman 0.86 between fee and money returned. Confirmed on 206 real contests entered over two seasons, but weaker there: Spearman −0.62 fee-vs-rake",
+   "sample": "100 cash contests in one lobby; 206 distinct contests in a real account",
+   "detail": "He is right to prefer higher buy-ins and his stated reason is wrong. Smaller fields change variance, not expectation. What actually differs is rake, and it differs by five points across the board. On a $100 weekly budget that is about $5 a week before any question of skill. This is the largest free edge found anywhere in the project, and it is not about lineups at all. It also corrects our own v27 finding, which called the ratio flat within 2.9 points — measured on 19 contests that happened to all be $3–$5.",
+   "evidence": "lib/entryPlan.ts · public/data/lobby-week1-2026.json"
+  },
+  {
+   "id": "cap-fill-portfolio",
+   "claim": "Spend the leftover salary cap, but keep the ten lineups different while doing it.",
+   "source": "Asked directly, after $2,200 showed unspent on a lineup card",
+   "domain": "portfolio",
+   "verdict": "adopted",
+   "plain": "Now on everywhere, and essentially free — but only because the exposure limit is set correctly. The single-swap version stalled: on the live slate no lineup had an improving single swap, yet every one had an improving PAIR worth up to 5.5 points, because upgrading one slot needs budget that only appears when another gives some back. Adding pairwise swaps spends the cap down to about $30. Sweeping the exposure limit then showed the whole trade-off sits on that one dial: at 75% the repair costs best-of-10, at 40% it does not.",
+   "result": "At 40% exposure: unspent cap $592 → $26, average actual points +3.4, best-of-10 +1.56. At 75% the same repair measured −2.28 on best-of-10. Every interval spans zero",
+   "sample": "34 weeks, exposure swept 20/30/40/75%",
+   "detail": "Two findings, and the second is the useful one.\n\nFirst, greedy single-swap upgrading stalls in a local optimum that looks finished. Exhaustively checking the live slate found no improving single swap for any lineup and an improving pair for every one, worth up to 5.5 points. Pairs are needed because the salary cap couples the slots: an upgrade one place is only affordable if another place gives budget back, and neither half helps alone.\n\nSecond, the cost of spending the cap is entirely a function of the exposure limit:\n  none  $592 unspent, overlap 2.27, best-of-10 144.2\n  20%    $36 unspent, overlap 2.33, best-of-10 143.7  (−0.46)\n  30%    $37 unspent, overlap 2.68, best-of-10 143.6  (−0.59)\n  40%    $26 unspent, overlap 3.09, best-of-10 145.7  (+1.56)\n  75%    $33 unspent, overlap 4.48, best-of-10 141.9  (−2.28)\n\nEvery interval spans zero, so none of those is a proven gain. But the shape is consistent and the mechanism is understood: budget can be spent almost freely up to 40% exposure and is paid for in diversity above it. So the upgrade uses its own 40% limit rather than the 75% used for selection. Lineups are processed weakest-first so the entries with the most waste get first call on the scarce high-value players.\n\nHonest limits: the pairwise search considers the top 40 candidates per position, so it is 2-opt optimal within that shortlist rather than globally. And the upgrade never worsens existing over-exposure -- it only refuses to ADD a player past the limit -- so a player selection already placed in seven lineups stays there.",
+   "evidence": "scripts/test-upgrade-to-cap.mjs · evidence/upgrade-portfolio-2026-09-04.txt"
+  },
+  {
+   "id": "starting-qb-only",
+   "claim": "Backup quarterbacks should not be in the player pool.",
+   "source": "Asked directly, after lineups came back with J.J. McCarthy and Carson Wentz",
+   "domain": "projection",
+   "verdict": "adopted",
+   "plain": "A real defect, now fixed. Carson Wentz was the BEST quarterback in the pool by points per dollar — $4,000 with a 16.3-point average, 4.08 per $1,000 against Josh Allen's 3.33 — because DraftKings' average looks backward and knows nothing about who starts. The optimizer, which favours value raised to the power 3.2, picked him roughly twice as often as Allen. The pool now keeps one quarterback per team: the highest-salaried, ties broken on the higher average.",
+   "result": "Quarterback pool cut from 57 to 24, one per team. Both misfires excluded; every real starter kept",
+   "sample": "Week 1 2026 slate, 24 teams",
+   "detail": "The cause was the projection, not the sampler. AvgPointsPerGame averages only the games a player appeared in, so a backup who once started carries a starter's average at a backup's price -- the same defect that gives rookies a zero. The fix uses the one role signal DraftKings publishes: salary. Exactly one quarterback per team starts and DK prices the starter above the backup, which is structural rather than a threshold invented here. Limits stated plainly: it is a claim about the market, not a depth chart. If a starter is ruled out after salaries are set DraftKings does not reprice, and this rule would keep the wrong man -- it is no substitute for checking the news before entering. It applies only to quarterback, since DST is one per team already and several RB/WR/TE from a team genuinely play.",
+   "evidence": "lib/dkSalaries.ts (keepStartingQuarterbacks)"
+  },
+  {
+   "id": "felix-track-record",
+   "claim": "An experienced player's accumulated method produces a real edge.",
+   "source": "Felix's own DraftKings entry history, 571 NFL Classic entries, 2023–2024",
+   "domain": "field",
+   "verdict": "refuted",
+   "plain": "The clearest answer in the project, and it comes from real money rather than a backtest. Across 571 entries he finished, on average, at the 49.1st percentile of the field — the middle. A player with no edge finishes at the 50th. His headline is +467% ROI, but 84.9% of everything he has won came from ONE third-place finish out of 108,537 entries. Take that single entry out and the account returns −14.0%, against the −14.9% that rake alone predicts. Two seasons of real entries came in almost exactly where no skill at all would put them.",
+   "result": "Mean finishing percentile 49.1% (95% CI 46.7% to 51.4%) — indistinguishable from 50%. ROI excluding the single best win: −14.0% against a −14.9% no-edge expectation",
+   "sample": "571 NFL Classic entries, 102 slates, Jan 2023 – Sep 2024, $4,303 staked",
+   "detail": "This is the only measurement here that needs no simulation and no field model. Percentile is arithmetic: place divided by field, and 50% is the middle by definition. That matters because the project's field model is untrustworthy and every ROI figure built on it is gated -- this test bypasses all of it. Cash rate agrees: 24.9% against a 24.1% no-edge expectation. Every rate lands where chance puts it. Two things this does NOT say. It is not a criticism of the player -- third of 108,537 is a real achievement, and he shared the data that answered the question, which is more than most would do. And it is not proof that no edge exists in DFS; it is evidence that THIS method, over two seasons, did not produce one. It also independently corroborates every backtest in this ledger. His claims were measured one by one against held-out weeks and mostly failed. His own money says the same thing, by a completely different route.",
+   "evidence": "scripts/analyze-entry-history.mjs · DK Contest Results/ (gitignored, personal financial data)"
+  },
+  {
+   "id": "cheap-slots",
+   "claim": "The last two or three picks decide the contest, because everyone shares the expensive players.",
+   "source": "Felix call, §2.2",
+   "domain": "lineup",
+   "verdict": "refuted",
+   "plain": "Wrong. Your expensive players decide the lineup, not your cheap ones — the top two salary slots account for three times as much of the gap between a good lineup and a bad one as the bottom two.",
+   "result": "Two cheapest slots are 10.9% of what separates lineups; two dearest are 32.7% (paired difference −0.218, CI −0.232 to −0.205)",
+   "sample": "135 weeks × 1,500 lineups",
+   "detail": "Var(total) = Σ Cov(slot, total) is an identity, so the shares are a complete attribution rather than a chosen statistic. The decline from expensive to cheap is monotone. The premise is half-right in an interesting way: cheap players ARE less predictable per dollar (residual spread 1.646 per $1,000 below $3,500 against 1.219 above $8,000). But unpredictable and decisive are different properties — the cheap slots also contribute far less absolute scoring. A plausible mechanism is not evidence for the claim built on it. Still untested: the version of this argument about differentiating from the FIELD, which needs real ownership.",
+   "evidence": "scripts/analyze-felix.mjs · lib/lineupAnalysis.ts"
+  },
+  {
+   "id": "stars-and-scrubs",
+   "claim": "Spending $10–11k of the $50k cap on one player is fragile and should be avoided.",
+   "source": "Felix call, §2.6",
+   "domain": "lineup",
+   "verdict": "refuted",
+   "plain": "Wrong, and worse than expected. Piling salary onto one star made lineups score less on average AND gave up the huge weeks. It cost you something and bought nothing.",
+   "result": "Most concentrated quartile: mean −2.22, 95th percentile −4.02, spread −0.90, top-1% rate 0.82% vs 1.17%",
+   "sample": "135 weeks × 1,500 lineups across 8 salary tilts",
+   "detail": "Refuted, but not in the direction the claim implies — concentration was expected to trade mean for tail, which in a top-heavy GPP is a good trade. Instead it is worse on every axis at once: lower mean, thinner 95th percentile, LOWER spread, and a worse top-1% rate. It does not buy the upside it is supposed to cost you something for. Caveat: the priciest player in 2017–2024 slates reaches 21% of the cap, so the $10–11k rosters described barely exist in that pricing.",
+   "evidence": "scripts/analyze-felix.mjs (concentration arm)"
+  },
+  {
+   "id": "rookie-early",
+   "claim": "Rookies are underpriced in weeks 1–4 because they are priced off no NFL data.",
+   "source": "Felix call, §3 — his strongest stated edge",
+   "domain": "projection",
+   "verdict": "refuted",
+   "plain": "Backwards. Rookies were worse value than veterans in all eight seasons tested — including the first four weeks, which is exactly where the idea says they should shine.",
+   "result": "Rookies −0.191 points per $1,000 in weeks 1–4 (CI −0.274 to −0.108); −0.144 thereafter",
+   "sample": "135 weeks, 4,770 rookie player-weeks",
+   "detail": "Not merely unsupported — reversed, and negative in all eight seasons tested. Rookies are worse value than veterans, and slightly worse in the exact window the claim singles out. The rookie flag is DERIVED from first recorded NFL game, since the workbook has no draft-year column; validated 17/18 against known rookie seasons.",
+   "evidence": "lib/playerHistory.ts · scripts/analyze-felix.mjs"
+  },
+  {
+   "id": "change-of-venue",
+   "claim": "Running backs and receivers on a new team are mispriced early in the season.",
+   "source": "Extension of the Felix material",
+   "domain": "projection",
+   "verdict": "refuted",
+   "plain": "Backwards as a strategy, useful as a bug report. Players on new teams scored less than their price suggested. But the same test caught our own projections overrating them by about a point early in the season, which is worth fixing.",
+   "result": "Movers −0.284 points per $1,000 in weeks 1–4 (CI −0.398 to −0.171)",
+   "sample": "135 weeks, 4,032 mover player-weeks",
+   "detail": "Mispriced, but against you — movers underperform their salary, so this is a thing to avoid rather than a source of edge. The useful finding is separate and is OUR defect: our own projection over-forecasts movers by 1.075 points in weeks 1–4, because the rolling average is built from their prior games on the previous team. That is actionable and not yet fixed; a projection change has to show held-out value first.",
+   "evidence": "scripts/analyze-felix.mjs (venue arm)"
+  },
+  {
+   "id": "core-variants",
+   "claim": "Build one strong lineup, then make the other nine small variations of it.",
+   "source": "Asked directly — the intuitive alternative to independent candidates",
+   "domain": "portfolio",
+   "verdict": "refuted",
+   "plain": "Wrong, and badly. Ten near-identical lineups score about 20 points worse at their best than ten genuinely different ones. Ten copies of one lineup is really just one lineup.",
+   "result": "Core + 1 swap loses 19.86 points of best-of-10 (CI −24.58 to −15.14); core + 2 swaps loses 16.42",
+   "sample": "34 weeks, 2 trials each",
+   "detail": "Decisively wrong for a tournament, and the reason generalises. Best-of-N is a MAXIMUM over N draws. Near-identical lineups are near-perfectly correlated, so the maximum of ten collapses toward the value of one. Diversity is not a nice-to-have; it is the entire mechanism by which a portfolio beats a single entry. Correct for a cash game, where you want your single best roster every time — the objective there is the median, not the maximum.",
+   "evidence": "lib/portfolioShape.ts · evidence/portfolio-shape-2026-09-04.txt"
+  },
+  {
+   "id": "upgrade-to-cap",
+   "claim": "Spend the leftover salary cap — leaving $500–$1,000 unused is wasted budget.",
+   "source": "Asked directly, after $800 showed on a lineup card",
+   "domain": "portfolio",
+   "verdict": "refuted",
+   "plain": "Wrong, and it is the most counterintuitive result here. Filling the unused cap DOES raise projected points, by 6, and it DOES raise average actual points. But it loses about 4.4 points of best-of-10 — and best-of-10 is what a tournament pays. The leftover salary is not waste; it is what keeps your ten lineups different from each other.",
+   "result": "Average +2.13 (CI −0.02 to +4.28, spans zero). Best-of-10 −4.38 (CI −7.79 to −0.97)",
+   "sample": "34 weeks, 2 trials each",
+   "detail": "buildCandidate samples every slot independently and only checks the cap at the end, so it rejects what goes over but never pushes toward it — a mean of $595 left unspent across these weeks. A greedy repair cuts that to $78 and raises projected points from 126.4 to 132.6. The cost is diversity: mean pair overlap goes 2.28 → 4.25 of nine, and distinct players 45 → 28. Every lineup converges on the same efficient players, which is exactly the core-plus-variants shape measured separately as losing ~20 points of best-of-10. Note the two metrics disagree, and that the disagreement is the finding: average points rise while the maximum falls. For a cash game — where the median is the objective — this repair is probably right. For a tournament it is wrong. The function ships as upgradeToCap and is called by nothing.",
+   "evidence": "scripts/test-upgrade-to-cap.mjs · evidence/upgrade-to-cap-2026-09-04.txt"
+  },
+  {
+   "id": "sim-selection",
+   "claim": "Choose lineups by simulated expected payout rather than by projection.",
+   "source": "STRATEGY_RESEARCH_AND_GAP_ANALYSIS.md recommendation 3",
+   "domain": "lineup",
+   "verdict": "refuted",
+   "plain": "Worse than doing nothing. Choosing lineups by simulated prize money scored about 1.4 points less per lineup than simply taking the highest projections.",
+   "result": "−1.43 average points (95% CI −2.38 to −0.49). Best-of-10 +0.88 spans zero",
+   "sample": "139 weeks, 2017–2024",
+   "detail": "The most expensive negative result in the project, because the whole Monte Carlo engine was built for it. Significantly WORSE on average points. It ships as a Backtest Lab arm for further testing, not as the lineup generator. Part of the earlier apparent gain was winner's curse: ranking 600 candidates by a noisy estimate selects lucky estimates, worth 1.9 points of illusory performance until two-stage selection on independent scenario sets fixed it.",
+   "evidence": "evidence/ablation-2017-2024-139weeks.csv"
+  },
+  {
+   "id": "dual-threat-qb",
+   "claim": "Draft dual-threat quarterbacks; rushing production is undervalued.",
+   "source": "Felix call, §2.3",
+   "domain": "lineup",
+   "verdict": "null",
+   "plain": "A real bargain that pays nothing. DraftKings genuinely does not charge extra for a quarterback who runs — but running quarterbacks did not score more per dollar either.",
+   "result": "Not priced in (slope $269 per unit of rush share, r = 0.082) — and pays nothing (+0.018 pts/$1k, CI −0.087 to +0.124)",
+   "sample": "135 weeks, 3,423 quarterback-weeks",
+   "detail": "The interesting shape here is that both halves are true at once. DraftKings genuinely does NOT charge a premium for rushing beyond what total production explains — so the inefficiency is real. It just does not pay. Unpriced and worthless is not a contradiction. The scoring mechanics are real (rushing yards at 0.1/yd against 0.04 for passing) but they are already inside a rushing quarterback's total points, and totals are what DK prices. Caveat: a median split on rush share is blunt for isolating true dual-threats.",
+   "evidence": "scripts/analyze-felix.mjs (dualthreat arm)"
+  },
+  {
+   "id": "build-order",
+   "claim": "Fill receivers and backs first, take value at quarterback last.",
+   "source": "Felix call, §2.1 — the most concrete claim in the call",
+   "domain": "lineup",
+   "verdict": "null",
+   "plain": "No difference. Filling receivers and backs first, or the quarterback first, produced the same results.",
+   "result": "No detectable difference, either order",
+   "sample": "36 weeks, 2023–2024",
+   "detail": "Untestable as the app stood, which is itself the finding: buildCandidate sampled every slot independently from one value-weighted pool and only checked the cap at the end, so position order changed nothing at all. Budget-aware sequential construction was built first to make the claim meaningful — each pick capped by what the unfilled slots must still cost. Both orders then measured as null. Season signs flip (+1.5 in 2023, −2.7 in 2024), which is what noise looks like.",
+   "evidence": "lib/optimizer.ts (optimizeSequenced) · evidence/ablation-2023-2024-buildorder.csv"
+  },
+  {
+   "id": "tournament-v24",
+   "claim": "Ceiling weighting plus controlled diversification beats plain projection.",
+   "source": "This project's own production GPP model",
+   "domain": "lineup",
+   "verdict": "null",
+   "plain": "No better than the simple version. Our own tournament model does not beat just taking the highest projections.",
+   "result": "−0.03 on best-of-10; no detectable difference",
+   "sample": "139 weeks",
+   "detail": "Our own model, tested against our own baseline, and indistinguishable from it. Kept as the Tournament mode default because it is not worse and it expresses a coherent objective, but nobody should believe it is measurably better.",
+   "evidence": "evidence/ablation-2017-2024-139weeks.csv"
+  },
+  {
+   "id": "ceiling-only",
+   "claim": "Rank lineups by ceiling rather than by median projection.",
+   "source": "Standard GPP practice",
+   "domain": "lineup",
+   "verdict": "null",
+   "plain": "No difference. Sorting lineups by upside instead of by expected points changed nothing we could measure.",
+   "result": "No detectable difference",
+   "sample": "139 weeks",
+   "detail": "Theoretically well-motivated for a top-heavy payout, and not measurably better. Ceiling is derived from projection by a position multiple, so it may carry little independent information — a real ceiling model built from outcome distributions rather than a multiple has not been tried.",
+   "evidence": "evidence/ablation-2017-2024-139weeks.csv"
+  },
+  {
+   "id": "salary-tier-bias",
+   "claim": "Correct the projection for measured bias in each salary tier.",
+   "source": "Derived from our own tier-accuracy table",
+   "domain": "projection",
+   "verdict": "null",
+   "plain": "Made things slightly worse — and that is how we found a bug in our own testing setup rather than in the model.",
+   "result": "+0.0053 MAE — slightly worse (CI −0.0023 to +0.0128)",
+   "sample": "135 weeks, fitted on prior weeks only",
+   "detail": "Worth recording because of how it failed. The correction was fitted out of sample and made accuracy slightly worse, which is what a correction for a bias that does not exist should do. Chasing that led to finding the real problem: the harness had been passing an empty DST history, so defence points were ESTIMATED rather than read, and estimated defences are over-projected by 7.6 points against 1.5 for real ones. The −2.28 tier bias it was correcting was the measurement's own artifact. With real history the tier reads −0.55.",
+   "evidence": "ENGINEERING_LOG.md §1"
+  },
+  {
+   "id": "coordinator-transfer",
+   "claim": "A new coordinator brings his previous team's play-calling tendencies with him.",
+   "source": "Felix call, §4 — his signature idea",
+   "domain": "projection",
+   "verdict": "confirmed-inert",
+   "plain": "True, and useless. A new coordinator really does bring about a third of his old playbook with him. It does not turn into fantasy points.",
+   "result": "Pass rate transfers with slope 0.361 (CI 0.217–0.506); plays per game 0.272; RB target share 0.349",
+   "sample": "160 observable coordinator changes, 2000–2025",
+   "detail": "Confirmed, and the easiest result in the project to over-read. A new offence really does move about a third of the way toward its coordinator's previous tendency, on all three measures, with intervals excluding zero. But this establishes a PRECONDITION, not an edge. Whether tendency transfer is worth fantasy points is a different question, and it is the question v21 already answered in the negative when coordinator identity failed to predict player points. A third of a tendency shift is also small against the noise in any individual player's weekly scoring.",
+   "evidence": "lib/playerHistory.ts · scripts/analyze-felix.mjs (coordinators arm)"
+  },
+  {
+   "id": "coordinator-identity",
+   "claim": "Coordinator changes predict player fantasy points.",
+   "source": "This project, v7–v20",
+   "domain": "projection",
+   "verdict": "removed",
+   "plain": "Built over many versions, then removed. Knowing who calls the plays did not help predict how players scored.",
+   "result": "No incremental out-of-sample value over a player/team baseline",
+   "sample": "Multi-season ablation",
+   "detail": "Built over many versions, shrunk, capped at ±2%, and finally removed in v21. Retained as research context in the Coaching Intelligence tab, which is why the tab still exists while the signal does not feed lineups.",
+   "evidence": "VERSION_HISTORY v21"
+  },
+  {
+   "id": "ownership-leverage",
+   "claim": "Fade high-ownership players to differentiate from the field.",
+   "source": "STRATEGY_RESEARCH_AND_GAP_ANALYSIS.md recommendation 2",
+   "domain": "lineup",
+   "verdict": "removed",
+   "plain": "Removed, but the test was weak. We measured it using guessed ownership rather than real ownership, so this is not a fair verdict on the idea itself.",
+   "result": "No incremental out-of-sample value",
+   "sample": "Multi-season ablation",
+   "detail": "Removed in v21 alongside coordinator effects. The result is heavily qualified by the input: ownership was a PROXY derived from points per dollar, not real projected ownership. This is not a test of leverage as a concept — it is a test of leverage computed from a proxy, and the proxy is the likely reason it failed.",
+   "evidence": "VERSION_HISTORY v21"
+  },
+  {
+   "id": "real-ownership",
+   "claim": "Leverage, duplication and ROI all need real projected ownership.",
+   "source": "STRATEGY_RESEARCH_AND_GAP_ANALYSIS.md §C",
+   "domain": "field",
+   "verdict": "blocked",
+   "plain": "Cannot test. This is the single missing piece that blocks every ROI and win-probability claim in the app.",
+   "result": "",
+   "sample": "",
+   "detail": "The binding constraint on the whole project. Simulated fields are far weaker than real ones — an optimised portfolio beat 98.8% of the simulated field — so simulateContest refuses to report payout, ROI or probability when the best entry beats more than 95% of the field. One completed-contest standings CSV with the %Drafted column would settle it. The parser is written and tested; the folder is empty.",
+   "evidence": "DK Contest Results/ASK-FELIX.md"
+  },
+  {
+   "id": "goal-line-vulture",
+   "claim": "A rushing quarterback steals goal-line carries from his own running back.",
+   "source": "Felix call, §2.5",
+   "domain": "lineup",
+   "verdict": "blocked",
+   "plain": "Not tested yet. Would need reworking how we model a quarterback and his own running back scoring together.",
+   "result": "",
+   "sample": "",
+   "detail": "Not tested. Our correlation matrix has same-team QB/RB flat at +0.16; the claim is that it should be conditional on the quarterback's rushing volume. Testing it means making the matrix conditional and re-checking maxCorrelationShrinkage, because these values are jointly constrained — changing one in isolation usually pushes the matrix out of positive-definiteness, where the repair silently damps everything.",
+   "evidence": "ENGINEERING_LOG.md §4"
+  },
+  {
+   "id": "field-differentiation",
+   "claim": "Edge comes from being different from the field, not from raw projection.",
+   "source": "Felix call, §2.2 — the stronger version of the cheap-slot claim",
+   "domain": "field",
+   "verdict": "blocked",
+   "plain": "Not tested. Needs real ownership data to know what being different from the field is worth.",
+   "result": "",
+   "sample": "",
+   "detail": "What was measured is which slots separate lineups FROM EACH OTHER. The claim is really about differentiating from the field, which is an ownership question. Genuinely open, and not settled by the cheap-slot result.",
+   "evidence": "FELIX_CLAIMS_TESTED.md §2.2"
+  },
+  {
+   "id": "reserve-mechanic",
+   "claim": "Reserve contest entries days early, then build the lineup up to kickoff.",
+   "source": "Felix call, §1 — how he actually enters",
+   "domain": "contest",
+   "verdict": "blocked",
+   "plain": "Not modelled at all. A real DraftKings feature the app is simply blind to.",
+   "result": "",
+   "sample": "",
+   "detail": "A real DraftKings feature that decouples buying an entry from building the lineup, and how he gets into contests that would otherwise fill. We do not model it at all — the Contest Lab assumes you enter at decision time. Not a strategy claim so much as a mechanic we are blind to."
+  },
+  {
+   "id": "rotowire-articles",
+   "claim": "Twelve published DFS strategy articles, unread.",
+   "source": "DFS Strategy Articles/",
+   "domain": "lineup",
+   "verdict": "null",
+   "plain": "Read, and split into 62 individual claims — the table further down this page. 24 of them have been measured; 14 hold up, 2 run the opposite way, and 8 show nothing. The 21 that would decide whether any of it improves a LINEUP are still unmeasured, because that harness does not exist.",
+   "result": "24 measured over 158 main slates. Largest effect +0.458 SD, worth about 3.2 DK points for one player; most are under half a point",
+   "sample": "158 main slates, 2017–2025",
+   "detail": "Verdict is 'no effect found' rather than 'adopted' deliberately: fourteen claims show a real mispricing at the level of a single PLAYER, and not one of them has been shown to improve a LINEUP. Those are different questions and only the second one pays.\n\nThe most useful result was a near-miss. 'Target players coming off bad games' measured backwards at −0.096 SD, which reads as a clean refutation. Restricted to players holding 70%+ of snaps it collapses to −0.043 SD (CI −0.108…0.022) — nothing. A bad game is usually not bad luck; it is a player who lost his role. Recency is information, not bias, and the apparent effect was a confound. Any split on a trait that could proxy for role change has to hold role constant, or it measures the roster and calls it the strategy.\n\nFive claims that rest on a Vegas total or spread had to run against a MODELLED line, because the workbook has none. Vegas is materially better than that proxy, so those nulls are weak evidence — including the null on the single most repeated piece of advice in all twelve articles, 'target players in games with a high projected total'.",
+   "evidence": "scripts/article-claims.mjs · evidence/article-claims-2026-09-04.txt · ../ARTICLE_STRATEGIES_TESTED.md"
+  }
+ ],
+ "verdictLabel": {
+  "adopted": "Adopted",
+  "refuted": "Refuted",
+  "null": "No effect found",
+  "confirmed-inert": "True but inert",
+  "removed": "Removed after testing",
+  "blocked": "Cannot test yet"
+ },
+ "verdictMeaning": {
+  "adopted": "Measured, beat its baseline, and is switched on",
+  "refuted": "Measured and wrong — some are the opposite of the claim",
+  "null": "Measured and made no difference we could detect",
+  "confirmed-inert": "The claim is true; it just does not earn anything",
+  "removed": "Built, tested, then taken out again",
+  "blocked": "Cannot be measured with the data we have"
+ },
+ "verdictOrder": [
+  "adopted",
+  "confirmed-inert",
+  "refuted",
+  "null",
+  "removed",
+  "blocked"
+ ],
+ "domainLabel": {
+  "projection": "Projections",
+  "lineup": "Lineup construction",
+  "portfolio": "Portfolio shape",
+  "contest": "Contest selection",
+  "field": "Field model"
+ },
+ "claims": [
+  {
+   "id": "dst-fav7",
+   "claim": "Play a defence favoured by 7 or more",
+   "articles": "A9 #9 cash",
+   "group": "player",
+   "status": "supported",
+   "effect": 0.458,
+   "ci": [
+    0.275,
+    0.642
+   ],
+   "slates": 47,
+   "modelled": true,
+   "note": "Largest effect found, but the weakest footing: measured against the position mean because no historical DST salary exists, and only 47 slates because a modelled spread rarely reaches 7."
+  },
+  {
+   "id": "dst-bad-qb",
+   "claim": "Play a defence facing a quarterback in poor form",
+   "articles": "A9 #8 tourn",
+   "group": "player",
+   "status": "supported",
+   "effect": 0.223,
+   "ci": [
+    0.127,
+    0.319
+   ],
+   "slates": 147,
+   "note": "Only half the claim. The article says take the CHEAPEST such defence; no historical DST salary exists, so the price half is untestable."
+  },
+  {
+   "id": "rb-touches",
+   "claim": "Prefer running backs with heavy trailing touches",
+   "articles": "A2, A6, A11",
+   "group": "player",
+   "status": "supported",
+   "effect": 0.196,
+   "ci": [
+    0.128,
+    0.263
+   ],
+   "slates": 154,
+   "note": "Over 15.4 trailing touches against under 5.3."
+  },
+  {
+   "id": "qb-underdog",
+   "claim": "Prefer a quarterback who is an underdog and must throw",
+   "articles": "A1",
+   "group": "player",
+   "status": "supported",
+   "effect": 0.157,
+   "ci": [
+    0.098,
+    0.216
+   ],
+   "slates": 153,
+   "modelled": true
+  },
+  {
+   "id": "snap-share",
+   "claim": "Prefer players heavily involved in the offence",
+   "articles": "A11",
+   "group": "player",
+   "status": "supported",
+   "effect": 0.133,
+   "ci": [
+    0.097,
+    0.168
+   ],
+   "slates": 155,
+   "note": "Trailing snap share above 80% against below 50%. Nothing in the projection uses snap share today."
+  },
+  {
+   "id": "rb-bellcow",
+   "claim": "Prefer the bell-cow back, 15-25 touches a game",
+   "articles": "A2",
+   "group": "player",
+   "status": "supported",
+   "effect": 0.133,
+   "ci": [
+    0.071,
+    0.196
+   ],
+   "slates": 154
+  },
+  {
+   "id": "dst-home",
+   "claim": "Play a defence at home",
+   "articles": "A9 #9 cash",
+   "group": "player",
+   "status": "supported",
+   "effect": 0.118,
+   "ci": [
+    0.043,
+    0.194
+   ],
+   "slates": 157,
+   "note": "Measured against the position mean, not a price."
+  },
+  {
+   "id": "wr-targets",
+   "claim": "Prefer receivers and tight ends who see volume",
+   "articles": "A3, A4, A5, A11",
+   "group": "player",
+   "status": "supported",
+   "effect": 0.112,
+   "ci": [
+    0.061,
+    0.162
+   ],
+   "slates": 154,
+   "note": "Over 6.9 trailing targets against under 3.0."
+  },
+  {
+   "id": "qb-home",
+   "claim": "Lean toward quarterbacks at home",
+   "articles": "A9 #9 tourn",
+   "group": "player",
+   "status": "supported",
+   "effect": 0.111,
+   "ci": [
+    0.058,
+    0.165
+   ],
+   "slates": 154
+  },
+  {
+   "id": "wr-home",
+   "claim": "Lean toward receivers at home",
+   "articles": "A9 #9 tourn",
+   "group": "player",
+   "status": "supported",
+   "effect": 0.067,
+   "ci": [
+    0.035,
+    0.098
+   ],
+   "slates": 155
+  },
+  {
+   "id": "dome",
+   "claim": "Lean toward players indoors",
+   "articles": "A9 #9 tourn",
+   "group": "player",
+   "status": "supported",
+   "effect": 0.063,
+   "ci": [
+    0.031,
+    0.096
+   ],
+   "slates": 153,
+   "note": "The workbook records only Dome and Open — there is no retractable category, and no way to tell a closed roof from an open one."
+  },
+  {
+   "id": "home-all",
+   "claim": "Lean toward players at home",
+   "articles": "A9 #9 tourn",
+   "group": "player",
+   "status": "supported",
+   "effect": 0.059,
+   "ci": [
+    0.039,
+    0.08
+   ],
+   "slates": 155
+  },
+  {
+   "id": "rb-home",
+   "claim": "Lean toward running backs at home",
+   "articles": "A9 #9 tourn",
+   "group": "player",
+   "status": "supported",
+   "effect": 0.055,
+   "ci": [
+    0.016,
+    0.095
+   ],
+   "slates": 155
+  },
+  {
+   "id": "post-huge",
+   "claim": "A player coming off a huge game keeps outperforming",
+   "articles": "counterpart to A8",
+   "group": "player",
+   "status": "supported",
+   "effect": 0.064,
+   "ci": [
+    0.023,
+    0.104
+   ],
+   "slates": 153,
+   "note": "Same confound as the row below: a huge game often marks a player who just gained a role."
+  },
+  {
+   "id": "post-bad-vs-good",
+   "claim": "Target players coming off bad games",
+   "articles": "A8, A9 #7 tourn",
+   "group": "player",
+   "status": "reversed",
+   "effect": -0.096,
+   "ci": [
+    -0.132,
+    -0.06
+   ],
+   "slates": 154,
+   "note": "Measured backwards — but see the role-controlled row below before believing it. The reversal is a confound, not a finding."
+  },
+  {
+   "id": "post-bad-vs-rest",
+   "claim": "Target players coming off bad games, against everyone else",
+   "articles": "A8, A9 #7 tourn",
+   "group": "player",
+   "status": "reversed",
+   "effect": -0.063,
+   "ci": [
+    -0.088,
+    -0.038
+   ],
+   "slates": 154
+  },
+  {
+   "id": "post-bad-role",
+   "claim": "Target players coming off bad games — role held constant",
+   "articles": "A8, A9 #7 tourn",
+   "group": "player",
+   "status": "null",
+   "effect": -0.043,
+   "ci": [
+    -0.108,
+    0.022
+   ],
+   "slates": 153,
+   "note": "The row that matters. Restricted to players holding 70%+ of snaps, the reversal vanishes. A bad game is usually not bad luck; it is a player who lost his role. Recency is information, not bias — and neither the article nor its opposite is an edge."
+  },
+  {
+   "id": "rb-receiving",
+   "claim": "Prefer pass-catching running backs in full PPR",
+   "articles": "A2, A9 #2 cash",
+   "group": "player",
+   "status": "null",
+   "effect": -0.037,
+   "ci": [
+    -0.105,
+    0.031
+   ],
+   "slates": 154,
+   "note": "The most surprising null. Full PPR is the loudest reason every article gives for preferring these backs, and DraftKings appears to price the trait completely."
+  },
+  {
+   "id": "rb-avoid-dogs",
+   "claim": "Avoid running backs on teams down 6 or more",
+   "articles": "A2",
+   "group": "player",
+   "status": "null",
+   "effect": -0.033,
+   "ci": [
+    -0.108,
+    0.041
+   ],
+   "slates": 119,
+   "modelled": true
+  },
+  {
+   "id": "rb-favourites",
+   "claim": "Prefer running backs on favourites",
+   "articles": "A2",
+   "group": "player",
+   "status": "null",
+   "effect": 0.032,
+   "ci": [
+    -0.012,
+    0.076
+   ],
+   "slates": 154,
+   "modelled": true
+  },
+  {
+   "id": "game-total",
+   "claim": "Target players in games with a high projected total",
+   "articles": "A1-A6, A9",
+   "group": "player",
+   "status": "null",
+   "effect": -0.027,
+   "ci": [
+    -0.083,
+    0.029
+   ],
+   "slates": 114,
+   "modelled": true,
+   "note": "The single most repeated piece of advice across all twelve articles, and it found nothing — against a modelled total, which is materially worse than a real Vegas line."
+  },
+  {
+   "id": "wr-avoid-big-fav",
+   "claim": "Avoid receivers on large favourites",
+   "articles": "A3",
+   "group": "player",
+   "status": "null",
+   "effect": 0.024,
+   "ci": [
+    -0.054,
+    0.101
+   ],
+   "slates": 121,
+   "modelled": true
+  },
+  {
+   "id": "te-home",
+   "claim": "Lean toward tight ends at home",
+   "articles": "A9 #9 tourn",
+   "group": "player",
+   "status": "null",
+   "effect": 0.019,
+   "ci": [
+    -0.028,
+    0.067
+   ],
+   "slates": 154,
+   "note": "The one position where the home effect does not appear."
+  },
+  {
+   "id": "team-total",
+   "claim": "Target players whose team is projected to score 24+",
+   "articles": "A1-A6, A9",
+   "group": "player",
+   "status": "null",
+   "effect": 0.014,
+   "ci": [
+    -0.063,
+    0.091
+   ],
+   "slates": 112,
+   "modelled": true
+  },
+  {
+   "id": "L1",
+   "claim": "Spend up at quarterback; high-priced QBs are the most reliable",
+   "articles": "A8, A11",
+   "group": "lineup",
+   "status": "untested",
+   "note": "Directly contradicts L2. Worth settling first. Supporting evidence: QB is the best points-per-dollar position measured (median 2.60 against 1.33-1.55 elsewhere)."
+  },
+  {
+   "id": "L2",
+   "claim": "Target value at quarterback and running back in tournaments",
+   "articles": "A9 #1 tourn",
+   "group": "lineup",
+   "status": "untested",
+   "note": "Directly contradicts L1."
+  },
+  {
+   "id": "L3",
+   "claim": "Save money at tight end and defence",
+   "articles": "A8, A9 #5 cash",
+   "group": "lineup",
+   "status": "untested"
+  },
+  {
+   "id": "L4",
+   "claim": "Spend up at receiver; the position has the highest ceiling",
+   "articles": "A9 #2 tourn",
+   "group": "lineup",
+   "status": "untested"
+  },
+  {
+   "id": "L5",
+   "claim": "Spend up on one back, pair with a value back who gets volume",
+   "articles": "A9 #3 cash",
+   "group": "lineup",
+   "status": "untested"
+  },
+  {
+   "id": "L6",
+   "claim": "Distribute receiver salary evenly across the three slots",
+   "articles": "A9 #8 cash",
+   "group": "lineup",
+   "status": "untested"
+  },
+  {
+   "id": "L7",
+   "claim": "Use a running back or receiver at FLEX, never a tight end",
+   "articles": "A9 #4 cash, #5 tourn",
+   "group": "lineup",
+   "status": "supported",
+   "note": "MEASURED over 100 weeks and 120,000 stacked lineups, and ADOPTED. A tight end at FLEX cuts P(180+) from 0.25% to 0.17% (Δ −0.082pp, CI −0.126 to −0.039) and is worse on the mean too — 93.1 against 96.4. Restricting FLEX to RB or WR gains +0.054pp (CI 0.026 to 0.082); RB alone is best at +0.112pp. The app was doing this 8 times in 10, because tight end is often the best points-per-dollar position on a slate and the sampler weights value to the power 3.2 — but value is measured against PROJECTION, so a cheap tight end buys efficient median points with a low ceiling, which is the wrong trade for the one slot whose job is upside."
+  },
+  {
+   "id": "L8",
+   "claim": "One player per team, at most two per game",
+   "articles": "A9 #6 cash",
+   "group": "lineup",
+   "status": "untested"
+  },
+  {
+   "id": "L9",
+   "claim": "Stack a quarterback with two of his pass catchers",
+   "articles": "A5, S26, S27, S40",
+   "group": "lineup",
+   "status": "supported",
+   "note": "MEASURED. Does not raise the mean (−0.27, spans zero) but adds 3.44 points at the 99th percentile and 3.53 at the 99.9th. Adding a bring-back is what nearly doubles the chance of a 180-point week. Now the tournament default."
+  },
+  {
+   "id": "L10",
+   "claim": "Bring-back: add a pass catcher from the opposing team",
+   "articles": "A8, A9 #4 tourn, S26, S27",
+   "group": "lineup",
+   "status": "supported",
+   "note": "MEASURED, and it is the piece that does the work. A second same-team receiver alone moved P(180+) from 0.13% to only 0.17%; adding the bring-back took it to 0.25%. At the 99.9th percentile it is worth 2.4 points on its own."
+  },
+  {
+   "id": "L11",
+   "claim": "Pair a running back with his own defence",
+   "articles": "A8, A11",
+   "group": "lineup",
+   "status": "untested"
+  },
+  {
+   "id": "L12",
+   "claim": "Never play a quarterback with his own running back",
+   "articles": "A11",
+   "group": "lineup",
+   "status": "null",
+   "note": "MEASURED on a fair test: +0.26 best-of-10 (spans zero), from a healthy pool of 19,020 candidates. The one negative-correlation claim in the set, and it found nothing."
+  },
+  {
+   "id": "L13",
+   "claim": "Stack the quarterback with his highest-target receiver specifically",
+   "articles": "A5",
+   "group": "lineup",
+   "status": "untested"
+  },
+  {
+   "id": "L14",
+   "claim": "Contrarian stack: quarterback plus the WR2, not the WR1",
+   "articles": "A5",
+   "group": "lineup",
+   "status": "untested"
+  },
+  {
+   "id": "L15",
+   "claim": "In tournaments, prefer a good player in a bad matchup",
+   "articles": "A8",
+   "group": "lineup",
+   "status": "untested"
+  },
+  {
+   "id": "L16",
+   "claim": "Funnel: a strong run defence forces the opponent to pass",
+   "articles": "A2, A5",
+   "group": "lineup",
+   "status": "untested"
+  },
+  {
+   "id": "L17",
+   "claim": "Avoid facing a uniformly bad defence — blowout risk",
+   "articles": "A5",
+   "group": "lineup",
+   "status": "untested"
+  },
+  {
+   "id": "L18",
+   "claim": "Apply a home and dome tilt to the projection",
+   "articles": "A9 #9 tourn",
+   "group": "lineup",
+   "status": "supported",
+   "effect": 0.096,
+   "ci": [
+    0.011,
+    0.181
+   ],
+   "slates": 270,
+   "note": "MEASURED at 270 week-trials: +0.96 average actual points (95% CI 0.11 to 1.81). Best-of-10 +1.16, spanning zero. The first of the nineteen lineup claims to clear its interval. An earlier 34-week run reported nothing and was simply too small — the effect size in SD here is the average-points gain expressed on the shared scale."
+  },
+  {
+   "id": "L19",
+   "claim": "Apply a volume tilt from touches, targets and snap share",
+   "articles": "A2, A3, A11, S15, S20, S36",
+   "group": "lineup",
+   "status": "null",
+   "effect": 0.014,
+   "ci": [
+    -0.06,
+    0.088
+   ],
+   "slates": 270,
+   "note": "MEASURED at 270 week-trials and found nothing (+0.14 average points, +0.72 best-of-10, both spanning zero) — despite the player-level effects behind it being the largest non-defence ones in the set. A real player-level signal that does not survive being turned into a lineup rule."
+  },
+  {
+   "id": "S1",
+   "claim": "Wind over 15 mph suppresses the passing game — fade the quarterback",
+   "articles": "S15",
+   "group": "player",
+   "status": "reversed",
+   "effect": -0.292,
+   "ci": [
+    -0.477,
+    -0.107
+   ],
+   "slates": 43,
+   "note": "ADOPTED — a 10% markdown now ships. The largest player-level effect in this project, and the only one that is a FADE. A quarterback in 15+ mph wind scores 0.292 SD below what his salary implies — about 2 DK points — so DraftKings does not discount it enough. The mechanism is confirmed and not a guess: pass attempts drop 3.62 in those games (CI −5.64 to −1.60). Applies to 12.2% of outdoor games. 'Reversed' here means the player underperforms his price, which is what the claim predicts — the claim is SUPPORTED."
+  },
+  {
+   "id": "S1b",
+   "claim": "…and lean into the running game instead",
+   "articles": "S15",
+   "group": "player",
+   "status": "null",
+   "effect": -0.053,
+   "ci": [
+    -0.148,
+    0.041
+   ],
+   "slates": 65,
+   "note": "The other half of the same sentence, and it does not hold. Backs gain nothing in wind: rush attempts are flat (−0.20, spans zero) and so is scoring. Teams throw less without running more — the offence simply does less. RB, WR and TE all span zero individually; only the quarterback is mispriced."
+  },
+  {
+   "id": "S2",
+   "claim": "Air yards / aDOT is the receiver's ceiling; target share is his floor",
+   "articles": "S15, S20",
+   "group": "player",
+   "status": "untested",
+   "note": "nflverse load_player_stats carries air yards. Not yet fetched."
+  },
+  {
+   "id": "S3",
+   "claim": "Require route participation above 85% before trusting a target share",
+   "articles": "S15, S20",
+   "group": "player",
+   "status": "untested",
+   "note": "Partially approximable from Off_Snap_% already in the workbook; true route participation needs nflverse."
+  },
+  {
+   "id": "S4",
+   "claim": "Inside-the-10 carries are where a back's touchdown equity lives",
+   "articles": "S15, S36",
+   "group": "player",
+   "status": "untested",
+   "note": "Requires nflverse play-by-play; the workbook has no red-zone splits."
+  },
+  {
+   "id": "S5",
+   "claim": "EPA per play is the cleanest one-number passing-quality stat for a QB",
+   "articles": "S15, S34",
+   "group": "player",
+   "status": "untested",
+   "note": "Use a neutral-script or early-down cut, not the season average, which includes garbage time."
+  },
+  {
+   "id": "S6",
+   "claim": "Success rate is the floor signal for a running back, not yards per carry",
+   "articles": "S15, S36",
+   "group": "player",
+   "status": "untested"
+  },
+  {
+   "id": "S7",
+   "claim": "Fast-paced offences run more plays, so pace multiplies a high implied total",
+   "articles": "S20",
+   "group": "player",
+   "status": "untested",
+   "note": "Derivable from nflverse play counts."
+  },
+  {
+   "id": "S8",
+   "claim": "Avoid the mid-priced pocket passer with no rushing — the 'muddy middle'",
+   "articles": "S34",
+   "group": "player",
+   "status": "untested",
+   "note": "Testable now: salary tier crossed with rushing share, both already in the workbook."
+  },
+  {
+   "id": "S9",
+   "claim": "Never roster a defence against your own offensive stack",
+   "articles": "S30",
+   "group": "lineup",
+   "status": "untested",
+   "note": "This is AVOID_DST_OPPONENT, which this project wrongly enforced as a DraftKings RULE until 2026-09-05. Stokastic confirms it is a widely held heuristic — which is exactly why the mistake survived. Now opt-in and unmeasured."
+  },
+  {
+   "id": "S10",
+   "claim": "Cap skill players from one team at two unless the quarterback is in the stack",
+   "articles": "S27",
+   "group": "lineup",
+   "status": "untested"
+  },
+  {
+   "id": "S11",
+   "claim": "At most four players from any one team, and two unique players per lineup",
+   "articles": "S27",
+   "group": "lineup",
+   "status": "untested",
+   "note": "Stricter than DraftKings' actual eight-per-team limit; a diversification heuristic, not a rule."
+  },
+  {
+   "id": "S12",
+   "claim": "Cap exposure on QB and DST first (~20%), not uniformly across every player",
+   "articles": "S27",
+   "group": "lineup",
+   "status": "null",
+   "note": "MEASURED over 101 weeks and 3 seeds each. Tighter quarterback caps do what they say — 20% raises distinct quarterbacks from 3.1 to 5.5 — and it does not help: P(180+) falls from 1.12% to 0.83% and the mean drops 0.49, both spanning zero. Forcing the 5th and 6th quarterback into a portfolio means using worse quarterbacks, and at the most projectable position on the slate that cost roughly cancels the diversity gain. Investigating this DID expose a real bug: the cap-filling step was silently undoing any cap, cutting 5 distinct quarterbacks to 3 even at the shipped setting."
+  },
+  {
+   "id": "S13",
+   "claim": "Leaving salary on the table is a cheap way to get unique in large-field GPPs",
+   "articles": "S25",
+   "group": "lineup",
+   "status": "untested",
+   "note": "DIRECTLY CONTRADICTS the measured cap-filling result here (+3.5 average points). Worth settling — the contradiction may be objective-dependent, since uniqueness pays only in the extreme tail."
+  },
+  {
+   "id": "S14",
+   "claim": "Deliberately roster negatively correlated pieces the field refuses to touch",
+   "articles": "S25",
+   "group": "lineup",
+   "status": "untested",
+   "note": "e.g. two backs from one team. Untestable for its stated PURPOSE without ownership, since the claim is that the field avoids these, not that they score more."
+  },
+  {
+   "id": "S15",
+   "claim": "The top-projected lineup set is a trap in tournaments — it is chalk with no ceiling",
+   "articles": "S27",
+   "group": "lineup",
+   "status": "untested",
+   "note": "Partly corroborated here: core-plus-variants lost 20 points of best-of-10, and stacking beat plain projection on the tail."
+  },
+  {
+   "id": "S16",
+   "claim": "Single-entry tournaments are the softest room, because volume players lose their edge",
+   "articles": "S6, S23",
+   "group": "contest",
+   "status": "supported",
+   "note": "Structurally true and independently corroborated by the lobby: single-entry GPPs average 12.7% rake against 13.7% for 21+-entry contests. The softness half needs ownership to verify; the rake half is measured."
+  },
+  {
+   "id": "S17",
+   "claim": "DraftKings' yardage bonuses reward ceiling and correlated stacks; FanDuel has none",
+   "articles": "S35",
+   "group": "player",
+   "status": "supported",
+   "note": "A scoring-rule fact, not a strategy finding: DK pays 3 points at 100 rush/receiving and 300 passing yards. Already implemented in lib/contestDetail.ts scoring."
+  },
+  {
+   "id": "S18",
+   "claim": "Target the defence facing the lowest implied team total",
+   "articles": "S30",
+   "group": "player",
+   "status": "supported",
+   "effect": 0.458,
+   "ci": [
+    0.275,
+    0.642
+   ],
+   "slates": 47,
+   "modelled": true,
+   "note": "Already measured as 'DST favoured by 7+' — the same signal read off the line. Stokastic states it as implied total rather than spread; they are the same quantity."
+  },
+  {
+   "id": "S19",
+   "claim": "Punt defence in cash, pay up for a low-owned defence in a GPP",
+   "articles": "S30",
+   "group": "lineup",
+   "status": "untested",
+   "note": "The GPP half needs ownership. The cash half overlaps L3 (save at TE/DST), also untested."
+  },
+  {
+   "id": "S20",
+   "claim": "Late-swap: chase ceiling when your locked players busted, protect floor when live",
+   "articles": "S1, S19",
+   "group": "lineup",
+   "status": "blocked",
+   "note": "Operational and conditional on in-progress results. Cannot be backtested from final box scores."
+  },
+  {
+   "id": "F1",
+   "claim": "Defence salary varies by at most $1,000 from best to worst",
+   "articles": "F-FBG",
+   "group": "player",
+   "status": "supported",
+   "note": "MEASURED and exactly right. Mean spread $559, median $600, never above $800 across 101 slates — under $1,000 in 100% of weeks. The cheapest true statement in any of these articles."
+  },
+  {
+   "id": "F2",
+   "claim": "You cannot score in the top 1% without a top-3 defence",
+   "articles": "F-FBG",
+   "group": "lineup",
+   "status": "reversed",
+   "note": "MEASURED and false as stated: 68.3% of top-1% lineups had NO top-3 defence. But there is a real effect underneath the overstatement — 31.7% of elite lineups had one against a 13.7% base rate, a 2.32x lift. Defence is only 6.4% of a top-1% lineup's score, so it is not 'the most important position' either."
+  },
+  {
+   "id": "F3",
+   "claim": "Paying up for a defence buys you a better defence",
+   "articles": "F-FBG, S30",
+   "group": "player",
+   "status": "null",
+   "note": "MEASURED: correlation between defence salary and defence points is 0.089 (95% CI 0.044 to 0.135) — essentially nothing. This is what settles the contradiction between 'defence is the most important position' and 'punt the position'. A top-3 defence genuinely helps (2.32x lift), but salary cannot tell you which one it will be, so PUNTING WINS BY DEFAULT: take the cheapest and spend the $560 elsewhere."
+  },
+  {
+   "id": "F4",
+   "claim": "Optimising on projected points does not beat players who do not optimise",
+   "articles": "F-Medium",
+   "group": "lineup",
+   "status": "supported",
+   "note": "Not our measurement, but an independent one worth recording. An engineer built a knapsack optimiser on projections, had one huge week (232.56 actual against 130.4 projected), and concluded: 'my lineups largely blended in with those chosen by my coworkers' and 'I couldn't possibly attribute my success to the optimizer'. Projection volatility swamped the optimisation. That is this project's central finding, reached independently."
+  },
+  {
+   "id": "F5",
+   "claim": "Spread lineups across several contests rather than stacking them in one",
+   "articles": "F-FBG",
+   "group": "contest",
+   "status": "untested",
+   "note": "The stated reason is duplication: entering the same lineup many times in one contest means splitting a prize with yourself. Needs ownership and contest-level duplication data to test."
+  },
+  {
+   "id": "F6",
+   "claim": "Put 50-60% of the weekly bankroll in single-entry cash, 0-10% in the Milly Maker",
+   "articles": "F-WINDAILY",
+   "group": "contest",
+   "status": "blocked",
+   "note": "A bankroll allocation rule, not a lineup claim. Testable in principle against the real entry history by game type; not a backtest."
+  },
+  {
+   "id": "F7",
+   "claim": "Limit each week's spend to 10% of bankroll",
+   "articles": "F-DFS101, A7",
+   "group": "contest",
+   "status": "blocked",
+   "note": "A ruin-probability rule. Restates A7, already catalogued."
+  },
+  {
+   "id": "F8",
+   "claim": "In cash games, side with ownership rather than against it",
+   "articles": "F-Occupy",
+   "group": "lineup",
+   "status": "untested",
+   "note": "The inverse of GPP leverage, and correct in principle — in a 50/50 you want to be right, not different. Needs real ownership to measure."
+  },
+  {
+   "id": "B1",
+   "claim": "Target red-zone target share",
+   "articles": "A3, A4, A5",
+   "group": "player",
+   "status": "blocked",
+   "note": "No red-zone column exists in any data set here."
+  },
+  {
+   "id": "B2",
+   "claim": "Exploit a size mismatch against the assigned cornerback",
+   "articles": "A3",
+   "group": "player",
+   "status": "blocked",
+   "note": "No height or weight, and no cornerback assignment data."
+  },
+  {
+   "id": "B3",
+   "claim": "Track cornerback injuries and secondary personnel",
+   "articles": "A3",
+   "group": "player",
+   "status": "blocked",
+   "note": "No depth-chart history."
+  },
+  {
+   "id": "B4",
+   "claim": "Take the cheapest defence facing a bad quarterback",
+   "articles": "A9 #8 tourn",
+   "group": "player",
+   "status": "blocked",
+   "note": "No historical DST salary exists, so the 'cheapest' half cannot be tested. The 'bad quarterback' half was measured and supported."
+  },
+  {
+   "id": "B5",
+   "claim": "Use real Vegas totals and spreads",
+   "articles": "A1-A6, A9",
+   "group": "player",
+   "status": "blocked",
+   "note": "Absent from the workbook. Five claims run against a modelled proxy instead, so their nulls are weak evidence. Obtaining real closing lines for 2017-2025 would upgrade five tests at once."
+  },
+  {
+   "id": "B6",
+   "claim": "Use late swap to manage risk after kickoff",
+   "articles": "A8, A12",
+   "group": "lineup",
+   "status": "blocked",
+   "note": "Operational, not a lineup rule. Cannot be backtested."
+  },
+  {
+   "id": "B7",
+   "claim": "Start research early; use Twitter and prop bets",
+   "articles": "A8",
+   "group": "lineup",
+   "status": "blocked",
+   "note": "Operational."
+  },
+  {
+   "id": "B8",
+   "claim": "Play steps tournaments for upside in small fields",
+   "articles": "A12",
+   "group": "contest",
+   "status": "blocked",
+   "note": "Not offered in the lobby sample."
+  },
+  {
+   "id": "B9",
+   "claim": "Kicker selection rules",
+   "articles": "A9 #10 cash, #10 tourn",
+   "group": "lineup",
+   "status": "blocked",
+   "note": "DraftKings Classic has no kicker. Permanently not applicable."
+  },
+  {
+   "id": "C1",
+   "claim": "DraftKings GPPs pay 20-25% of the field, flatter than rivals",
+   "articles": "A12",
+   "group": "contest",
+   "status": "supported",
+   "note": "Confirmed against 19 real payout curves, which cluster at 20-26%. Not a residual measurement, so no effect size."
+  },
+  {
+   "id": "C2",
+   "claim": "Minimum cash on DraftKings roughly doubles the buy-in",
+   "articles": "A12",
+   "group": "contest",
+   "status": "supported",
+   "note": "Holds for standard GPPs. Super Booster contests are a different product: 2-3% cash rate, min cash 15-25x."
+  },
+  {
+   "id": "C3",
+   "claim": "Do not put much bankroll into 10x boosters; under 15-20% cash",
+   "articles": "A12",
+   "group": "contest",
+   "status": "supported",
+   "note": "Confirmed and then some — the measured cash rate on booster-shaped curves is 2-3%, far worse than the article's own warning."
+  },
+  {
+   "id": "C4",
+   "claim": "Finishing near the 50th percentile means reassess; 20th means a real edge",
+   "articles": "A7",
+   "group": "contest",
+   "status": "supported",
+   "note": "This is the project's edge test, and the one measurement that bypasses the untrustworthy field model. The one real account measured finished at the 49.1st percentile over 571 entries."
+  },
+  {
+   "id": "C5",
+   "claim": "Put 80% of the weekly budget in cash games, 20% in tournaments",
+   "articles": "A7",
+   "group": "contest",
+   "status": "untested",
+   "note": "Directly testable against the real entry history by game type. Not done."
+  },
+  {
+   "id": "C6",
+   "claim": "Never risk more than 10-20% of bankroll in a week",
+   "articles": "A7",
+   "group": "contest",
+   "status": "blocked",
+   "note": "A ruin-probability calculation, not a backtest."
+  },
+  {
+   "id": "C7",
+   "claim": "Track results and drop the contest types you lose in",
+   "articles": "A7",
+   "group": "contest",
+   "status": "untested",
+   "note": "Directly testable against 571 real entries. Not done."
+  },
+  {
+   "id": "C8",
+   "claim": "Overlay raises expected value",
+   "articles": "A7, A8",
+   "group": "contest",
+   "status": "blocked",
+   "note": "Arithmetically true. No overlay was observed in the lobby snapshot, so there is nothing to measure."
+  },
+  {
+   "id": "C9",
+   "claim": "Build skill positions first and add the defence last",
+   "articles": "A11",
+   "group": "lineup",
+   "status": "null",
+   "note": "Already tested in this project before the articles were read: build order made no detectable difference over 36 weeks."
+  },
+  {
+   "id": "C10",
+   "claim": "Value — points per dollar — is the basis of selection",
+   "articles": "A11",
+   "group": "lineup",
+   "status": "supported",
+   "note": "This is the project's baseline, and fifteen attempts to beat it have failed. Supported by being undefeated, not by a residual test."
+  }
+ ],
+ "statusLabel": {
+  "supported": "Supported",
+  "reversed": "Reversed",
+  "null": "No effect found",
+  "untested": "Not yet measured",
+  "blocked": "Cannot test"
+ },
+ "statusMeaning": {
+  "supported": "Measured; the interval excludes zero in the direction claimed",
+  "reversed": "Measured; the effect runs the opposite way",
+  "null": "Measured; the interval spans zero, so no effect was detected",
+  "untested": "Testable with the data we have, but the harness does not exist",
+  "blocked": "The data does not exist, or the claim is operational"
+ },
+ "statusOrder": [
+  "supported",
+  "reversed",
+  "null",
+  "untested",
+  "blocked"
+ ],
+ "groupLabel": {
+  "player": "Which players",
+  "lineup": "How to build the lineup",
+  "contest": "Which contests, and bankroll"
+ },
+ "pointsPerSd": 6.9,
+ "slatesMeasured": 158
+}

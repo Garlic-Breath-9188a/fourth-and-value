@@ -149,6 +149,55 @@ class Pool(unittest.TestCase):
                 self.assertIn("own 80th percentile", p["ceiling_source"])
 
 
+class MustPlay(unittest.TestCase):
+    """
+    Bug: a must-play quarterback with the exposure cap at 10% appeared in ALL
+    ten lineups. "Include somewhere" had been implemented as "include always",
+    and must-plays were additionally exempted from the exposure cap, so the
+    control that should have stopped it was switched off too.
+    """
+
+    def _qb(self, pool, surname):
+        return next(p for p in pool if surname in p["name"] and p["position"] == "QB")
+
+    def test_must_play_qb_appears_once_at_a_tight_cap(self):
+        pool, _ = live_pool()
+        qb = self._qb(pool, "Hurts")
+        lineups = build_portfolio(pool, 10, seed=1, attempts=8000,
+                                  qb_exposure=10, must_play={qb["id"]})
+        holding = [l for l in lineups if any(p["id"] == qb["id"] for p in l)]
+        self.assertEqual(len(holding), 1, "must-play means somewhere, not everywhere")
+
+    def test_exposure_cap_still_binds_with_a_must_play(self):
+        pool, _ = live_pool()
+        qb = self._qb(pool, "Hurts")
+        lineups = build_portfolio(pool, 10, seed=1, attempts=8000,
+                                  qb_exposure=10, must_play={qb["id"]})
+        starters = [next(p for p in l if p["position"] == "QB")["id"] for l in lineups]
+        self.assertEqual(len(set(starters)), len(starters),
+                         "a 10% cap over 10 lineups means ten different quarterbacks")
+
+    def test_must_play_non_qb_is_placed_and_lineups_stay_legal(self):
+        pool, _ = live_pool()
+        wr = max((p for p in pool if p["position"] == "WR"), key=lambda p: p["salary"])
+        lineups = build_portfolio(pool, 10, seed=2, attempts=8000, must_play={wr["id"]})
+        self.assertTrue(any(any(p["id"] == wr["id"] for p in l) for l in lineups))
+        for l in lineups:
+            self.assertLessEqual(sum(p["salary"] for p in l), rules.SALARY_CAP)
+            self.assertTrue(is_stacked(l), "placing a must-play must not break the stack")
+
+    def test_several_must_plays_all_land(self):
+        pool, _ = live_pool()
+        picks = {self._qb(pool, "Hurts")["id"]}
+        for pos in ("RB", "TE"):
+            picks.add(max((p for p in pool if p["position"] == pos),
+                          key=lambda p: p["projection"])["id"])
+        lineups = build_portfolio(pool, 10, seed=4, attempts=8000, must_play=picks)
+        placed = {p["id"] for l in lineups for p in l}
+        self.assertEqual(picks - placed, set(), "every must-play should be placed")
+        self.assertEqual(len({tuple(sorted(p["id"] for p in l)) for l in lineups}), 10)
+
+
 class EntryPlan(unittest.TestCase):
     """Bug: the plan spent $27 of a $40 budget and stacked it on one seat."""
 
@@ -175,6 +224,11 @@ class EntryPlan(unittest.TestCase):
         for cid, n in used.items():
             cap = next(c["maxEntriesPerUser"] for c in self.contests if c["id"] == cid)
             self.assertLessEqual(n, cap)
+
+    def test_every_contest_says_why_it_was_chosen(self):
+        entries, _ = plan(self.contests, 40, 10, "9/13 1:00p")
+        for e in entries:
+            self.assertTrue(e.reason, "a contest with no stated reason is a black box")
 
     def test_only_this_slate(self):
         entries, _ = plan(self.contests, 40, 10, "9/13 1:00p")
