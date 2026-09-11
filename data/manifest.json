@@ -6,9 +6,9 @@
     "note": "813 players, 16 games across the full week; the app filters to one slate."
   },
   "contests": {
-    "captured": "2026-09-03",
-    "source": "DraftKings lobby, hand-transcribed from screenshots",
-    "note": "Prize pools and fees are stable; entry counts move."
+    "captured": "2026-09-11",
+    "source": "DraftKings lobby, hand-transcribed from 5 screenshots",
+    "note": "111 contests. `window` marks which games each covers; only 'main' can take a main-slate lineup."
   },
   "variance": {
     "captured": "2026-09-02",

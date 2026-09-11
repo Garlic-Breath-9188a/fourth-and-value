@@ -48,12 +48,26 @@ def _reason(chosen: dict, same_fee: list[dict]) -> str:
     return "; ".join(bits) if bits else "only tournament at this price on the slate"
 
 
-def playable(contests: list[dict], lock_label: str | None) -> list[dict]:
-    """Only tournaments, only on our slate, only with prizes."""
+def playable(contests: list[dict], lock_label: str | None,
+             window: str | None = "main") -> list[dict]:
+    """
+    Only tournaments, only ones this lineup can actually be entered in.
+
+    Lock time alone is NOT enough to decide that. DraftKings runs "Early Only"
+    contests that lock at the same 1:00pm as the main slate but contain only the
+    early games -- 18 of them on the current board. A main-slate lineup holding
+    a 4:25pm player cannot be entered in one, and matching on lock time would
+    have offered them anyway.
+
+    Boards captured before the window field existed have no such marking, so
+    the filter is skipped rather than silently dropping every contest.
+    """
     out = [c for c in contests
            if c.get("structure") == "gpp" and c.get("totalPrizes", 0) > 0]
     if lock_label:
         out = [c for c in out if c.get("lockTime") == lock_label]
+    if window and any("window" in c for c in contests):
+        out = [c for c in out if c.get("window") == window]
     return out
 
 
@@ -74,7 +88,8 @@ def rake_pct(c: dict) -> float | None:
 
 
 def plan(contests: list[dict], budget: float, lineups: int,
-         lock_label: str | None = None) -> tuple[list[Entry], list[str]]:
+         lock_label: str | None = None,
+         window: str | None = "main") -> tuple[list[Entry], list[str]]:
     """
     Spread the budget across one entry per lineup, buying up where it fits.
 
@@ -83,7 +98,7 @@ def plan(contests: list[dict], budget: float, lineups: int,
     one lineup, and the rake saved on that seat does not pay for the
     concentration.
     """
-    pool = sorted(playable(contests, lock_label), key=lambda c: c["entryFee"])
+    pool = sorted(playable(contests, lock_label, window), key=lambda c: c["entryFee"])
     notes: list[str] = []
     if not pool:
         return [], ["No tournaments on this slate in the contest file."]

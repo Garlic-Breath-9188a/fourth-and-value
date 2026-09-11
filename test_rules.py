@@ -293,6 +293,25 @@ class EntryPlan(unittest.TestCase):
         for e in entries:
             self.assertEqual(e.contest["lockTime"], "9/13 1:00p")
 
+    def test_early_only_contests_are_not_offered(self):
+        """
+        The trap: "Early Only" contests lock at the same 1:00pm as the main
+        slate but contain only the early games. Matching on lock time alone
+        offers them, and a main-slate lineup cannot be entered in one.
+        """
+        early = [c for c in self.contests
+                 if c.get("window") == "early" and c["lockTime"] == "9/13 1:00p"]
+        self.assertTrue(early, "board should contain early-only contests to guard against")
+        entries, _ = plan(self.contests, 40, 10, "9/13 1:00p")
+        for e in entries:
+            self.assertEqual(e.contest.get("window"), "main")
+
+    def test_board_without_windows_still_plans(self):
+        """An older capture has no window field; the filter must not empty it."""
+        legacy = [{k: v for k, v in c.items() if k != "window"} for c in self.contests]
+        entries, _ = plan(legacy, 40, 10, "9/13 1:00p")
+        self.assertEqual(len(entries), 10)
+
     def test_small_budget_reduces_entries_and_says_so(self):
         entries, notes = plan(self.contests, 10, 10, "9/13 1:00p")
         self.assertLess(len(entries), 10)
