@@ -61,6 +61,18 @@
    "evidence": "lib/stacking.ts FLEX_POSITIONS · scripts/test-flex.mjs · evidence/flex-2026-09-08.txt"
   },
   {
+   "id": "cheap-wr-double",
+   "claim": "Finding one cheap receiver who doubles his projection is the key to winning a tournament.",
+   "source": "User, 2026-09-11",
+   "domain": "lineup",
+   "verdict": "confirmed-inert",
+   "plain": "True, partly predictable, and still not worth building on. Winning lineups really are made of these players: the top 1% of lineups hold a cheap receiver who doubled his price 51.6% of the time against 28.0% for everything else. And you can narrow the field in advance — cheap receivers in the top quartile of trailing targets hit 19.6% of the time against 8.1% in the bottom quartile, a 2.4x separation on a 13.7% base rate. But building lineups that lean toward them does not raise the score a tournament pays. Best-of-10 spans zero at every tilt size tried.",
+   "result": "Presence in top-1% lineups 51.6% vs 28.0% base, +23.6pp (95% CI 21 to 26); lineups holding one score +11.9 pts (CI 11.2 to 12.7). Predictor: 19.6% hit rate top quartile by trailing targets vs 8.1% bottom. Lineup-level tilt at 5/10/20%: best-of-10 +2.40 (CI -1.30 to 6.10), +2.90 (CI -0.86 to 6.67), +1.32 (CI -2.06 to 4.70) — all span zero. Average points +1.61 (CI 0.21 to 3.02) at 10% only",
+   "sample": "134 weeks for presence, 5,663 receiver-weeks for the predictor, 92 weeks for the tilt",
+   "detail": "The presence result is close to tautological and should be discounted almost entirely: a lineup containing a player who massively outscored his price IS a higher-scoring lineup, by construction. It tells you what a winning lineup looks like afterwards, not what to do beforehand.\n\nThe predictor is the real content, and it is genuinely better than chance. It is also consistent with an effect already on this ledger — receivers who see volume are underpriced by 0.112 SD — so it is probably the same thing measured a second way rather than a new finding.\n\nThe one interval that excludes zero is average points at a 10% tilt, and it should not be trusted. Three tilt sizes times two metrics is six tests, so one clearing at the 5% level is roughly what chance produces. The pattern is also non-monotonic — 5% spans zero, 10% clears, 20% spans again — which is what noise looks like and not what a real effect looks like. A real effect would grow then fade, as the matchup cap does.\n\nAverage points is also the wrong metric here. It is what a cash game pays. This project plays tournaments, where best-of-10 is what matters, and best-of-10 spans zero everywhere.\n\nWorth noting what would change the answer: the tilt was applied to the top quartile by trailing targets, which is a coarse filter. A better predictor of which cheap receiver breaks out — a route-participation or air-yards share the workbook does not carry — could revive this. The mechanism is real; the handle on it is weak.",
+   "evidence": "scripts/test-cheap-wr.mjs, scripts/test-cheap-wr-tilt.mjs"
+  },
+  {
    "id": "qb-bust-risk",
    "claim": "Concentrating on one quarterback risks the whole portfolio if he busts.",
    "source": "User, on seeing one quarterback in five of ten lineups",
