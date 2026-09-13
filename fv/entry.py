@@ -48,6 +48,34 @@ def _reason(chosen: dict, same_fee: list[dict]) -> str:
     return "; ".join(bits) if bits else "only tournament at this price on the slate"
 
 
+def booster_shaped(c: dict) -> bool:
+    """
+    Is this a Booster, rather than a tournament?
+
+    DraftKings marks Double Ups with structure "double_up" and they are filtered
+    out on that. **Super Boosters are marked "gpp"** and are not, so they reached
+    the plan and were recommended -- a $50 "NFL $10K Super Booster [Top 10 Win
+    $1,000]" was offered as half a $100 budget. That is the bug this catches.
+
+    They are a different product wearing a tournament's label. A standard
+    DraftKings GPP pays 20-25% of the field and minimum cash is roughly twice
+    the buy-in. A Booster pays a **2-3% cash rate with minimum cash at 15-25x**:
+    a handful of identical large prizes and nothing else, which the name states
+    outright ("Top 10 Win $1,000").
+
+    That was measured, not assumed -- see the C2/C3 rows in the strategy ledger,
+    where it is recorded as "confirmed and then some". Rake does not see it: a
+    Booster can show a perfectly ordinary rake while paying almost nobody, so
+    ranking on rake alone will keep choosing them.
+
+    Detection is on the name because the lobby file carries no payout curve, and
+    because DraftKings names the product consistently. If a future board marks
+    them with their own `structure`, prefer that.
+    """
+    name = c.get("name", "").lower()
+    return "booster" in name or "double up" in name
+
+
 def playable(contests: list[dict], lock_label: str | None,
              window: str | None = "main") -> list[dict]:
     """
@@ -63,7 +91,8 @@ def playable(contests: list[dict], lock_label: str | None,
     the filter is skipped rather than silently dropping every contest.
     """
     out = [c for c in contests
-           if c.get("structure") == "gpp" and c.get("totalPrizes", 0) > 0]
+           if c.get("structure") == "gpp" and c.get("totalPrizes", 0) > 0
+           and not booster_shaped(c)]
     if lock_label:
         out = [c for c in out if c.get("lockTime") == lock_label]
     if window and any("window" in c for c in contests):

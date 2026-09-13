@@ -16,6 +16,7 @@ from fv.pool import load_salaries, keep_starting_quarterbacks, apply_ceilings, r
 from fv.roster import order_roster, stack_role, is_stacked, fill_dk_template, DK_SLOTS
 from fv.optimize import build_portfolio, build_lineup
 from fv.entry import plan, rake_pct
+from fv import entry as entry_mod
 import random
 
 DATA = Path(__file__).resolve().parent / "data"
@@ -463,3 +464,53 @@ class ParsePlaced(unittest.TestCase):
         a = ent.parse_placed("bad")
         a["entries"].append("x")
         self.assertEqual(ent.parse_placed("bad")["entries"], [])
+
+
+class BoostersAreNotTournaments(unittest.TestCase):
+    """
+    The bug: the plan recommended "NFL $10K Super Booster [Top 10 Win $1,000]"
+    at $50 -- half a $100 budget -- and the user could not find it on the board.
+
+    DraftKings marks Double Ups with structure "double_up", which the planner
+    already excluded. It marks Super Boosters "gpp", so they passed straight
+    through. They pay a 2-3% cash rate against 20-25% for a real GPP, which is
+    exactly what this project measured and recorded.
+    """
+
+    def test_the_contest_that_caused_this_is_caught(self):
+        c = {"name": "NFL $10K Super Booster [Top 10 Win $1,000]", "entryFee": 50,
+             "totalPrizes": 10000, "structure": "gpp", "maxEntries": 235}
+        self.assertTrue(entry_mod.booster_shaped(c))
+
+    def test_double_ups_are_caught_by_name_too(self):
+        # Belt and braces: these are already excluded by structure, but the name
+        # check must not depend on that field being right.
+        self.assertTrue(entry_mod.booster_shaped({"name": "NFL GIANT $50 Double Up [Single Entry]"}))
+        self.assertTrue(entry_mod.booster_shaped({"name": "NFL BIG 10x Booster [Top 30 Win $100]"}))
+
+    def test_real_tournaments_are_not_caught(self):
+        for name in ("NFL $400K Play-Action [20 Entry Max]",
+                     "NFL $200K Red Zone [$25K to 1st, Single Entry]",
+                     "NFL $3.5M Fantasy Football Millionaire",
+                     "NFL $80K Shovel Pass [2x Min Cash]"):
+            self.assertFalse(entry_mod.booster_shaped({"name": name}), name)
+
+    def test_playable_drops_a_gpp_marked_booster(self):
+        board = [
+            {"id": "a", "name": "NFL $10K Super Booster [Top 10 Win $1,000]", "entryFee": 50,
+             "totalPrizes": 10000, "structure": "gpp", "maxEntries": 235},
+            {"id": "b", "name": "NFL $400K Play-Action [20 Entry Max]", "entryFee": 3,
+             "totalPrizes": 400000, "structure": "gpp", "maxEntries": 158541},
+        ]
+        kept = [c["id"] for c in entry_mod.playable(board, None, None)]
+        self.assertEqual(kept, ["b"])
+
+    def test_the_plan_never_returns_a_booster_on_the_board_that_had_them(self):
+        # The board shipped with the first release carried 32 of them.
+        path = Path("data/lobby-week1-2026.json")
+        board = json.loads(path.read_text())
+        contests = board["contests"] if isinstance(board, dict) else board
+        entries, _ = entry_mod.plan(contests, 100, 10, None, None)
+        self.assertTrue(entries, "the plan should still produce entries")
+        for e in entries:
+            self.assertFalse(entry_mod.booster_shaped(e.contest), e.contest["name"])
