@@ -80,6 +80,17 @@
       "maxEntries": 4705,
       "entriesPerUser": 20,
       "liveIn": "Sun 1:00pm"
+    },
+    {
+      "id": "blind-side-100k",
+      "name": "NFL $100K Blind Side [Single Entry]",
+      "entryFee": 27,
+      "totalPrizes": 100000,
+      "topPrize": 10000,
+      "entered": 2267,
+      "maxEntries": 4319,
+      "entriesPerUser": 1,
+      "liveIn": "Sun 1:00pm"
     }
   ],
   "entries": [
@@ -631,7 +642,68 @@
           "salary": 2700
         }
       ]
+    },
+    {
+      "entry": 10,
+      "contestId": "blind-side-100k",
+      "remainingSalary": 100,
+      "roster": [
+        {
+          "slot": "QB",
+          "name": "B. Mayfield",
+          "team": "TB",
+          "salary": 5900
+        },
+        {
+          "slot": "RB",
+          "name": "J. Gibbs",
+          "team": "DET",
+          "salary": 8000
+        },
+        {
+          "slot": "RB",
+          "name": "O. Hampton",
+          "team": "LAC",
+          "salary": 6800
+        },
+        {
+          "slot": "WR",
+          "name": "J. Chase",
+          "team": "CIN",
+          "salary": 7800
+        },
+        {
+          "slot": "WR",
+          "name": "E. Egbuka",
+          "team": "TB",
+          "salary": 6200
+        },
+        {
+          "slot": "WR",
+          "name": "T. Johnson",
+          "team": "TB",
+          "salary": 3100
+        },
+        {
+          "slot": "TE",
+          "name": "D. Waller",
+          "team": "CAR",
+          "salary": 3200
+        },
+        {
+          "slot": "FLEX",
+          "name": "B. Irving",
+          "team": "TB",
+          "salary": 5700
+        },
+        {
+          "slot": "DST",
+          "name": "Eagles",
+          "team": "PHI",
+          "salary": 3200
+        }
+      ]
     }
   ],
-  "staked": 78
+  "staked": 105
 }
