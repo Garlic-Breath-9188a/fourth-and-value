@@ -99,6 +99,12 @@ def load_strategy():
     return json.loads((DATA / "strategy.json").read_text())
 
 
+@st.cache_data(show_spinner=False)
+def load_placed_entries():
+    """Entries actually placed on DraftKings. Absent on a public deploy."""
+    return ent.load_placed(DATA / "entries-placed.json")
+
+
 @st.cache_data(show_spinner=True)
 def portfolio(ids, count, seed, ceiling_weight, qb_exposure, rb_exposure, must_play,
               require_wr1, avoid_keys):
@@ -134,7 +140,10 @@ with st.sidebar:
                         help="Most tournaments are the Sunday main slate. A lineup built "
                              "for the wrong slate cannot be entered.")
     slate = options[labels.index(pick)]
-    pool, dropped = restrict(all_rows, slate)
+    # The dropped games are deliberately not shown: the user asked for what IS
+    # on the slate, not a list of teams that are not. The slate label above
+    # already says which window is in play.
+    pool, _dropped = restrict(all_rows, slate)
 
     st.markdown("### Portfolio")
     n_lineups = st.slider("Lineups", 1, 20, 10)
@@ -215,28 +224,6 @@ lock_label = f"{slate.locks_at.strftime('%-m/%-d %-I:%M')}p"
 entries, entry_notes = plan(lobby["contests"], budget, len(lineups), lock_label)
 
 with tab_board:
-    if conflicts:
-        removed = [c for c in conflicts if c["live_status"] in injuries.BLOCKING]
-        doubt = [c for c in conflicts if c["live_status"] not in injuries.BLOCKING]
-        with st.expander(f"⚕️ Injury wire disagrees with the salary file on "
-                         f"{len(conflicts)} players — {len(removed)} removed", expanded=bool(removed)):
-            st.dataframe(pd.DataFrame([{
-                "Player": c["name"], "Pos": c["position"], "Team": c["team"],
-                "Salary file": c["status"], "Injury wire": c["live_status"],
-                "Body part": c["body_part"] or "—",
-                "Removed": "yes" if c["live_status"] in injuries.BLOCKING else "no",
-                "Note": c["note"][:90],
-            } for c in conflicts]), width="stretch", hide_index=True)
-            st.caption("The wire is live; the salary file is frozen at export. Where they "
-                       "disagree the wire is usually newer — but check DraftKings before "
-                       "entering, because only their ruling decides whether a lineup is legal.")
-            if doubt:
-                st.caption("Players merely listed questionable are kept. A hamstring or calf "
-                           "return is the exception worth acting on: those miss their price by "
-                           "0.185 and 0.438 SD. Knee, ankle, shoulder, concussion and groin "
-                           "returns are all priced correctly and are not faded.")
-    if dropped:
-        st.info(f"Not on this slate, so excluded: {', '.join(dropped)}")
     if not lineups:
         st.error("No lineups could be built. Loosen the must-play list.")
     else:
@@ -289,6 +276,32 @@ with tab_board:
                     ent.forget(st.session_state.entered, l)
                     st.rerun()
             st.write("")
+
+        # ---- Injury wire, at the bottom and closed ----------------------
+        # It was at the top and open. That is backwards: it is a cross-check on
+        # a handful of players, not the thing the page is for, and it pushed the
+        # lineups themselves below the fold. The count stays visible in the
+        # expander label so a removal is never silent.
+        if conflicts:
+            removed = [c for c in conflicts if c["live_status"] in injuries.BLOCKING]
+            doubt = [c for c in conflicts if c["live_status"] not in injuries.BLOCKING]
+            with st.expander(f"⚕️ Injury wire disagrees with the salary file on "
+                             f"{len(conflicts)} players — {len(removed)} removed", expanded=False):
+                st.dataframe(pd.DataFrame([{
+                    "Player": c["name"], "Pos": c["position"], "Team": c["team"],
+                    "Salary file": c["status"], "Injury wire": c["live_status"],
+                    "Body part": c["body_part"] or "—",
+                    "Removed": "yes" if c["live_status"] in injuries.BLOCKING else "no",
+                    "Note": c["note"][:90],
+                } for c in conflicts]), width="stretch", hide_index=True)
+                st.caption("The wire is live; the salary file is frozen at export. Where they "
+                           "disagree the wire is usually newer — but check DraftKings before "
+                           "entering, because only their ruling decides whether a lineup is legal.")
+                if doubt:
+                    st.caption("Players merely listed questionable are kept. A hamstring or calf "
+                               "return is the exception worth acting on: those miss their price by "
+                               "0.185 and 0.438 SD. Knee, ankle, shoulder, concussion and groin "
+                               "returns are all priced correctly and are not faded.")
 
         spent = sum(e.fee for e in entries)
         c1, c2, c3 = st.columns(3)
@@ -383,6 +396,75 @@ with tab_pool:
             st.markdown(f"**{label}** — {why}")
 
 with tab_entry:
+    # ---- What was ACTUALLY entered ------------------------------------------
+    # This goes first, above the plan. The plan below is a recommendation; this
+    # is money already staked, and the two must not be confused. Hidden entirely
+    # when the file is absent, which is the case on the public deploy.
+    placed = load_placed_entries()
+    if placed["entries"]:
+        st.markdown("### Contests you have entered")
+        p_rows = []
+        for e in placed["entries"]:
+            c = ent.placed_contest(placed, e.get("contestId", ""))
+            roster = e.get("roster", [])
+            qb = next((r for r in roster if r.get("slot") == "QB"), {})
+            idx = ent.match_generated(roster, lineups)
+            best = max((ent.overlap_with(roster, l) for l in lineups), default=0)
+            p_rows.append({
+                "#": e.get("entry"),
+                "Contest": c.get("name", "—"),
+                "Fee": c.get("entryFee", 0.0),
+                "Prizes": c.get("totalPrizes", 0),
+                "Rake %": rake_pct(c) if c else 0.0,
+                "QB": f'{qb.get("name", "—")} ({qb.get("team", "")})',
+                "Left": 50000 - sum(r.get("salary", 0) for r in roster),
+                "On the board": (f"= lineup {idx + 1}" if idx is not None
+                                 else f"no — closest shares {best}/9"),
+            })
+        p_table = pd.DataFrame(p_rows)
+        st.dataframe(
+            p_table, width="stretch", hide_index=True,
+            column_config={
+                "Fee": st.column_config.NumberColumn("Fee", format="$%d"),
+                "Prizes": st.column_config.NumberColumn("Prizes", format="$%d"),
+                "Rake %": st.column_config.NumberColumn("Rake %", format="%.1f%%"),
+                "Left": st.column_config.NumberColumn("Cap left", format="$%d"),
+            })
+
+        staked = ent.placed_fees(placed)
+        contests_n = len({e.get("contestId") for e in placed["entries"]})
+        rakes = [r for r in p_table["Rake %"] if r]
+        k1, k2, k3 = st.columns(3)
+        k1.metric("Staked", f"${staked:,.0f}", f"{len(placed['entries'])} entries")
+        k2.metric("Contests", f"{contests_n}")
+        k3.metric("Rake on that money", f"{(sum(rakes) / len(rakes) if rakes else 0):.1f}%",
+                  "worst band on the board", delta_color="inverse")
+
+        with st.expander("The nine players in each"):
+            for e in placed["entries"]:
+                c = ent.placed_contest(placed, e.get("contestId", ""))
+                st.markdown(f'**#{e.get("entry")} · {c.get("name", "—")}** · '
+                            f'${c.get("entryFee", 0):.0f}')
+                # The recorded slot comes from DraftKings' own entry screen, so
+                # it is authoritative -- do NOT re-derive it with order_roster,
+                # which needs a projection these rows do not carry and would be
+                # guessing at something already known.
+                st.dataframe(
+                    pd.DataFrame([{"Slot": pl.get("slot", "?"), "Player": pl["name"],
+                                   "Team": pl.get("team", ""), "Salary": pl.get("salary", 0)}
+                                  for pl in e.get("roster", [])]),
+                    width="stretch", hide_index=True,
+                    column_config={"Salary": st.column_config.NumberColumn(
+                        "Salary", format="$%d")})
+
+        st.caption(
+            f"Transcribed from the DraftKings entry screen on {placed.get('transcribed', '—')} "
+            "and checked against the salary file — every lineup reconciles to the cap and "
+            "every player resolves to exactly one person on the slate. These are placed "
+            "bets, not suggestions. The plan below is the suggestion.")
+        st.divider()
+
+    st.markdown("### The plan")
     for n in entry_notes:
         st.warning(n)
     if entries:

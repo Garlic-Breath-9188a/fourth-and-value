@@ -1,3 +1,10 @@
 __pycache__/
 *.pyc
 .DS_Store
+
+# The entries actually placed on DraftKings: which contests, which lineups, how
+# much staked. THIS REPO IS PUBLIC -- unlike the private app/ repo, where the
+# same file is committed. A personal betting record does not belong in it.
+# The app reads the file when it is present and hides the section when it is
+# not, so a public deploy simply does not show it.
+data/entries-placed.json

@@ -367,3 +367,65 @@ class EntryPlan(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class PlacedEntries(unittest.TestCase):
+    """
+    The entries actually placed on DraftKings, read back into the Entry plan tab.
+
+    The file is gitignored because this repo is public, so the app has to work
+    without it -- a missing file must hide the section, not raise.
+    """
+
+    def test_a_missing_file_is_empty_not_an_error(self):
+        data = ent.load_placed(Path("data/does-not-exist.json"))
+        self.assertEqual(data["entries"], [])
+        self.assertEqual(ent.placed_fees(data), 0)
+
+    def test_malformed_json_is_empty_not_an_error(self):
+        bad = Path("data/_bad-placed.json")
+        bad.write_text("{ not json")
+        try:
+            self.assertEqual(ent.load_placed(bad)["entries"], [])
+        finally:
+            bad.unlink()
+
+    def test_fees_sum_across_the_contests_each_entry_names(self):
+        data = {"entries": [{"contestId": "a"}, {"contestId": "a"}, {"contestId": "b"}],
+                "contests": [{"id": "a", "entryFee": 3}, {"id": "b", "entryFee": 5}]}
+        self.assertEqual(ent.placed_fees(data), 11)
+
+    def test_an_unknown_contest_id_contributes_nothing_rather_than_raising(self):
+        data = {"entries": [{"contestId": "ghost"}], "contests": [{"id": "a", "entryFee": 3}]}
+        self.assertEqual(ent.placed_fees(data), 0)
+        self.assertEqual(ent.placed_contest(data, "ghost"), {})
+
+    def test_matching_survives_the_screen_abbreviating_a_name(self):
+        # The entry screen shows "B. Robinson"; the pool has "Bijan Robinson".
+        placed = [{"name": "B. Robinson", "team": "ATL"}, {"name": "J. Love", "team": "GB"}]
+        generated = [{"name": "Bijan Robinson", "team": "ATL"}, {"name": "Jordan Love", "team": "GB"}]
+        self.assertEqual(ent.match_generated(placed, [generated]), 0)
+        self.assertEqual(ent.overlap_with(placed, generated), 2)
+
+    def test_same_surname_on_different_teams_is_not_a_match(self):
+        placed = [{"name": "J. Lane", "team": "BAL"}]
+        other = [{"name": "Jaylin Lane", "team": "WAS"}]
+        self.assertIsNone(ent.match_generated(placed, [other]))
+        self.assertEqual(ent.overlap_with(placed, other), 0)
+
+    def test_no_generated_lineup_matches_returns_none_not_zero(self):
+        placed = [{"name": "B. Robinson", "team": "ATL"}]
+        self.assertIsNone(ent.match_generated(placed, [[{"name": "Saquon Barkley", "team": "PHI"}]]))
+
+    def test_the_real_file_when_present_reconciles_to_its_budget(self):
+        path = Path("data/entries-placed.json")
+        if not path.exists():
+            self.skipTest("placed-entries file not present (expected on a public deploy)")
+        data = ent.load_placed(path)
+        self.assertEqual(ent.placed_fees(data), data["budget"])
+        for e in data["entries"]:
+            roster = e["roster"]
+            self.assertEqual(len(roster), 9, f"entry {e['entry']} is not nine players")
+            self.assertEqual(sum(p["salary"] for p in roster),
+                             50000 - e["remainingSalary"],
+                             f"entry {e['entry']} does not reconcile to the cap")

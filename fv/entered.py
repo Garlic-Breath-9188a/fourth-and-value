@@ -62,3 +62,78 @@ def to_csv(entered: dict) -> str:
         w.writerow([e["contest"], f"{e['fee']:.2f}"] + [f'{p["name"]} ({p["id"]})'
                                                         for _, p in ordered])
     return out.getvalue()
+
+
+# ---------------------------------------------------------------------------
+# Entries actually placed on DraftKings.
+#
+# Everything above is the in-session tick-list: lineups this app generated that
+# you have marked as entered. This is the other thing -- the real entries, read
+# back from a transcription of the DraftKings entry screen, so the Entry plan
+# tab can show what was ACTUALLY staked next to what it recommends.
+#
+# The file is optional and gitignored. This repo is public; a personal betting
+# record is not committed to it. When the file is absent every function here
+# returns empty and the tab hides the section rather than showing a broken one.
+# ---------------------------------------------------------------------------
+
+import json
+from pathlib import Path
+
+
+def load_placed(path: Path) -> dict:
+    """The placed-entries file, or an empty record when it is not present."""
+    try:
+        data = json.loads(Path(path).read_text())
+    except (OSError, ValueError):
+        return {"entries": [], "contests": [], "budget": 0.0, "note": "", "transcribed": ""}
+    data.setdefault("entries", [])
+    data.setdefault("contests", [])
+    data.setdefault("budget", 0.0)
+    return data
+
+
+def placed_contest(data: dict, contest_id: str) -> dict:
+    for c in data.get("contests", []):
+        if c.get("id") == contest_id:
+            return c
+    return {}
+
+
+def placed_fees(data: dict) -> float:
+    return sum(placed_contest(data, e.get("contestId", "")).get("entryFee", 0.0)
+               for e in data.get("entries", []))
+
+
+def _name_team(players) -> frozenset:
+    """
+    Identity used to compare a placed roster against a generated one.
+
+    NOT the player id. The placed entries are transcribed from a screen that
+    shows an initial and a surname, so they carry no DraftKings id -- matching
+    on name and team is the most that can honestly be done, and salary is
+    checked separately by scripts/check-entries.mjs in the app repo.
+    """
+    out = set()
+    for p in players:
+        name = p.get("name", "")
+        # "Bijan Robinson" from the pool vs "B. Robinson" from the screen.
+        parts = name.replace(".", "").split()
+        surname = parts[-1].lower() if parts else ""
+        initial = parts[0][0].lower() if parts else ""
+        out.add((initial, surname, p.get("team", "")))
+    return frozenset(out)
+
+
+def match_generated(placed_roster: list[dict], lineups: list[list[dict]]) -> int | None:
+    """Index of the generated lineup with the same nine players, or None."""
+    want = _name_team(placed_roster)
+    for i, l in enumerate(lineups):
+        if _name_team(l) == want:
+            return i
+    return None
+
+
+def overlap_with(placed_roster: list[dict], lineup: list[dict]) -> int:
+    """How many of the nine a placed entry shares with a generated lineup."""
+    return len(_name_team(placed_roster) & _name_team(lineup))
