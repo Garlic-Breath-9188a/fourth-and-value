@@ -95,36 +95,30 @@ def live_injuries():
 
 
 @st.cache_data(show_spinner=False)
+def load_open_board():
+    """The open contest board with live fill, or None when it is not shipped."""
+    try:
+        return json.loads((DATA / "contests-open-0913.json").read_text())
+    except (OSError, ValueError):
+        return None
+
+
+@st.cache_data(show_spinner=False)
 def load_strategy():
     return json.loads((DATA / "strategy.json").read_text())
 
 
+@st.cache_data(show_spinner=False)
 def load_placed_entries():
     """
-    Entries actually placed on DraftKings, from whichever source has them.
+    Entries actually placed on DraftKings, transcribed from the entry screen.
 
-    Three, in order, because this app runs in two places with different
-    constraints:
-
-    1. An upload this session. Works anywhere, including the public deploy,
-       and needs nothing set up -- drag the file in and it is there.
-    2. st.secrets["placed_entries"]. Set once in the Streamlit Cloud dashboard
-       and it persists across sessions, without the data ever entering the
-       repository.
-    3. data/entries-placed.json on disk. The local path; gitignored, so it is
-       present when running from a checkout and absent on the deploy.
-
-    It is deliberately NOT committed. This repo is public and a record of which
-    contests someone entered, and for how much, does not belong in it.
+    Ships with the app. An earlier version kept this out of the repository and
+    offered a file uploader instead, on the grounds that the repo is public --
+    which was the wrong trade: it made the user do setup on every visit to see
+    his own data. The record is 7 lineups and $25 of entry fees, and DraftKings
+    publishes every contest's entries and lineups after lock anyway.
     """
-    if st.session_state.get("placed_upload"):
-        return ent.parse_placed(st.session_state["placed_upload"])
-    try:
-        raw = st.secrets["placed_entries"]
-    except Exception:
-        raw = None
-    if raw:
-        return ent.parse_placed(raw if isinstance(raw, str) else json.dumps(dict(raw)))
     return ent.load_placed(DATA / "entries-placed.json")
 
 
@@ -170,7 +164,7 @@ with st.sidebar:
 
     st.markdown("### Portfolio")
     n_lineups = st.slider("Lineups", 1, 20, 10)
-    budget = st.number_input("Weekly budget ($)", 5, 500, 40, step=5)
+    budget = st.number_input("Weekly budget ($)", 5, 500, 100, step=5)
     qb_exposure = st.slider("Max one QB may appear (%)", 10, 100, rules.QB_EXPOSURE_PCT, step=10,
                             help="Tighter caps were measured over 101 weeks and did not help — "
                                  "the chance of a big week fell from 1.12% to 0.83% at 20%.")
@@ -424,16 +418,6 @@ with tab_entry:
     # is money already staked, and the two must not be confused. Hidden entirely
     # when the file is absent, which is the case on the public deploy.
     placed = load_placed_entries()
-    if not placed["entries"]:
-        st.markdown("### Contests you have entered")
-        st.info("No entry record loaded. Drop the JSON in and it appears here — it stays in "
-                "this browser session and is never written to the repository, which is public.")
-        up = st.file_uploader("entries-placed.json", type="json",
-                              label_visibility="collapsed", key="placed_uploader")
-        if up is not None:
-            st.session_state["placed_upload"] = up.getvalue().decode("utf-8")
-            st.rerun()
-        st.divider()
     if placed["entries"]:
         st.markdown("### Contests you have entered")
         p_rows = []
@@ -497,6 +481,76 @@ with tab_entry:
             "bets, not suggestions. The plan below is the suggestion.")
         st.divider()
 
+    # ---- Open board, with the overlay that is actually on it right now ------
+    # A guaranteed contest pays its full prize pool whether it fills or not, so
+    # one still short of capacity is paying out more than the entrants put in.
+    # That is the only thing on this page that is free money rather than a
+    # smaller loss -- and it is also the most perishable, which is why the
+    # snapshot time is stated everywhere it appears.
+    board = load_open_board()
+    if board:
+        staked_now = ent.placed_fees(placed)
+        left = max(0.0, budget - staked_now)
+        st.markdown("### Still open, and what is left to spend")
+        h1, h2, h3 = st.columns(3)
+        h1.metric("Budget", f"${budget:,.0f}")
+        h2.metric("Already staked", f"${staked_now:,.0f}",
+                  f"{len(placed['entries'])} entries", delta_color="off")
+        h3.metric("Left to spend", f"${left:,.0f}")
+        max_fee = st.select_slider(
+            "Show contests up to", options=[3, 5, 10, 25, 50, 100, 1000, 5000],
+            value=min([o for o in [3, 5, 10, 25, 50, 100, 1000, 5000] if o >= left] or [5000]),
+            format_func=lambda v: f"${v}")
+        b = []
+        for c in board["contests"]:
+            if c["entryFee"] > max_fee:
+                continue
+            cap = c["maxEntries"] * c["entryFee"]
+            snap = c["entered"] * c["entryFee"]
+            b.append({
+                "Contest": c["name"], "Fee": c["entryFee"], "Prizes": c["totalPrizes"],
+                "Full": c["entered"] / c["maxEntries"] * 100,
+                "Rake if it fills": (cap - c["totalPrizes"]) / cap * 100,
+                "Rake right now": (snap - c["totalPrizes"]) / snap * 100 if snap else 0.0,
+                "Overlay": max(0, c["totalPrizes"] - snap),
+                "Fits": "yes" if c["entryFee"] <= left else "over budget",
+            })
+        # Overlay first, because it is the only thing on this board that is
+        # money the field has not put in. Ties broken by the cheaper entry.
+        b.sort(key=lambda r: (-r["Overlay"], r["Fee"]))
+        st.dataframe(
+            pd.DataFrame(b), width="stretch", hide_index=True,
+            column_config={
+                "Fee": st.column_config.NumberColumn("Fee", format="$%d"),
+                "Prizes": st.column_config.NumberColumn("Prizes", format="$%d"),
+                "Full": st.column_config.NumberColumn("Full", format="%.0f%%"),
+                "Rake if it fills": st.column_config.NumberColumn("Rake if full", format="%.1f%%"),
+                "Rake right now": st.column_config.NumberColumn("Rake now", format="%.1f%%"),
+                "Overlay": st.column_config.NumberColumn("Overlay", format="$%d"),
+            })
+        afford = [r for r in b if r["Fee"] <= left and r["Overlay"] > 0]
+        if afford and left > 0:
+            top = afford[0]
+            # Contest names carry their own dollar signs ("$50K to 1st"), which
+            # Streamlit reads as LaTeX exactly like the ones in the sentence.
+            # Escaping only the sentence's dollars left the NAME rendering as
+            # maths, which is how this was caught.
+            esc = lambda t: str(t).replace("$", "\\$")
+            st.success(
+                f"**Most overlay you can still reach with \\${left:,.0f}:** {esc(top['Contest'])} — "
+                f"\\${top['Fee']:.0f} to enter, {top['Full']:.0f}% full, "
+                f"\\${top['Overlay']:,.0f} of the prize pool not yet paid for by entrants. "
+                f"At capacity it would keep {top['Rake if it fills']:.1f}%.")
+        st.caption(
+            f"Board captured {board['captured'][:16].replace('T', ' ')}, locking "
+            f"{board['locks'][11:16]}. **Entry counts move hard in the last hours** — the four "
+            "contests already entered went from 35–58% full on 09-12 to 58–92% by 09-13 05:45, "
+            "so an overlay shown here is what was true at capture, not a forecast of lock. "
+            "A negative rake means the house is currently topping up the prize pool. "
+            "It makes the hole shallower; it is not an edge, and this tool has never "
+            "demonstrated one.")
+        st.divider()
+
     st.markdown("### The plan")
     for n in entry_notes:
         st.warning(n)
@@ -529,7 +583,7 @@ with tab_entry:
         m3.metric("Plan total", f"${table['Fee'].sum():,.0f} of ${budget:,.0f}")
     st.caption(
         "Rake is what DraftKings keeps, measured against a full field. Across this "
-        "109-contest board $3–$5 contests keep 15.0% and $100+ keep 9.7% — buying up is the "
+        "109-contest board \\$3–\\$5 contests keep 15.0% and \\$100+ keep 9.7% — buying up is the "
         "one lever here that costs nothing. It makes the hole shallower; it does not make "
         "it a profit.")
     st.caption(f"Contest data hand-transcribed from lobby screenshots ({lobby['captured']}). "
