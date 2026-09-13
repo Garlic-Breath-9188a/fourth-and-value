@@ -99,9 +99,32 @@ def load_strategy():
     return json.loads((DATA / "strategy.json").read_text())
 
 
-@st.cache_data(show_spinner=False)
 def load_placed_entries():
-    """Entries actually placed on DraftKings. Absent on a public deploy."""
+    """
+    Entries actually placed on DraftKings, from whichever source has them.
+
+    Three, in order, because this app runs in two places with different
+    constraints:
+
+    1. An upload this session. Works anywhere, including the public deploy,
+       and needs nothing set up -- drag the file in and it is there.
+    2. st.secrets["placed_entries"]. Set once in the Streamlit Cloud dashboard
+       and it persists across sessions, without the data ever entering the
+       repository.
+    3. data/entries-placed.json on disk. The local path; gitignored, so it is
+       present when running from a checkout and absent on the deploy.
+
+    It is deliberately NOT committed. This repo is public and a record of which
+    contests someone entered, and for how much, does not belong in it.
+    """
+    if st.session_state.get("placed_upload"):
+        return ent.parse_placed(st.session_state["placed_upload"])
+    try:
+        raw = st.secrets["placed_entries"]
+    except Exception:
+        raw = None
+    if raw:
+        return ent.parse_placed(raw if isinstance(raw, str) else json.dumps(dict(raw)))
     return ent.load_placed(DATA / "entries-placed.json")
 
 
@@ -401,6 +424,16 @@ with tab_entry:
     # is money already staked, and the two must not be confused. Hidden entirely
     # when the file is absent, which is the case on the public deploy.
     placed = load_placed_entries()
+    if not placed["entries"]:
+        st.markdown("### Contests you have entered")
+        st.info("No entry record loaded. Drop the JSON in and it appears here — it stays in "
+                "this browser session and is never written to the repository, which is public.")
+        up = st.file_uploader("entries-placed.json", type="json",
+                              label_visibility="collapsed", key="placed_uploader")
+        if up is not None:
+            st.session_state["placed_upload"] = up.getvalue().decode("utf-8")
+            st.rerun()
+        st.divider()
     if placed["entries"]:
         st.markdown("### Contests you have entered")
         p_rows = []

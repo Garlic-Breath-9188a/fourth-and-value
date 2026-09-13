@@ -81,12 +81,38 @@ import json
 from pathlib import Path
 
 
+def empty_placed() -> dict:
+    """
+    A fresh empty record.
+
+    A module-level constant copied with dict() was the obvious thing and it was
+    wrong: that is a SHALLOW copy, so every caller shared one `entries` list and
+    anything appended to it leaked into the next call. A function is the fix.
+    """
+    return {"entries": [], "contests": [], "budget": 0.0, "note": "", "transcribed": ""}
+
+
+def parse_placed(text: str) -> dict:
+    """Validate a placed-entries document. Returns an empty record if it is not one."""
+    try:
+        data = json.loads(text)
+    except ValueError:
+        return empty_placed()
+    if not isinstance(data, dict) or not isinstance(data.get("entries"), list):
+        return empty_placed()
+    data.setdefault("contests", [])
+    data.setdefault("budget", 0.0)
+    data.setdefault("note", "")
+    data.setdefault("transcribed", "")
+    return data
+
+
 def load_placed(path: Path) -> dict:
     """The placed-entries file, or an empty record when it is not present."""
     try:
         data = json.loads(Path(path).read_text())
     except (OSError, ValueError):
-        return {"entries": [], "contests": [], "budget": 0.0, "note": "", "transcribed": ""}
+        return empty_placed()
     data.setdefault("entries", [])
     data.setdefault("contests", [])
     data.setdefault("budget", 0.0)

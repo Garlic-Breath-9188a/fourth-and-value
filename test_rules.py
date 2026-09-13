@@ -429,3 +429,37 @@ class PlacedEntries(unittest.TestCase):
             self.assertEqual(sum(p["salary"] for p in roster),
                              50000 - e["remainingSalary"],
                              f"entry {e['entry']} does not reconcile to the cap")
+
+
+class ParsePlaced(unittest.TestCase):
+    """parse_placed takes text from an upload or from st.secrets, both untrusted."""
+
+    def test_non_json_is_empty_not_an_exception(self):
+        self.assertEqual(ent.parse_placed("not json at all")["entries"], [])
+
+    def test_valid_json_of_the_wrong_shape_is_empty(self):
+        # A JSON array parses fine but is not an entry record. Accepting it
+        # would crash the tab further down instead of here.
+        self.assertEqual(ent.parse_placed("[1, 2, 3]")["entries"], [])
+        self.assertEqual(ent.parse_placed('{"entries": "six"}')["entries"], [])
+
+    def test_missing_optional_keys_are_filled_in(self):
+        d = ent.parse_placed('{"entries": []}')
+        self.assertEqual(d["contests"], [])
+        self.assertEqual(d["budget"], 0.0)
+        self.assertIn("transcribed", d)
+
+    def test_a_real_record_round_trips(self):
+        path = Path("data/entries-placed.json")
+        if not path.exists():
+            self.skipTest("placed-entries file not present")
+        d = ent.parse_placed(path.read_text())
+        self.assertEqual(len(d["entries"]), len(ent.load_placed(path)["entries"]))
+        self.assertEqual(ent.placed_fees(d), d["budget"])
+
+    def test_the_empty_constant_is_not_shared_between_callers(self):
+        # This caught a real bug: a module-level constant copied with dict()
+        # is a SHALLOW copy, so every caller shared one `entries` list.
+        a = ent.parse_placed("bad")
+        a["entries"].append("x")
+        self.assertEqual(ent.parse_placed("bad")["entries"], [])
