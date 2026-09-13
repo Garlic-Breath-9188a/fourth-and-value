@@ -423,7 +423,7 @@ class PlacedEntries(unittest.TestCase):
         if not path.exists():
             self.skipTest("placed-entries file not present (expected on a public deploy)")
         data = ent.load_placed(path)
-        self.assertEqual(ent.placed_fees(data), data["budget"])
+        self.assertEqual(ent.placed_fees(data), data["staked"])
         for e in data["entries"]:
             roster = e["roster"]
             self.assertEqual(len(roster), 9, f"entry {e['entry']} is not nine players")
@@ -447,7 +447,7 @@ class ParsePlaced(unittest.TestCase):
     def test_missing_optional_keys_are_filled_in(self):
         d = ent.parse_placed('{"entries": []}')
         self.assertEqual(d["contests"], [])
-        self.assertEqual(d["budget"], 0.0)
+        self.assertEqual(d["staked"], 0.0)
         self.assertIn("transcribed", d)
 
     def test_a_real_record_round_trips(self):
@@ -456,7 +456,7 @@ class ParsePlaced(unittest.TestCase):
             self.skipTest("placed-entries file not present")
         d = ent.parse_placed(path.read_text())
         self.assertEqual(len(d["entries"]), len(ent.load_placed(path)["entries"]))
-        self.assertEqual(ent.placed_fees(d), d["budget"])
+        self.assertEqual(ent.placed_fees(d), d["staked"])
 
     def test_the_empty_constant_is_not_shared_between_callers(self):
         # This caught a real bug: a module-level constant copied with dict()

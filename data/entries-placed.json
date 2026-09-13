@@ -3,7 +3,6 @@
   "transcribed": "2026-09-13",
   "slateLock": "2026-09-13T13:00:00-04:00",
   "note": "HAND-TRANSCRIBED from screenshots, not exported from DraftKings. Every salary was checked twice: each lineup sums to $50,000 minus the remaining salary the screenshot shows, and every player's exposure and entry-fee total reconciles against the separate My Player Exposure screens. scripts/check-entries.mjs re-checks names and salaries against the slate file. Winnings are not known; these contests lock 2026-09-13 1:00pm ET. Updated 2026-09-13 05:45 with a 7th entry (the $3.5M Millionaire) and refreshed entry counts -- the contests have filled a long way since the 09-12 snapshot, so any overlay figure from that snapshot is stale. The My Player Exposure screens were checked as a possible source of real %Drafted ownership and are NOT one: all 33 percentages land on the six-entry grid and every entry-fee total matches the lineups holding that player, so the column is this user's own exposure across his own entries, not the field's. scripts/check-exposure-screens.mjs proves it.",
-  "budget": 25,
   "contests": [
     {
       "id": "huddle-10k",
@@ -57,6 +56,17 @@
       "topPrize": 1000000,
       "entered": 761923,
       "maxEntries": 832342,
+      "entriesPerUser": 20,
+      "liveIn": "Sun 1:00pm"
+    },
+    {
+      "id": "bootleg-400k",
+      "name": "NFL $400K Bootleg [$50K to 1st]",
+      "entryFee": 33,
+      "totalPrizes": 400000,
+      "topPrize": 50000,
+      "entered": 6725,
+      "maxEntries": 14135,
       "entriesPerUser": 20,
       "liveIn": "Sun 1:00pm"
     }
@@ -488,6 +498,68 @@
           "salary": 2900
         }
       ]
+    },
+    {
+      "entry": 8,
+      "contestId": "bootleg-400k",
+      "remainingSalary": 0,
+      "roster": [
+        {
+          "slot": "QB",
+          "name": "J. Goff",
+          "team": "DET",
+          "salary": 6000
+        },
+        {
+          "slot": "RB",
+          "name": "B. Robinson",
+          "team": "ATL",
+          "salary": 7700
+        },
+        {
+          "slot": "RB",
+          "name": "J. Taylor",
+          "team": "IND",
+          "salary": 7300
+        },
+        {
+          "slot": "WR",
+          "name": "C. Olave",
+          "team": "NO",
+          "salary": 6700
+        },
+        {
+          "slot": "WR",
+          "name": "W. Robinson",
+          "team": "TEN",
+          "salary": 4800
+        },
+        {
+          "slot": "WR",
+          "name": "A. St. Brown",
+          "team": "DET",
+          "salary": 7500
+        },
+        {
+          "slot": "TE",
+          "name": "S. LaPorta",
+          "team": "DET",
+          "salary": 4400
+        },
+        {
+          "slot": "FLEX",
+          "name": "D. Vele",
+          "team": "NO",
+          "salary": 3500
+        },
+        {
+          "slot": "DST",
+          "name": "Browns",
+          "team": "CLE",
+          "salary": 2100
+        }
+      ]
     }
-  ]
+  ],
+  "staked": 58
 }

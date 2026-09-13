@@ -89,7 +89,10 @@ def empty_placed() -> dict:
     wrong: that is a SHALLOW copy, so every caller shared one `entries` list and
     anything appended to it leaked into the next call. A function is the fix.
     """
-    return {"entries": [], "contests": [], "budget": 0.0, "note": "", "transcribed": ""}
+    # "staked" not "budget": this is what has already been put down, which is a
+    # different number from the weekly budget the app plans against. Conflating
+    # the two made the Entry plan tab read as though $58 were the whole budget.
+    return {"entries": [], "contests": [], "staked": 0.0, "note": "", "transcribed": ""}
 
 
 def parse_placed(text: str) -> dict:
@@ -101,7 +104,7 @@ def parse_placed(text: str) -> dict:
     if not isinstance(data, dict) or not isinstance(data.get("entries"), list):
         return empty_placed()
     data.setdefault("contests", [])
-    data.setdefault("budget", 0.0)
+    data.setdefault("staked", 0.0)
     data.setdefault("note", "")
     data.setdefault("transcribed", "")
     return data
@@ -115,7 +118,7 @@ def load_placed(path: Path) -> dict:
         return empty_placed()
     data.setdefault("entries", [])
     data.setdefault("contests", [])
-    data.setdefault("budget", 0.0)
+    data.setdefault("staked", 0.0)
     return data
 
 
