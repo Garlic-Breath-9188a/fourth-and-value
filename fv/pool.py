@@ -10,7 +10,37 @@ import csv, io, json, math
 from pathlib import Path
 from .rules import CEILING_MULTIPLE, UNROSTERABLE
 
-STATUS = {"O": "Out", "Q": "Questionable", "D": "Doubtful", "IR": "IR"}
+# DraftKings writes this column in at least two dialects. Older exports use
+# single letters ("O", "Q", "D", "IR"); the 2026-09-13 export writes full words
+# ("OUT", "IR", "Q", "D"). Mapping only the letters meant every one of the 159
+# players marked OUT in that file parsed as **Active** -- Michael Penix Jr.,
+# ruled out after ACL surgery, among them. Both dialects are handled now.
+STATUS = {
+    "O": "Out", "OUT": "Out",
+    "Q": "Questionable", "QUESTIONABLE": "Questionable", "GTD": "Questionable",
+    "D": "Doubtful", "DOUBTFUL": "Doubtful",
+    "IR": "IR", "INJURED RESERVE": "IR",
+    "PUP": "PUP", "NFI": "NFI",
+    "SUS": "Suspended", "SUSPENDED": "Suspended",
+    "DNR": "Out",
+}
+
+
+def read_status(raw: str) -> str:
+    """
+    Map a DraftKings status code, failing LOUD rather than silent.
+
+    An empty column means the player carries no designation and is fine. A value
+    this does not recognise means DraftKings has introduced a code we have never
+    seen -- and the safe reading of "flagged with something unknown" is NOT
+    "Active", which is precisely the assumption that let 159 OUT players through.
+    Unknown values are returned as-is, which keeps them out of UNROSTERABLE's
+    known-good set and makes them visible in any status tally.
+    """
+    code = (raw or "").strip().upper()
+    if not code:
+        return "Active"
+    return STATUS.get(code, f"Unknown:{code}")
 
 
 def _key(name: str) -> str:
@@ -45,7 +75,7 @@ def load_salaries(text: str) -> list[dict]:
             "opponent": away if team == home else home,
             "game": game, "game_info": info,
             "projection": avg,
-            "status": STATUS.get((r.get("Status") or "").strip().upper(), "Active"),
+            "status": read_status(r.get("Status")),
         })
     return rows
 
@@ -96,6 +126,11 @@ def apply_ceilings(rows: list[dict], variance: dict | None) -> list[dict]:
 
 
 def rosterable(row: dict, exclude_questionable: bool = False) -> bool:
+    # An unrecognised status is treated as unrosterable. DraftKings only fills
+    # this column when a player carries a designation, so "something we do not
+    # recognise" is far more likely to mean unavailable than available.
+    if str(row["status"]).startswith("Unknown:"):
+        return False
     if row["status"] in UNROSTERABLE:
         return False
     return not (exclude_questionable and row["status"] == "Questionable")

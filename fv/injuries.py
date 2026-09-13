@@ -18,6 +18,7 @@ entering the contest.
 """
 from __future__ import annotations
 import json
+import re
 import urllib.request
 
 ENDPOINT = "https://api.sleeper.app/v1/players/nfl"
@@ -40,8 +41,26 @@ MISPRICED_PARTS = {"hamstring": -0.185, "foot": -0.256, "calf": -0.438}
 BLOCKING = {"Out", "IR", "Doubtful", "PUP", "NFI", "Sus", "DNR"}
 
 
+# Generational suffixes, which the two sources disagree about. DraftKings
+# writes "Michael Penix Jr."; Sleeper writes "Michael Penix". Of 238 players on
+# the wire exactly one carried a suffix, against 59 in the salary file.
+_SUFFIX = re.compile(r"\b(?:jr|sr|ii|iii|iv|v)\b\.?", re.I)
+
+
 def _norm(name: str) -> str:
-    return "".join(c for c in (name or "").lower() if c.isalpha())
+    """
+    A join key both sources agree on.
+
+    The suffix has to go. Without stripping it, "Michael Penix Jr." keys to
+    michaelpenixjr and the wire's "Michael Penix" keys to michaelpenix, so the
+    two never meet -- and Penix stayed rosterable in the app on a stale
+    Questionable while the wire had him Out after ACL surgery. Nine players were
+    hidden this way on the Week 1 board, two of them rosterable-but-out.
+
+    Checked for collisions before adopting: stripping suffixes merges no two
+    distinct players on this slate.
+    """
+    return "".join(c for c in _SUFFIX.sub("", name or "").lower() if c.isalpha())
 
 
 def fetch(url: str = ENDPOINT) -> dict | None:

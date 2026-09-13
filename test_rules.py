@@ -10,6 +10,8 @@ from datetime import datetime
 from pathlib import Path
 
 from fv import rules
+from fv import pool as pool_mod
+from fv import injuries
 from fv import entered as ent
 from fv.slate import parse_kickoff, kickoff_windows, slate_options, main_slate, restrict, in_slate
 from fv.pool import load_salaries, keep_starting_quarterbacks, apply_ceilings, rosterable, load_json
@@ -514,3 +516,71 @@ class BoostersAreNotTournaments(unittest.TestCase):
         self.assertTrue(entries, "the plan should still produce entries")
         for e in entries:
             self.assertFalse(entry_mod.booster_shaped(e.contest), e.contest["name"])
+
+
+class StatusCodeDialects(unittest.TestCase):
+    """
+    DraftKings writes the Status column in more than one dialect.
+
+    Exports up to 2026-09-04 used single letters (O, Q, D, IR). The 09-13 export
+    used full words (OUT, IR, Q, D). The parser mapped only the letters, so
+    every one of the 159 players marked OUT in the newer file parsed as ACTIVE
+    -- including Michael Penix Jr., ruled out after ACL surgery, who was then
+    free to appear in generated lineups.
+    """
+
+    def test_both_dialects_map_to_the_same_status(self):
+        for code in ("O", "OUT", "out", " Out "):
+            self.assertEqual(pool_mod.read_status(code), "Out", code)
+        for code in ("Q", "QUESTIONABLE", "GTD"):
+            self.assertEqual(pool_mod.read_status(code), "Questionable", code)
+        for code in ("D", "DOUBTFUL"):
+            self.assertEqual(pool_mod.read_status(code), "Doubtful", code)
+        self.assertEqual(pool_mod.read_status("IR"), "IR")
+
+    def test_an_empty_status_is_active(self):
+        for blank in ("", "   ", None):
+            self.assertEqual(pool_mod.read_status(blank), "Active")
+
+    def test_an_unknown_code_is_NOT_silently_active(self):
+        # The whole bug in one assertion. A code we do not recognise must not
+        # be read as "fine to play".
+        s = pool_mod.read_status("SOMETHING_NEW")
+        self.assertTrue(s.startswith("Unknown:"), s)
+        self.assertFalse(rosterable({"status": s}))
+
+    def test_a_player_marked_OUT_is_not_rosterable(self):
+        rows = load_salaries("Position,Name + ID,Name,ID,Roster Position,Salary,"
+                             "Game Info,TeamAbbrev,AvgPointsPerGame,Status\n"
+                             "QB,X (1),Michael Penix Jr.,1,QB,4800,"
+                             "ATL@PIT 09/13/2026 01:00PM ET,ATL,14.3,OUT\n")
+        self.assertEqual(rows[0]["status"], "Out")
+        self.assertFalse(rosterable(rows[0]))
+
+
+class InjuryWireNameMatching(unittest.TestCase):
+    """
+    The wire and the salary file disagree about generational suffixes.
+
+    DraftKings writes "Michael Penix Jr."; Sleeper writes "Michael Penix". The
+    join key kept the suffix, so the two never met and nine players were
+    invisible to the cross-check on the Week 1 board -- two of them rosterable
+    in the app while the wire had them Out.
+    """
+
+    def test_a_suffix_does_not_break_the_join(self):
+        self.assertEqual(injuries._norm("Michael Penix Jr."), injuries._norm("Michael Penix"))
+        self.assertEqual(injuries._norm("Calvin Austin III"), injuries._norm("Calvin Austin"))
+        self.assertEqual(injuries._norm("David Sills V"), injuries._norm("David Sills"))
+
+    def test_different_players_still_key_differently(self):
+        self.assertNotEqual(injuries._norm("Michael Penix"), injuries._norm("Michael Pittman"))
+
+    def test_the_cross_check_finds_an_out_player_whose_file_says_questionable(self):
+        rows = [{"id": "1", "name": "Michael Penix Jr.", "position": "QB", "team": "ATL",
+                 "status": "Questionable"}]
+        feed = {injuries._norm("Michael Penix"):
+                {"status": "Out", "body_part": "Knee - ACL", "note": "Surgery", "team": "ATL"}}
+        found = injuries.cross_check(rows, feed)
+        self.assertEqual(len(found), 1, "the suffix must not hide an Out ruling")
+        self.assertEqual(found[0]["live_status"], "Out")
