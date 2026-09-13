@@ -69,6 +69,17 @@
       "maxEntries": 14135,
       "entriesPerUser": 20,
       "liveIn": "Sun 1:00pm"
+    },
+    {
+      "id": "shovel-pass-80k",
+      "name": "NFL $80K Shovel Pass [2x Min Cash]",
+      "entryFee": 20,
+      "totalPrizes": 80000,
+      "topPrize": null,
+      "entered": 2631,
+      "maxEntries": 4705,
+      "entriesPerUser": 20,
+      "liveIn": "Sun 1:00pm"
     }
   ],
   "entries": [
@@ -559,7 +570,68 @@
           "salary": 2100
         }
       ]
+    },
+    {
+      "entry": 9,
+      "contestId": "shovel-pass-80k",
+      "remainingSalary": 0,
+      "roster": [
+        {
+          "slot": "QB",
+          "name": "T. Shough",
+          "team": "NO",
+          "salary": 5600
+        },
+        {
+          "slot": "RB",
+          "name": "S. Barkley",
+          "team": "PHI",
+          "salary": 6900
+        },
+        {
+          "slot": "RB",
+          "name": "J. Gibbs",
+          "team": "DET",
+          "salary": 8000
+        },
+        {
+          "slot": "WR",
+          "name": "C. Olave",
+          "team": "NO",
+          "salary": 6700
+        },
+        {
+          "slot": "WR",
+          "name": "A. St. Brown",
+          "team": "DET",
+          "salary": 7500
+        },
+        {
+          "slot": "WR",
+          "name": "T. Wease Jr.",
+          "team": "LAC",
+          "salary": 3000
+        },
+        {
+          "slot": "TE",
+          "name": "J. Johnson",
+          "team": "NO",
+          "salary": 3700
+        },
+        {
+          "slot": "FLEX",
+          "name": "T. Etienne Jr.",
+          "team": "NO",
+          "salary": 5900
+        },
+        {
+          "slot": "DST",
+          "name": "Dolphins",
+          "team": "MIA",
+          "salary": 2700
+        }
+      ]
     }
   ],
-  "staked": 58
+  "staked": 78
 }
