@@ -45,6 +45,29 @@ third-place finish out of 108,537 entries. Remove that week and he returns
 There is no demonstrated edge here. Lower rake makes the hole shallower; it does
 not make it a profit.
 
+## What happened when it was actually played
+
+Week 1 of 2026 was the first slate this tool advised on and then saw graded. Ten
+entries, $105 staked, nine of them scored.
+
+| | |
+|---|---|
+| Mean finishing percentile | **61.3%** (95% CI 42.6–79.9) |
+| Cashed | 2 of 9, against 23.1% of places paid |
+| Return | $90 on $100 staked, **−10%** |
+
+A player with no edge finishes at the 50th percentile, so 61.3% reads badly —
+and the interval is 37 points wide, which is what nine entries on one slate buys
+you. It is not evidence of anything. It is recorded because it is the account
+rather than a backtest, and because this project reports its bad numbers in the
+same place as its good ones.
+
+One detail is worth more than the average: the two entries that cashed were the
+two largest stakes, in two of the lowest-rake contests entered. The best contest
+on the entire board finished 92nd percentile. That is the shape of the thing —
+contest selection is a small real lever, and what any single lineup does is
+noise.
+
 ## Run it locally
 
 ```sh
