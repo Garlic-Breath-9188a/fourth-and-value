@@ -26,5 +26,11 @@
     "captured": "2026-09-20",
     "source": "Kalshi public read API, player prop ladders",
     "note": "178 players matched to the slate. Not used by the projection -- forward validation only, because no historical Kalshi data exists to backtest against."
+  },
+  "usage": {
+    "captured": "2026-09-20",
+    "week": 2,
+    "source": "nflverse snap_counts + stats_player_week, 2026",
+    "note": "390 players. Last game's snap share and touches -- the measured mispricing signal. Week 1 is complete for all 32 teams; week 2 covers only the Thursday game. Not used by the projection: it feeds the mispricing board only."
   }
 }

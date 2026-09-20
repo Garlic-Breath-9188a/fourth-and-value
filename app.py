@@ -22,6 +22,7 @@ from fv.roster import order_roster, stack_role, is_stacked, to_dk_csv, fill_dk_t
 from fv.entry import plan, rake_pct
 from fv import blend as blend_mod
 from fv import select as select_mod
+from fv import mispricing as mispricing_mod
 
 DATA = Path(__file__).resolve().parent / "data"
 
@@ -132,6 +133,18 @@ def load_pool(version: str):
 def load_prior_season(version: str):
     """Last season's scoring, for blending against a thin in-season average."""
     return blend_mod.load_prior(DATA / "prior-season-2025.json")
+
+
+@st.cache_data(show_spinner=False)
+def load_usage(version: str):
+    """
+    This season's snap share and touches, for the mispricing board.
+
+    Absent is a supported state, not an error: before the season's first games
+    there is nothing to load, and `mispricing.board` returns everyone unranked
+    with the reason rather than an empty page.
+    """
+    return load_json(DATA / "usage-2026.json")
 
 
 @st.cache_data(show_spinner=False)
@@ -333,6 +346,7 @@ with tab_board:
     # stale, so dating it was noise.
     _pool_n = len(pool)
     _inj_n = len(feed) if (use_live and feed) else 0
+    _usage = load_usage(_data_version())
     _kal = _manifest("kalshi")
     _kal_n = (_kal.get("note", "").split(" ")[0] if _kal.get("note", "")[:1].isdigit() else "?")
     _bits = [
@@ -340,6 +354,10 @@ with tab_board:
          _captured("slate"), f"{_pool_n} players", False),
         ("Injury wire", f"{_inj_n} records" if _inj_n else "off",
          "live, 6-hourly" if _inj_n else "using the salary file", not _inj_n),
+        ("Snap data", _captured("usage"),
+         f"{len(_usage.get('players', {})) if _usage else 0} players"
+         + (f" · thru wk {_usage.get('throughWeek')}" if _usage else ""),
+         not _usage),
         ("Kalshi", _captured("kalshi"), f"{_kal_n} matched",
          _captured("kalshi") < _captured("slate")),
         ("Contests", _captured("contests"), f"{len(lobby['contests'])} listed",
@@ -404,6 +422,112 @@ with tab_board:
                     ent.forget(st.session_state.entered, l)
                     st.rerun()
             st.write("")
+
+
+        # ---- Where DraftKings has mispriced the slate -------------------
+        # Measured in app/scripts/test-salary-mispricing.mjs; the numbers quoted
+        # on screen are held out on 2024-2025 over 32 slates. Two things about it
+        # are worth knowing before reading the table:
+        #
+        #   - The signal is ONLY among cheap players. Among expensive ones the
+        #     held-out interval spans zero, so there is no "expensive bargain"
+        #     list here and adding one would be inventing it.
+        #   - DraftKings' own week-to-week price change predicts NOTHING
+        #     (+0.013 SD, CI -0.023 to 0.049). That was the original hypothesis.
+        #     It is printed below so it does not get tried again.
+        mis = mispricing_mod.board(pool, _usage)
+        M = mispricing_mod.MEASURED
+        st.markdown("### Where DraftKings has mispriced this slate")
+        if not mis["ranked"]:
+            st.caption("No snap-share data loaded, so the board cannot be built. "
+                       "Run `node scripts/fetch-usage-2026.mjs` in the app directory "
+                       "and copy `usage-2026.json` into `streamlit/data/`.")
+        else:
+            st.caption(
+                f"Last game's snap share and touches, against what each player's price "
+                f"implies. Cheap players with a real role beat their price by "
+                f"**{M['cheap_top']['points']:+.2f} DK points** "
+                f"(95% CI {M['cheap_top']['ci'][0]:.3f} to {M['cheap_top']['ci'][1]:.3f} SD); "
+                f"the projection this app already uses finds nothing there "
+                f"({M['projection_cheap_top']['sd']:+.3f} SD, spans zero) and picks only "
+                f"{M['overlap_with_projection']:.0%} of the same players. "
+                f"Held out on {M['holdout']}, {M['slates']} slates."
+            )
+            left, right = st.columns(2)
+            def _frame(rows, limit=12):
+                return pd.DataFrame([{
+                    "Player": r["name"], "Pos": r["position"], "Team": r["team"],
+                    "Salary": f"${r['salary']:,.0f}",
+                    "Snap": f"{r['snap_pct']:.0f}%",
+                    "Touches": r["touches"],
+                    "vs price": f"{r['edge_points']:+.2f}",
+                    "Measured": "yes" if r["measured"] else "position unproven",
+                } for r in rows[:limit]])
+
+            with left:
+                st.markdown(f"**Underpriced — cheap, with a role** ({M['cheap_top']['points']:+.2f} pts)")
+                st.dataframe(_frame(mis["targets"]), width="stretch", hide_index=True)
+            with right:
+                st.markdown(f"**Overpriced — dear, without one** ({M['dear_bottom']['points']:+.2f} pts)")
+                st.dataframe(_frame(mis["fades"]), width="stretch", hide_index=True)
+
+            st.caption(
+                f"\"vs price\" is expected DK points above or below what the salary implies, "
+                f"not a projection — add it to a projection, never read it as one. "
+                f"Cheap means at or below the position's median salary on this slate. "
+                f"Lists are the top and bottom fifth **within each position**: "
+                f"quarterbacks all sit at 100% snap share, so ranking across positions "
+                f"filled the whole target list with them. "
+                f"Supported at {', '.join(mis['target_support'])} on the target side and "
+                f"{', '.join(mis['fade_support'])} on the fade side; anything else is "
+                f"flagged unproven rather than dropped."
+            )
+
+            with st.expander("What was tested, including what failed"):
+                st.markdown(f"""
+**DraftKings' own price movement predicts nothing.** The idea was that DK lags a
+role change, so a stale price is a buying signal. Both the dollar change and the
+percentage change span zero ({M['price_movement_sd']:+.3f} SD, CI
+{M['price_movement_ci'][0]:.3f} to {M['price_movement_ci'][1]:.3f}), and adding them to
+the model does not improve it out of sample. Recorded because it looks obviously
+right and would otherwise be tried again.
+
+**Last game's snap share and touches are the whole signal**, and they beat this
+app's own projection at the job. Combining the two is *worse* than usage alone
+({M['cheap_top']['sd']:+.3f} SD against {0.129:+.3f}), so the board deliberately
+ignores the projection.
+
+**Only cheap players.** Held out over {M['slates']} slates, top/bottom fifth within position:
+
+| population | effect (SD) | 95% CI | points |
+|---|---|---|---|
+| cheap half, top fifth | {M['cheap_top']['sd']:+.3f} | {M['cheap_top']['ci'][0]:.3f} to {M['cheap_top']['ci'][1]:.3f} | {M['cheap_top']['points']:+.2f} |
+| cheap half, bottom fifth | {M['cheap_bottom']['sd']:+.3f} | {M['cheap_bottom']['ci'][0]:.3f} to {M['cheap_bottom']['ci'][1]:.3f} | {M['cheap_bottom']['points']:+.2f} |
+| dear half, top fifth | {M['dear_top']['sd']:+.3f} | {M['dear_top']['ci'][0]:.3f} to {M['dear_top']['ci'][1]:.3f} | spans zero |
+| dear half, bottom fifth | {M['dear_bottom']['sd']:+.3f} | {M['dear_bottom']['ci'][0]:.3f} to {M['dear_bottom']['ci'][1]:.3f} | {M['dear_bottom']['points']:+.2f} |
+
+Per position the target side holds at QB, RB and WR and spans zero at TE; the fade
+side holds only at RB and WR. Do not add the per-position figures up — they are one
+measurement on subsets.
+
+One SD is roughly {M['sd_to_points']:.1f} DK points. This is small, it is measured against
+price rather than against a field, and it does not make a lineup safe or a profit
+expected.
+""")
+            if mis["unranked"]:
+                with st.expander(f"Not ranked — {len(mis['unranked'])} players, and why"):
+                    reasons = {}
+                    for r in mis["unranked"]:
+                        reasons[r["why"]] = reasons.get(r["why"], 0) + 1
+                    st.dataframe(pd.DataFrame(
+                        [{"Reason": k, "Players": v} for k, v in
+                         sorted(reasons.items(), key=lambda kv: -kv[1])]),
+                        width="stretch", hide_index=True)
+                    st.caption("Listed rather than dropped. A player absent from the weekly "
+                               "stats release had no stat line, which is usually a blocking "
+                               "tight end and genuinely zero touches — but it is "
+                               "indistinguishable from a failed join, and zero touches at a "
+                               "high snap share would score as strongly overpriced.")
 
         # ---- Injury wire, at the bottom and closed ----------------------
         # It was at the top and open. That is backwards: it is a cross-check on
