@@ -5,6 +5,7 @@ Rendering only. Every decision lives in fv/, where it can be tested, and every
 measured constant is in fv/rules.py next to the result that set it.
 """
 from __future__ import annotations
+import hashlib
 import json
 from datetime import datetime
 from pathlib import Path
@@ -36,6 +37,32 @@ def _captured(key: str) -> str:
         return json.loads((DATA / "manifest.json").read_text())[key]["captured"]
     except Exception:
         return "unknown"
+
+
+def _data_version() -> str:
+    """
+    A digest of every shipped data file, used as a cache key.
+
+    The parameter it feeds must NOT be named with a leading underscore:
+    Streamlit excludes those from the hash -- they are the escape hatch for
+    unhashable arguments -- so `_version` would have made this whole mechanism
+    do nothing, silently and convincingly.
+
+    Streamlit caches these loaders on their arguments, and they had none -- so a
+    new salary file did not invalidate anything and the app went on serving the
+    previous week's slate from cache. The header read "Sun 9/13" against a 9/20
+    export, which looks like a data problem and is not one.
+
+    Passing this in as an argument means the cache turns over exactly when the
+    data does, without anyone having to remember to clear it.
+    """
+    h = hashlib.sha256()
+    for f in sorted(DATA.glob("*")):
+        if f.is_file():
+            h.update(f.name.encode())
+            h.update(str(f.stat().st_size).encode())
+            h.update(str(int(f.stat().st_mtime)).encode())
+    return h.hexdigest()[:12]
 
 
 def _manifest(key: str) -> dict:
@@ -93,7 +120,7 @@ st.markdown("""
 
 
 @st.cache_data(show_spinner=False)
-def load_pool():
+def load_pool(version: str):
     rows = load_salaries((DATA / "DKSalaries.csv").read_text())
     rows = keep_starting_quarterbacks(rows)
     rows = [r for r in rows if rosterable(r)]
@@ -101,13 +128,13 @@ def load_pool():
 
 
 @st.cache_data(show_spinner=False)
-def load_prior_season():
+def load_prior_season(version: str):
     """Last season's scoring, for blending against a thin in-season average."""
     return blend_mod.load_prior(DATA / "prior-season-2025.json")
 
 
 @st.cache_data(show_spinner=False)
-def load_lobby():
+def load_lobby(version: str):
     return json.loads((DATA / "lobby-week2-2026.json").read_text())
 
 
@@ -131,7 +158,7 @@ def load_open_board():
 
 
 @st.cache_data(show_spinner=False)
-def load_strategy():
+def load_strategy(version: str):
     return json.loads((DATA / "strategy.json").read_text())
 
 
@@ -157,7 +184,7 @@ def portfolio(ids, count, seed, ceiling_weight, qb_exposure, rb_exposure, must_p
     then filtered out, rather than being forbidden during construction, so the
     board still comes back full after you have entered several.
     """
-    pool = [p for p in load_pool() if p["id"] in set(ids)]
+    pool = [p for p in load_pool(_data_version()) if p["id"] in set(ids)]
     avoid = set(avoid_keys)
     want = count + len(avoid)
     built = build_portfolio(pool, want, seed=seed, ceiling_weight=ceiling_weight,
@@ -172,9 +199,9 @@ if "entered" not in st.session_state:
 if "contests_done" not in st.session_state:
     st.session_state.contests_done = set()
 
-all_rows = load_pool()
+all_rows = load_pool(_data_version())
 options = slate_options(all_rows)
-lobby = load_lobby()
+lobby = load_lobby(_data_version())
 
 with st.sidebar:
     st.markdown("### Slate")
@@ -206,7 +233,7 @@ with st.sidebar:
         help="Sets how much of the projection comes from this season rather than "
              "last. Week 1 uses DraftKings' number unchanged; week 2 is 25% this "
              "season and 75% of 2025, rising as games accumulate.")
-    prior = load_prior_season()
+    prior = load_prior_season(_data_version())
     pool = blend_mod.apply_blend([dict(r) for r in pool], prior, int(nfl_week))
     blended = sum(1 for r in pool if "%" in str(r.get("projection_source", "")))
     if int(nfl_week) > 1:
@@ -679,7 +706,7 @@ with tab_entry:
                "Prize pools and fees are stable; entry counts move.")
 
 with tab_strategy:
-    S = load_strategy()
+    S = load_strategy(_data_version())
     st.markdown("### Every idea this project has tested")
     st.caption("This exists because the expensive mistake is re-implementing something already "
                "measured and rejected. Nothing is deleted when it fails — a removed row cannot "
