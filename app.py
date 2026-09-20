@@ -6,6 +6,7 @@ measured constant is in fv/rules.py next to the result that set it.
 """
 from __future__ import annotations
 import json
+from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -18,6 +19,7 @@ from fv.slate import slate_options, main_slate, restrict
 from fv.optimize import build_portfolio, projection
 from fv.roster import order_roster, stack_role, is_stacked, to_dk_csv, fill_dk_template
 from fv.entry import plan, rake_pct
+from fv import blend as blend_mod
 
 DATA = Path(__file__).resolve().parent / "data"
 
@@ -77,6 +79,12 @@ def load_pool():
     rows = keep_starting_quarterbacks(rows)
     rows = [r for r in rows if rosterable(r)]
     return apply_ceilings(rows, load_json(DATA / "player-variance.json"))
+
+
+@st.cache_data(show_spinner=False)
+def load_prior_season():
+    """Last season's scoring, for blending against a thin in-season average."""
+    return blend_mod.load_prior(DATA / "prior-season-2025.json")
 
 
 @st.cache_data(show_spinner=False)
@@ -161,6 +169,34 @@ with st.sidebar:
     # on the slate, not a list of teams that are not. The slate label above
     # already says which window is in play.
     pool, _dropped = restrict(all_rows, slate)
+
+    # ---- Blend a thin in-season average with last season --------------------
+    # DraftKings' AvgPointsPerGame is one game in Week 2 and the optimizer
+    # believes it completely: Bryce Young read 35.4 off a single Sunday against
+    # a 2025 season of 14.9. Measured over 40 early-season slates, blending cuts
+    # projection error from 6.09 to 5.55 MAE, and from 7.11 to 5.78 in week 2
+    # specifically -- about twelve points across a roster.
+    #
+    # The week is inferred from the slate date, because the salary export does
+    # not carry it. Editable, since a wrong week silently changes every
+    # projection and that should be visible rather than buried.
+    season_start = datetime(slate.locks_at.year, 9, 1, tzinfo=slate.locks_at.tzinfo)
+    guessed = max(1, min(18, ((slate.locks_at - season_start).days // 7) + 1))
+    nfl_week = st.number_input(
+        "NFL week", 1, 18, int(guessed), key="nfl_week",
+        help="Sets how much of the projection comes from this season rather than "
+             "last. Week 1 uses DraftKings' number unchanged; week 2 is 25% this "
+             "season and 75% of 2025, rising as games accumulate.")
+    prior = load_prior_season()
+    pool = blend_mod.apply_blend([dict(r) for r in pool], prior, int(nfl_week))
+    blended = sum(1 for r in pool if "%" in str(r.get("projection_source", "")))
+    if int(nfl_week) > 1:
+        w = blend_mod.current_weight(blend_mod.games_played_before(int(nfl_week)))
+        st.caption(
+            f"Projections are **{w * 100:.0f}% this season, {(1 - w) * 100:.0f}% "
+            f"{prior.get('season')}** — {blended} of {len(pool)} players matched. "
+            "DraftKings' own average is one game in week 2, which the optimizer "
+            "would otherwise take at face value.")
 
     st.markdown("### Portfolio")
     n_lineups = st.slider("Lineups", 1, 20, 10)

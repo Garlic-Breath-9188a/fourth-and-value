@@ -6,7 +6,7 @@ specific things that were wrong on screen at some point and were fixed.
 Run with:  python3 -m unittest test_rules -v
 """
 import csv, io, json, unittest
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from fv import rules
@@ -43,14 +43,22 @@ class Slate(unittest.TestCase):
         self.assertEqual([len(w) for w in kickoff_windows(times)], [1, 2, 1, 1])
 
     def test_main_slate_excludes_night_games(self):
+        # Asserts the SHAPE of the main slate, not a specific date. The first
+        # version hard-coded Week 1's 2026-09-13 and broke the moment the Week 2
+        # salary file shipped -- a correct change failing the suite.
         _, slate = live_pool()
-        self.assertEqual(slate.locks_at, datetime(2026, 9, 13, 13, 0))
-        self.assertEqual(slate.game_count, 12)
+        self.assertEqual(slate.locks_at.weekday(), 6, "the main slate is a Sunday")
+        self.assertEqual(slate.locks_at.hour, 13, "and it locks at 1:00pm")
+        self.assertGreaterEqual(slate.game_count, 8, "a main slate is most of the week")
+        self.assertLess(slate.ends_at.hour, 20, "and it ends before the night game")
 
     def test_slate_is_bounded_at_the_top(self):
         """The original bug: no end bound, so Monday night was 'after the lock'."""
         _, slate = live_pool()
-        self.assertFalse(in_slate("DEN@KC 09/14/2026 08:15PM ET", slate.locks_at, slate.ends_at))
+        # A Monday night kickoff, relative to whatever Sunday this slate is.
+        monday = slate.locks_at + timedelta(days=1, hours=7)
+        stamp = monday.strftime("DEN@KC %m/%d/%Y %I:%M%p ET")
+        self.assertFalse(in_slate(stamp, slate.locks_at, slate.ends_at))
 
     def test_unparseable_kickoff_is_kept(self):
         self.assertTrue(in_slate("no date here", datetime(2026, 9, 13, 13, 0)))

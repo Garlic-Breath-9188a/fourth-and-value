@@ -28,6 +28,10 @@ set it. The short version:
   Monday; most tournaments are Sunday afternoon only.
 - **Buy-in matters more than the model.** On a 109-contest board, $3–$5
   tournaments keep 15.0% of every dollar entered and $100+ keep 9.7%.
+- **Projections blend this season with last.** DraftKings' average is a single
+  game in Week 2 — one good Sunday reads as a 35-point forecast. The app weights
+  it `n/(n+3)` against last season, which cuts projection error by more than
+  forty times what the matchup adjustment is worth.
 
 ## What it does not do
 
