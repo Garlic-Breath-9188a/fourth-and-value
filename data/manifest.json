@@ -1,18 +1,30 @@
 {
-  "_comment": "When each shipped data file was actually captured from its source. Recorded explicitly because a file's modification time resets whenever it is copied, which made the app report the day it was deployed as the day the slate was pulled. Update these when you refresh the files.",
+  "_comment": "When each shipped data file was actually captured from its source. Recorded explicitly because a file's modification time resets whenever it is copied, which made the app report the day it was deployed as the day the slate was pulled. UPDATE THESE WHEN YOU REFRESH A FILE -- the header showed Week 1 dates against a Week 2 slate because this was forgotten once.",
   "slate": {
-    "captured": "2026-09-13",
-    "source": "DraftKings salary export, Week 1 2026 (re-pulled 06:34 ET)",
-    "note": "746 players. Statuses are LIVE as of the pull: 159 OUT, 41 IR, 17 questionable, 2 doubtful. The 09-04 export it replaced was nine days stale and still listed Michael Penix Jr. as questionable after he had been ruled out."
+    "captured": "2026-09-19",
+    "week": 2,
+    "source": "DraftKings salary export, Week 2 2026",
+    "note": "670 players, 13 games, all Sunday 9/20 1:00-4:25pm -- one clean main slate with no primetime to filter. Statuses live at the pull: 578 active, 60 IR, 21 out, 9 questionable, 2 doubtful."
   },
   "contests": {
-    "captured": "2026-09-11",
-    "source": "DraftKings lobby, hand-transcribed from 5 screenshots",
-    "note": "111 contests. `window` marks which games each covers; only 'main' can take a main-slate lineup."
+    "captured": "2026-09-19",
+    "week": 2,
+    "source": "DraftKings lobby, hand-transcribed from 2 screenshots, Classic tournaments at $10+",
+    "note": "47 contests, 31 on the main slate. Entry counts are a snapshot ~14h before lock and move hard. Satellites and World Championship qualifiers omitted (seats, not cash); 50-50s omitted (cash games)."
   },
   "variance": {
     "captured": "2026-09-02",
     "source": "Historical box scores 2000-2025",
-    "note": "Each player's own scoring spread. 367 of 481 matched on the Week 1 slate."
+    "note": "Each player's own scoring spread. 359 of 670 matched on the Week 2 slate; the rest fall back to a flat positional multiple and are labelled inferred."
+  },
+  "prior": {
+    "captured": "2026-09-19",
+    "source": "League Station workbook, 2025 season",
+    "note": "578 players. Flat 2025 average, blended against the in-season average at n/(n+3) so a single Week 1 game cannot carry a projection."
+  },
+  "kalshi": {
+    "captured": "2026-09-20",
+    "source": "Kalshi public read API, player prop ladders",
+    "note": "178 players matched to the slate. Not used by the projection -- forward validation only, because no historical Kalshi data exists to backtest against."
   }
 }

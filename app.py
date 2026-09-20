@@ -37,6 +37,14 @@ def _captured(key: str) -> str:
     except Exception:
         return "unknown"
 
+
+def _manifest(key: str) -> dict:
+    """The whole manifest entry, for the week number and the notes."""
+    try:
+        return json.loads((DATA / "manifest.json").read_text()).get(key, {})
+    except Exception:
+        return {}
+
 st.set_page_config(page_title="Fourth & Value", page_icon="🏈", layout="wide")
 
 st.markdown("""
@@ -89,7 +97,7 @@ def load_prior_season():
 
 @st.cache_data(show_spinner=False)
 def load_lobby():
-    return json.loads((DATA / "lobby-week1-2026.json").read_text())
+    return json.loads((DATA / "lobby-week2-2026.json").read_text())
 
 
 @st.cache_data(ttl=21600, show_spinner="Checking the injury wire…")
@@ -248,12 +256,22 @@ if blocked:
 st.title("Fourth & Value")
 st.caption(f"{slate.label} · {slate.game_count} games · {len(pool)} players")
 
+# A stale contest board is worse than a stale slate: the lineups are fine and the
+# plan names tournaments that no longer exist. The header showed a Week 1 date
+# beside a Week 2 slate and looked perfectly normal, so the comparison is made
+# explicitly rather than left for the reader to notice.
+_slate_meta = _manifest("slate")
+_slate_week = _slate_meta.get("week")
+_board_stale = _captured("contests") < _captured("slate") != "unknown"
+
 f1, f2, f3 = st.columns([1.1, 1.1, 2.4])
-f1.metric("Slate captured", _captured("slate"),
+f1.metric(f"Slate captured{f' · week {_slate_week}' if _slate_week else ''}", _captured("slate"),
           help="When the DraftKings salary export in this build was taken. Player "
                "availability comes from that file's Status column and is only as fresh "
                "as the file.")
 f2.metric("Contest board", _captured("contests"),
+          delta="older than the slate" if _board_stale else None,
+          delta_color="inverse" if _board_stale else "normal",
           help="When the tournament list was transcribed from the lobby.")
 if use_live and feed:
     f3.metric("Injury wire", f"{len(feed)} flagged",
@@ -277,6 +295,31 @@ lock_label = f"{slate.locks_at.strftime('%-m/%-d %-I:%M')}p"
 entries, entry_notes = plan(lobby["contests"], budget, len(lineups), lock_label)
 
 with tab_board:
+    # ---- Where every input came from, and when -----------------------------
+    # Asked for after the header showed Week 1 dates against a Week 2 slate and
+    # looked entirely normal. A stale input is invisible unless it is dated next
+    # to the thing it feeds, so each source states its own age here rather than
+    # being trusted because the app loaded without complaint.
+    _fresh = [
+        ("Player pool", _captured("slate"),
+         f"{len(pool)} on this slate · statuses frozen at export"),
+        ("Injury wire", "live" if (use_live and feed) else "not used",
+         f"{len(feed)} flagged, refreshed 6-hourly" if (use_live and feed)
+         else "falling back to the salary file"),
+        ("Kalshi props", _captured("kalshi"), _manifest("kalshi").get("note", "")[:60]),
+        ("Last season", _captured("prior"), "blended into the projection"),
+        ("Contest board", _captured("contests"),
+         "older than the slate" if _board_stale else "current"),
+    ]
+    cols = st.columns(len(_fresh))
+    for col, (label, when, sub) in zip(cols, _fresh):
+        stale = when not in ("live",) and when < _captured("slate")
+        col.metric(label, when, delta="stale" if stale else None,
+                   delta_color="inverse" if stale else "normal", help=sub)
+    st.caption("Every input dates itself. Anything marked **stale** was captured before the "
+               "salary file and may describe last week.")
+    st.divider()
+
     if not lineups:
         st.error("No lineups could be built. Loosen the must-play list.")
     else:
@@ -587,6 +630,12 @@ with tab_entry:
             "demonstrated one.")
         st.divider()
 
+    if _board_stale:
+        st.error(
+            f"**This contest board is from {_captured('contests')} and the slate is from "
+            f"{_captured('slate')}.** The tournaments below are last week's and cannot be "
+            "entered. Transcribe the current lobby into `data/lobby-week1-2026.json` before "
+            "using this plan.", icon="⚠️")
     st.markdown("### The plan")
     for n in entry_notes:
         st.warning(n)
