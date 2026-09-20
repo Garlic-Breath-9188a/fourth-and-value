@@ -931,3 +931,68 @@ class BlendBeforeCeilings(unittest.TestCase):
         for r in right:
             if r["projection"] > 0:
                 self.assertGreaterEqual(r["ceiling"] / r["projection"], 1.14, r["name"])
+
+
+class PlacedEntriesReconcile(unittest.TestCase):
+    """
+    Every recorded entry must be a lineup DraftKings would actually have
+    accepted, and every player must exist in the salary file at the salary the
+    screenshot showed. These are hand-transcribed from screens; a wrong digit is
+    silent and would quietly corrupt every later analysis of the week.
+    """
+
+    SLOTS = ["QB", "RB", "RB", "WR", "WR", "WR", "TE", "FLEX", "DST"]
+
+    def setUp(self):
+        data = Path(__file__).parent / "data"
+        f = data / "entries-placed.json"
+        if not f.exists():
+            self.skipTest("no placed entries shipped")
+        self.d = json.loads(f.read_text())
+        rows = load_salaries((data / "DKSalaries.csv").read_text())
+        self.by = {}
+        for r in rows:
+            parts = r["name"].replace(".", "").split()
+            self.by.setdefault((parts[0][0].lower(), parts[-1].lower(), r["team"]), []).append(r)
+
+    def test_every_roster_is_a_legal_lineup(self):
+        for e in self.d["entries"]:
+            with self.subTest(entry=e["entry"]):
+                self.assertEqual(len(e["roster"]), 9)
+                self.assertEqual([p["slot"] for p in e["roster"]], self.SLOTS)
+                total = sum(p["salary"] for p in e["roster"])
+                self.assertEqual(total + e["remainingSalary"], 50000)
+                self.assertLessEqual(total, 50000)
+                # DraftKings requires at least two games represented.
+                self.assertGreaterEqual(len({p["team"] for p in e["roster"]}), 2)
+
+    def test_every_player_exists_at_that_salary(self):
+        for e in self.d["entries"]:
+            for p in e["roster"]:
+                if p["slot"] == "DST":
+                    continue
+                with self.subTest(entry=e["entry"], player=p["name"]):
+                    parts = p["name"].replace(".", "").split()
+                    hits = self.by.get((parts[0][0].lower(), parts[-1].lower(), p["team"]), [])
+                    self.assertTrue(hits, f'{p["name"]} ({p["team"]}) is not in the salary file')
+                    self.assertTrue(any(h["salary"] == p["salary"] for h in hits),
+                                    f'{p["name"]}: recorded ${p["salary"]}, file has '
+                                    f'{[h["salary"] for h in hits]}')
+
+    def test_staked_equals_the_sum_of_entry_fees(self):
+        fees = {c["id"]: c["entryFee"] for c in self.d["contests"]}
+        self.assertEqual(sum(fees[e["contestId"]] for e in self.d["entries"]), self.d["staked"])
+
+    def test_every_entry_points_at_a_known_contest(self):
+        ids = {c["id"] for c in self.d["contests"]}
+        for e in self.d["entries"]:
+            self.assertIn(e["contestId"], ids)
+
+    def test_single_entry_contests_hold_one_entry(self):
+        counts = {}
+        for e in self.d["entries"]:
+            counts[e["contestId"]] = counts.get(e["contestId"], 0) + 1
+        for c in self.d["contests"]:
+            used = counts.get(c["id"], 0)
+            self.assertLessEqual(used, c.get("entriesPerUser", 1),
+                                 f'{c["name"]} holds {used} of {c.get("entriesPerUser")} allowed')

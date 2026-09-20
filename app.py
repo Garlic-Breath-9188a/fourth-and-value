@@ -191,7 +191,7 @@ def live_injuries():
 
 
 @st.cache_data(show_spinner=False)
-def load_open_board():
+def load_open_board(version: str):
     """The open contest board with live fill, or None when it is not shipped."""
     try:
         return json.loads((DATA / "contests-open-0913.json").read_text())
@@ -205,9 +205,15 @@ def load_strategy(version: str):
 
 
 @st.cache_data(show_spinner=False)
-def load_placed_entries():
+def load_placed_entries(version: str):
     """
     Entries actually placed on DraftKings, transcribed from the entry screen.
+
+    Takes `version` for the same reason every other loader here does: a cached
+    function with NO arguments has a constant cache key and never turns over, so
+    rewriting entries-placed.json changed nothing on screen. That is the same
+    defect as the leading-underscore one this file already warns about, and it
+    hid six freshly recorded entries.
 
     Ships with the app. An earlier version kept this out of the repository and
     offered a file uploader instead, on the grounds that the repo is public --
@@ -379,7 +385,7 @@ tab_board, tab_pool, tab_entry, tab_strategy, tab_about = st.tabs(
 # (P(180+) 1.12% -> 0.83% at a 20% cap) -- but it buys the downside that was
 # measured: when the quarterback a portfolio leans on busts, the chance every
 # lineup fails rises from 32% to 53%.
-used_qbs = ent.quarterbacks_used(load_placed_entries(), st.session_state.entered)
+used_qbs = ent.quarterbacks_used(load_placed_entries(_data_version()), st.session_state.entered)
 build_ids = ent.without_used_quarterbacks(pool, used_qbs) if avoid_used_qbs else pool
 if avoid_used_qbs and used_qbs and len(build_ids) < len(pool):
     gone = sorted({p["name"] for p in pool} - {p["name"] for p in build_ids})
@@ -806,7 +812,7 @@ with tab_entry:
     # This goes first, above the plan. The plan below is a recommendation; this
     # is money already staked, and the two must not be confused. Hidden entirely
     # when the file is absent, which is the case on the public deploy.
-    placed = load_placed_entries()
+    placed = load_placed_entries(_data_version())
     if placed["entries"]:
         st.markdown("### Contests you have entered")
         p_rows = []
@@ -876,7 +882,7 @@ with tab_entry:
     # That is the only thing on this page that is free money rather than a
     # smaller loss -- and it is also the most perishable, which is why the
     # snapshot time is stated everywhere it appears.
-    board = load_open_board()
+    board = load_open_board(_data_version())
     if board:
         staked_now = ent.placed_fees(placed)
         left = max(0.0, budget - staked_now)

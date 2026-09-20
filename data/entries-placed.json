@@ -10,7 +10,7 @@
       "entryFee": 27,
       "totalPrizes": 100000,
       "topPrize": 10000,
-      "entered": 3606,
+      "entered": 4319,
       "maxEntries": 4319,
       "entriesPerUser": 1,
       "liveIn": "Sun 1:00pm"
@@ -21,7 +21,7 @@
       "entryFee": 20,
       "totalPrizes": 3000000,
       "topPrize": 1000000,
-      "entered": 156328,
+      "entered": 163800,
       "maxEntries": 176470,
       "entriesPerUser": 150,
       "liveIn": "Sun 1:00pm"
@@ -32,8 +32,8 @@
       "entryFee": 12,
       "totalPrizes": 175000,
       "topPrize": 15000,
-      "entered": 15100,
-      "maxEntries": 17100,
+      "entered": 17156,
+      "maxEntries": 17156,
       "entriesPerUser": 1,
       "liveIn": "Sun 1:00pm"
     },
@@ -43,7 +43,7 @@
       "entryFee": 15,
       "totalPrizes": 75000,
       "topPrize": 10000,
-      "entered": 5325,
+      "entered": 5882,
       "maxEntries": 5882,
       "entriesPerUser": 5,
       "liveIn": "Sun 1:00pm"
@@ -53,10 +53,11 @@
       "name": "NFL $15K Hail Mary",
       "entryFee": 12,
       "totalPrizes": 15000,
-      "entered": 1377,
+      "entered": 1406,
       "maxEntries": 1470,
       "entriesPerUser": 150,
-      "liveIn": "Sun 1:00pm"
+      "liveIn": "Sun 1:00pm",
+      "topPrize": 1500
     }
   ],
   "entries": [
