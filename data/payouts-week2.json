@@ -1,470 +1,686 @@
 {
- "NFL $50K 1st and 10 [10 Entry Max]": {
-  "entryFee": 10,
-  "maxEntries": 5882,
-  "tiers": [
-   {
-    "from": 1,
-    "to": 1,
-    "prize": 5000
-   },
-   {
-    "from": 2,
-    "to": 2,
-    "prize": 2500
-   },
-   {
-    "from": 3,
-    "to": 3,
-    "prize": 1500
-   },
-   {
-    "from": 4,
-    "to": 4,
-    "prize": 1000
-   },
-   {
-    "from": 5,
-    "to": 5,
-    "prize": 750
-   },
-   {
-    "from": 6,
-    "to": 7,
-    "prize": 600
-   },
-   {
-    "from": 8,
-    "to": 10,
-    "prize": 500
-   },
-   {
-    "from": 11,
-    "to": 13,
-    "prize": 400
-   },
-   {
-    "from": 14,
-    "to": 16,
-    "prize": 300
-   },
-   {
-    "from": 17,
-    "to": 20,
-    "prize": 250
-   },
-   {
-    "from": 21,
-    "to": 25,
-    "prize": 200
-   },
-   {
-    "from": 26,
-    "to": 30,
-    "prize": 150
-   },
-   {
-    "from": 31,
-    "to": 40,
-    "prize": 100
-   },
-   {
-    "from": 41,
-    "to": 50,
-    "prize": 75
-   },
-   {
-    "from": 51,
-    "to": 60,
-    "prize": 60
-   },
-   {
-    "from": 61,
-    "to": 80,
-    "prize": 50
-   },
-   {
-    "from": 81,
-    "to": 120,
-    "prize": 40
-   },
-   {
-    "from": 121,
-    "to": 220,
-    "prize": 30
-   },
-   {
-    "from": 221,
-    "to": 446,
-    "prize": 25
-   },
-   {
-    "from": 447,
-    "to": 1351,
-    "prize": 20
-   }
-  ],
-  "topPrizeMultiple": 500.0,
-  "cashRate": 0.2297,
-  "minCashMultiple": 2.0,
-  "paidPlaces": 1351,
-  "prizePool": 50000.0,
-  "rake": 0.1499,
-  "shape": "gpp"
- },
- "NFL $100K Blind Side [Single Entry]": {
-  "entryFee": 27,
-  "maxEntries": 4319,
-  "tiers": [
-   {
-    "from": 1,
-    "to": 1,
-    "prize": 10000
-   },
-   {
-    "from": 2,
-    "to": 2,
-    "prize": 5000
-   },
-   {
-    "from": 3,
-    "to": 3,
-    "prize": 2500
-   },
-   {
-    "from": 4,
-    "to": 4,
-    "prize": 2000
-   },
-   {
-    "from": 5,
-    "to": 5,
-    "prize": 1500
-   },
-   {
-    "from": 6,
-    "to": 7,
-    "prize": 1250
-   },
-   {
-    "from": 8,
-    "to": 10,
-    "prize": 1000
-   },
-   {
-    "from": 11,
-    "to": 13,
-    "prize": 750
-   },
-   {
-    "from": 14,
-    "to": 16,
-    "prize": 600
-   },
-   {
-    "from": 17,
-    "to": 20,
-    "prize": 500
-   },
-   {
-    "from": 21,
-    "to": 25,
-    "prize": 400
-   },
-   {
-    "from": 26,
-    "to": 30,
-    "prize": 300
-   },
-   {
-    "from": 31,
-    "to": 35,
-    "prize": 250
-   },
-   {
-    "from": 36,
-    "to": 45,
-    "prize": 200
-   },
-   {
-    "from": 46,
-    "to": 70,
-    "prize": 150
-   },
-   {
-    "from": 71,
-    "to": 137,
-    "prize": 100
-   },
-   {
-    "from": 138,
-    "to": 267,
-    "prize": 75
-   },
-   {
-    "from": 268,
-    "to": 537,
-    "prize": 60
-   },
-   {
-    "from": 538,
-    "to": 987,
-    "prize": 54
-   }
-  ],
-  "topPrizeMultiple": 370.4,
-  "cashRate": 0.2285,
-  "minCashMultiple": 2.0,
-  "paidPlaces": 987,
-  "prizePool": 100000.0,
-  "rake": 0.1425,
-  "shape": "gpp"
- },
- "NFL $175K Fair Catch [Single Entry]": {
-  "entryFee": 12,
-  "maxEntries": 17156,
-  "tiers": [
-   {
-    "from": 1,
-    "to": 1,
-    "prize": 15000
-   },
-   {
-    "from": 2,
-    "to": 2,
-    "prize": 10000
-   },
-   {
-    "from": 3,
-    "to": 3,
-    "prize": 7500
-   },
-   {
-    "from": 4,
-    "to": 4,
-    "prize": 5000
-   },
-   {
-    "from": 5,
-    "to": 5,
-    "prize": 4000
-   },
-   {
-    "from": 6,
-    "to": 6,
-    "prize": 3000
-   },
-   {
-    "from": 7,
-    "to": 8,
-    "prize": 2000
-   },
-   {
-    "from": 9,
-    "to": 10,
-    "prize": 1500
-   },
-   {
-    "from": 11,
-    "to": 15,
-    "prize": 1000
-   },
-   {
-    "from": 16,
-    "to": 20,
-    "prize": 700
-   },
-   {
-    "from": 21,
-    "to": 25,
-    "prize": 500
-   },
-   {
-    "from": 26,
-    "to": 30,
-    "prize": 400
-   },
-   {
-    "from": 31,
-    "to": 35,
-    "prize": 300
-   },
-   {
-    "from": 36,
-    "to": 45,
-    "prize": 200
-   },
-   {
-    "from": 46,
-    "to": 55,
-    "prize": 150
-   },
-   {
-    "from": 56,
-    "to": 75,
-    "prize": 125
-   },
-   {
-    "from": 76,
-    "to": 100,
-    "prize": 100
-   },
-   {
-    "from": 101,
-    "to": 150,
-    "prize": 75
-   },
-   {
-    "from": 151,
-    "to": 250,
-    "prize": 50
-   },
-   {
-    "from": 251,
-    "to": 450,
-    "prize": 40
-   },
-   {
-    "from": 451,
-    "to": 750,
-    "prize": 35
-   },
-   {
-    "from": 751,
-    "to": 1200,
-    "prize": 30
-   },
-   {
-    "from": 1201,
-    "to": 1900,
-    "prize": 25
-   },
-   {
-    "from": 1901,
-    "to": 2910,
-    "prize": 20
-   },
-   {
-    "from": 2911,
-    "to": 4135,
-    "prize": 18
-   }
-  ],
-  "topPrizeMultiple": 1250.0,
-  "cashRate": 0.241,
-  "minCashMultiple": 1.5,
-  "paidPlaces": 4135,
-  "prizePool": 175000.0,
-  "rake": 0.15,
-  "shape": "gpp"
- },
- "NFL $20 100-Player": {
-  "entryFee": 20,
-  "maxEntries": 100,
-  "tiers": [
-   {
-    "from": 1,
-    "to": 1,
-    "prize": 270
-   },
-   {
-    "from": 2,
-    "to": 2,
-    "prize": 216
-   },
-   {
-    "from": 3,
-    "to": 3,
-    "prize": 162
-   },
-   {
-    "from": 4,
-    "to": 4,
-    "prize": 144
-   },
-   {
-    "from": 5,
-    "to": 5,
-    "prize": 126
-   },
-   {
-    "from": 6,
-    "to": 6,
-    "prize": 108
-   },
-   {
-    "from": 7,
-    "to": 8,
-    "prize": 90
-   },
-   {
-    "from": 9,
-    "to": 10,
-    "prize": 72
-   },
-   {
-    "from": 11,
-    "to": 15,
-    "prize": 54
-   },
-   {
-    "from": 16,
-    "to": 20,
-    "prize": 36
-   }
-  ],
-  "topPrizeMultiple": 13.5,
-  "cashRate": 0.2,
-  "minCashMultiple": 1.8,
-  "paidPlaces": 20,
-  "prizePool": 1800.0,
-  "rake": 0.1,
-  "shape": "gpp"
- },
- "NFL $20 50-50!": {
-  "entryFee": 20,
-  "maxEntries": 100,
-  "tiers": [
-   {
-    "from": 1,
-    "to": 50,
-    "prize": 36
-   }
-  ],
-  "topPrizeMultiple": 1.8,
-  "cashRate": 0.5,
-  "minCashMultiple": 1.8,
-  "paidPlaces": 50,
-  "prizePool": 1800.0,
-  "rake": 0.1,
-  "shape": "double_up"
- },
- "NFL $20 200-Player (Top 3 Win)": {
-  "entryFee": 20,
-  "maxEntries": 200,
-  "tiers": [
-   {
-    "from": 1,
-    "to": 1,
-    "prize": 1800
-   },
-   {
-    "from": 2,
-    "to": 2,
-    "prize": 1080
-   },
-   {
-    "from": 3,
-    "to": 3,
-    "prize": 720
-   }
-  ],
-  "topPrizeMultiple": 90.0,
-  "cashRate": 0.015,
-  "minCashMultiple": 36.0,
-  "paidPlaces": 3,
-  "prizePool": 3600.0,
-  "rake": 0.1,
-  "shape": "lottery"
- }
+  "NFL $50K 1st and 10 [10 Entry Max]": {
+    "entryFee": 10,
+    "maxEntries": 5882,
+    "tiers": [
+      {
+        "from": 1,
+        "to": 1,
+        "prize": 5000
+      },
+      {
+        "from": 2,
+        "to": 2,
+        "prize": 2500
+      },
+      {
+        "from": 3,
+        "to": 3,
+        "prize": 1500
+      },
+      {
+        "from": 4,
+        "to": 4,
+        "prize": 1000
+      },
+      {
+        "from": 5,
+        "to": 5,
+        "prize": 750
+      },
+      {
+        "from": 6,
+        "to": 7,
+        "prize": 600
+      },
+      {
+        "from": 8,
+        "to": 10,
+        "prize": 500
+      },
+      {
+        "from": 11,
+        "to": 13,
+        "prize": 400
+      },
+      {
+        "from": 14,
+        "to": 16,
+        "prize": 300
+      },
+      {
+        "from": 17,
+        "to": 20,
+        "prize": 250
+      },
+      {
+        "from": 21,
+        "to": 25,
+        "prize": 200
+      },
+      {
+        "from": 26,
+        "to": 30,
+        "prize": 150
+      },
+      {
+        "from": 31,
+        "to": 40,
+        "prize": 100
+      },
+      {
+        "from": 41,
+        "to": 50,
+        "prize": 75
+      },
+      {
+        "from": 51,
+        "to": 60,
+        "prize": 60
+      },
+      {
+        "from": 61,
+        "to": 80,
+        "prize": 50
+      },
+      {
+        "from": 81,
+        "to": 120,
+        "prize": 40
+      },
+      {
+        "from": 121,
+        "to": 220,
+        "prize": 30
+      },
+      {
+        "from": 221,
+        "to": 446,
+        "prize": 25
+      },
+      {
+        "from": 447,
+        "to": 1351,
+        "prize": 20
+      }
+    ],
+    "topPrizeMultiple": 500.0,
+    "cashRate": 0.2297,
+    "minCashMultiple": 2.0,
+    "paidPlaces": 1351,
+    "prizePool": 50000.0,
+    "rake": 0.1499,
+    "shape": "gpp"
+  },
+  "NFL $100K Blind Side [Single Entry]": {
+    "cashRate": 0.2285,
+    "minCashMultiple": 2.0,
+    "topPrizeMultiple": 370.4,
+    "paidPlaces": 987,
+    "prizePool": 100000.0,
+    "rake": 0.1425,
+    "shape": "gpp",
+    "entryFee": 27,
+    "maxEntries": 4319,
+    "tiers": [
+      {
+        "from": 1,
+        "to": 1,
+        "prize": 10000
+      },
+      {
+        "from": 2,
+        "to": 2,
+        "prize": 5000
+      },
+      {
+        "from": 3,
+        "to": 3,
+        "prize": 2500
+      },
+      {
+        "from": 4,
+        "to": 4,
+        "prize": 2000
+      },
+      {
+        "from": 5,
+        "to": 5,
+        "prize": 1500
+      },
+      {
+        "from": 6,
+        "to": 7,
+        "prize": 1250
+      },
+      {
+        "from": 8,
+        "to": 10,
+        "prize": 1000
+      },
+      {
+        "from": 11,
+        "to": 13,
+        "prize": 750
+      },
+      {
+        "from": 14,
+        "to": 16,
+        "prize": 600
+      },
+      {
+        "from": 17,
+        "to": 20,
+        "prize": 500
+      },
+      {
+        "from": 21,
+        "to": 25,
+        "prize": 400
+      },
+      {
+        "from": 26,
+        "to": 30,
+        "prize": 300
+      },
+      {
+        "from": 31,
+        "to": 35,
+        "prize": 250
+      },
+      {
+        "from": 36,
+        "to": 45,
+        "prize": 200
+      },
+      {
+        "from": 46,
+        "to": 70,
+        "prize": 150
+      },
+      {
+        "from": 71,
+        "to": 137,
+        "prize": 100
+      },
+      {
+        "from": 138,
+        "to": 267,
+        "prize": 75
+      },
+      {
+        "from": 268,
+        "to": 537,
+        "prize": 60
+      },
+      {
+        "from": 538,
+        "to": 987,
+        "prize": 54
+      }
+    ]
+  },
+  "NFL $175K Fair Catch [Single Entry]": {
+    "entryFee": 12,
+    "maxEntries": 17156,
+    "tiers": [
+      {
+        "from": 1,
+        "to": 1,
+        "prize": 15000
+      },
+      {
+        "from": 2,
+        "to": 2,
+        "prize": 10000
+      },
+      {
+        "from": 3,
+        "to": 3,
+        "prize": 7500
+      },
+      {
+        "from": 4,
+        "to": 4,
+        "prize": 5000
+      },
+      {
+        "from": 5,
+        "to": 5,
+        "prize": 4000
+      },
+      {
+        "from": 6,
+        "to": 6,
+        "prize": 3000
+      },
+      {
+        "from": 7,
+        "to": 8,
+        "prize": 2000
+      },
+      {
+        "from": 9,
+        "to": 10,
+        "prize": 1500
+      },
+      {
+        "from": 11,
+        "to": 15,
+        "prize": 1000
+      },
+      {
+        "from": 16,
+        "to": 20,
+        "prize": 700
+      },
+      {
+        "from": 21,
+        "to": 25,
+        "prize": 500
+      },
+      {
+        "from": 26,
+        "to": 30,
+        "prize": 400
+      },
+      {
+        "from": 31,
+        "to": 35,
+        "prize": 300
+      },
+      {
+        "from": 36,
+        "to": 45,
+        "prize": 200
+      },
+      {
+        "from": 46,
+        "to": 55,
+        "prize": 150
+      },
+      {
+        "from": 56,
+        "to": 75,
+        "prize": 125
+      },
+      {
+        "from": 76,
+        "to": 100,
+        "prize": 100
+      },
+      {
+        "from": 101,
+        "to": 150,
+        "prize": 75
+      },
+      {
+        "from": 151,
+        "to": 250,
+        "prize": 50
+      },
+      {
+        "from": 251,
+        "to": 450,
+        "prize": 40
+      },
+      {
+        "from": 451,
+        "to": 750,
+        "prize": 35
+      },
+      {
+        "from": 751,
+        "to": 1200,
+        "prize": 30
+      },
+      {
+        "from": 1201,
+        "to": 1900,
+        "prize": 25
+      },
+      {
+        "from": 1901,
+        "to": 2910,
+        "prize": 20
+      },
+      {
+        "from": 2911,
+        "to": 4135,
+        "prize": 18
+      }
+    ],
+    "topPrizeMultiple": 1250.0,
+    "cashRate": 0.241,
+    "minCashMultiple": 1.5,
+    "paidPlaces": 4135,
+    "prizePool": 175000.0,
+    "rake": 0.15,
+    "shape": "gpp"
+  },
+  "NFL $20 100-Player": {
+    "entryFee": 20,
+    "maxEntries": 100,
+    "tiers": [
+      {
+        "from": 1,
+        "to": 1,
+        "prize": 270
+      },
+      {
+        "from": 2,
+        "to": 2,
+        "prize": 216
+      },
+      {
+        "from": 3,
+        "to": 3,
+        "prize": 162
+      },
+      {
+        "from": 4,
+        "to": 4,
+        "prize": 144
+      },
+      {
+        "from": 5,
+        "to": 5,
+        "prize": 126
+      },
+      {
+        "from": 6,
+        "to": 6,
+        "prize": 108
+      },
+      {
+        "from": 7,
+        "to": 8,
+        "prize": 90
+      },
+      {
+        "from": 9,
+        "to": 10,
+        "prize": 72
+      },
+      {
+        "from": 11,
+        "to": 15,
+        "prize": 54
+      },
+      {
+        "from": 16,
+        "to": 20,
+        "prize": 36
+      }
+    ],
+    "topPrizeMultiple": 13.5,
+    "cashRate": 0.2,
+    "minCashMultiple": 1.8,
+    "paidPlaces": 20,
+    "prizePool": 1800.0,
+    "rake": 0.1,
+    "shape": "gpp"
+  },
+  "NFL $20 50-50!": {
+    "entryFee": 20,
+    "maxEntries": 100,
+    "tiers": [
+      {
+        "from": 1,
+        "to": 50,
+        "prize": 36
+      }
+    ],
+    "topPrizeMultiple": 1.8,
+    "cashRate": 0.5,
+    "minCashMultiple": 1.8,
+    "paidPlaces": 50,
+    "prizePool": 1800.0,
+    "rake": 0.1,
+    "shape": "double_up"
+  },
+  "NFL $20 200-Player (Top 3 Win)": {
+    "entryFee": 20,
+    "maxEntries": 200,
+    "tiers": [
+      {
+        "from": 1,
+        "to": 1,
+        "prize": 1800
+      },
+      {
+        "from": 2,
+        "to": 2,
+        "prize": 1080
+      },
+      {
+        "from": 3,
+        "to": 3,
+        "prize": 720
+      }
+    ],
+    "topPrizeMultiple": 90.0,
+    "cashRate": 0.015,
+    "minCashMultiple": 36.0,
+    "paidPlaces": 3,
+    "prizePool": 3600.0,
+    "rake": 0.1,
+    "shape": "lottery"
+  },
+  "NFL $50K Blind Side [Single Entry]": {
+    "cashRate": 0.2288,
+    "minCashMultiple": 2.0,
+    "topPrizeMultiple": 185.2,
+    "paidPlaces": 494,
+    "prizePool": 50000.0,
+    "rake": 0.1423,
+    "shape": "gpp",
+    "entryFee": 27,
+    "maxEntries": 2159,
+    "tiers": [
+      {
+        "from": 1,
+        "to": 1,
+        "prize": 5000
+      },
+      {
+        "from": 2,
+        "to": 2,
+        "prize": 3000
+      },
+      {
+        "from": 3,
+        "to": 3,
+        "prize": 2000
+      },
+      {
+        "from": 4,
+        "to": 4,
+        "prize": 1500
+      },
+      {
+        "from": 5,
+        "to": 5,
+        "prize": 1000
+      },
+      {
+        "from": 6,
+        "to": 6,
+        "prize": 750
+      },
+      {
+        "from": 7,
+        "to": 8,
+        "prize": 600
+      },
+      {
+        "from": 9,
+        "to": 10,
+        "prize": 500
+      },
+      {
+        "from": 11,
+        "to": 12,
+        "prize": 400
+      },
+      {
+        "from": 13,
+        "to": 17,
+        "prize": 300
+      },
+      {
+        "from": 18,
+        "to": 22,
+        "prize": 250
+      },
+      {
+        "from": 23,
+        "to": 27,
+        "prize": 200
+      },
+      {
+        "from": 28,
+        "to": 32,
+        "prize": 150
+      },
+      {
+        "from": 33,
+        "to": 47,
+        "prize": 125
+      },
+      {
+        "from": 48,
+        "to": 74,
+        "prize": 100
+      },
+      {
+        "from": 75,
+        "to": 129,
+        "prize": 75
+      },
+      {
+        "from": 130,
+        "to": 269,
+        "prize": 60
+      },
+      {
+        "from": 270,
+        "to": 494,
+        "prize": 54
+      }
+    ]
+  },
+  "NFL $75K Screen Pass [5 Entry Max]": {
+    "cashRate": 0.2181,
+    "minCashMultiple": 1.67,
+    "topPrizeMultiple": 666.7,
+    "paidPlaces": 1283,
+    "prizePool": 75000.0,
+    "rake": 0.1499,
+    "shape": "gpp",
+    "entryFee": 15,
+    "maxEntries": 5882,
+    "tiers": [
+      {
+        "from": 1,
+        "to": 1,
+        "prize": 10000
+      },
+      {
+        "from": 2,
+        "to": 2,
+        "prize": 5000
+      },
+      {
+        "from": 3,
+        "to": 3,
+        "prize": 4000
+      },
+      {
+        "from": 4,
+        "to": 4,
+        "prize": 3000
+      },
+      {
+        "from": 5,
+        "to": 5,
+        "prize": 2000
+      },
+      {
+        "from": 6,
+        "to": 7,
+        "prize": 1500
+      },
+      {
+        "from": 8,
+        "to": 10,
+        "prize": 1000
+      },
+      {
+        "from": 11,
+        "to": 13,
+        "prize": 700
+      },
+      {
+        "from": 14,
+        "to": 16,
+        "prize": 500
+      },
+      {
+        "from": 17,
+        "to": 20,
+        "prize": 350
+      },
+      {
+        "from": 21,
+        "to": 25,
+        "prize": 250
+      },
+      {
+        "from": 26,
+        "to": 30,
+        "prize": 200
+      },
+      {
+        "from": 31,
+        "to": 35,
+        "prize": 150
+      },
+      {
+        "from": 36,
+        "to": 45,
+        "prize": 100
+      },
+      {
+        "from": 46,
+        "to": 60,
+        "prize": 70
+      },
+      {
+        "from": 61,
+        "to": 85,
+        "prize": 50
+      },
+      {
+        "from": 86,
+        "to": 135,
+        "prize": 40
+      },
+      {
+        "from": 136,
+        "to": 235,
+        "prize": 35
+      },
+      {
+        "from": 236,
+        "to": 635,
+        "prize": 30
+      },
+      {
+        "from": 636,
+        "to": 1283,
+        "prize": 25
+      }
+    ]
+  }
 }

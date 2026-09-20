@@ -19,7 +19,7 @@ from fv.pool import (load_salaries, keep_starting_quarterbacks, apply_ceilings,
 from fv.slate import slate_options, main_slate, restrict
 from fv.optimize import build_portfolio, projection
 from fv.roster import order_roster, stack_role, is_stacked, to_dk_csv, fill_dk_template
-from fv.entry import plan, rake_pct
+from fv.entry import plan, rake_pct, playable
 from fv import blend as blend_mod
 from fv import select as select_mod
 from fv import mispricing as mispricing_mod
@@ -387,6 +387,21 @@ with tab_board:
             '&nbsp; <span class="bb">■</span> bring-back &nbsp; '
             '<span class="must">●</span> must-play', unsafe_allow_html=True)
 
+        # ---- Contests you can still put a lineup into ---------------------
+        # Filtered the same way the planner filters, plus each contest's own
+        # per-user limit measured against what is ALREADY marked entered: a
+        # [Single Entry] contest holding one of your lineups must not be offered
+        # for a second, which is not a rounding error but a lineup DraftKings
+        # will reject.
+        open_contests = ent.contests_with_room(
+            playable(lobby["contests"], lock_label, "main"), st.session_state.entered)
+
+        def contest_label(c: dict) -> str:
+            r = rake_pct(c)
+            left = ent.entries_left(c, st.session_state.entered)
+            cap = f" · {left} left" if c.get("maxEntriesPerUser", 1) > 1 else " · single"
+            return f'${c["entryFee"]:,.0f} · {c["name"]}' + (f' · {r:.1f}% rake' if r is not None else "") + cap
+
         per_row = 5
         for start in range(0, len(lineups), per_row):
             for col, (i, l) in zip(st.columns(per_row, gap="small"),
@@ -415,16 +430,36 @@ with tab_board:
                     f'<div class="foot"><span></span>'
                     f'<span>${sum(p["salary"] for p in l):,} · {projection(l):.1f} pts</span></div>'
                     f'</div></div>', unsafe_allow_html=True)
-                was = ent.is_entered(st.session_state.entered, l)
-                now = col.checkbox("Entered", value=was, key=f"entered_{ent.roster_key(l)}")
-                if now and not was and entry:
-                    ent.record(st.session_state.entered, l, entry.contest, entry.fee)
-                    st.rerun()
-                elif now and not was and not entry:
-                    col.caption("No contest assigned — raise the budget first.")
-                elif was and not now:
-                    ent.forget(st.session_state.entered, l)
-                    st.rerun()
+                # ---- Mark entered, against a contest you choose -----------
+                # The checkbox used to record whatever contest the PLANNER had
+                # assigned, and said "raise the budget first" when it had
+                # assigned none -- so a lineup actually entered somewhere else
+                # could not be recorded at all. The contest is now picked here,
+                # defaulting to the plan's suggestion. Marking it removes the
+                # lineup from the board on the next build (`avoid_keys`), so the
+                # nine players are not offered to you twice.
+                key = ent.roster_key(l)
+                if ent.is_entered(st.session_state.entered, l):
+                    # Defensive only: an entered roster is filtered out of the
+                    # next build, so this branch should not render. Unmarking
+                    # lives on the Entry plan tab, where the record still exists.
+                    rec = st.session_state.entered[key]
+                    col.success(f"entered · {rec['contest']} · ${rec['fee']:,.0f}", icon="✓")
+                elif not open_contests:
+                    col.caption("No contest on this slate has a known payout structure.")
+                else:
+                    suggested = 0
+                    if entry:
+                        suggested = next((n for n, c in enumerate(open_contests)
+                                          if c["id"] == entry.contest["id"]), 0)
+                    pick = col.selectbox(
+                        "Contest", range(len(open_contests)), index=suggested,
+                        format_func=lambda n: contest_label(open_contests[n]),
+                        key=f"pick_{key}", label_visibility="collapsed")
+                    if col.button("Mark entered", key=f"mark_{key}", width="stretch"):
+                        chosen = open_contests[pick]
+                        ent.record(st.session_state.entered, l, chosen, chosen["entryFee"])
+                        st.rerun()
             st.write("")
 
 
@@ -652,6 +687,63 @@ with tab_pool:
             st.markdown(f"**{label}** — {why}")
 
 with tab_entry:
+    # ---- Marked entered on the Lineups tab, this session ---------------------
+    # Separate from the file-backed block below: that is a transcription of the
+    # DraftKings entry screen, this is what you ticked here. Both are "money
+    # staked" and neither is the plan, but only one of them survives a reload,
+    # so they are never merged into one table.
+    if st.session_state.entered:
+        st.markdown("### Marked entered this session")
+        rows = []
+        for rec in st.session_state.entered.values():
+            roster = rec["players"]
+            qb = next((r for r in roster if r.get("position") == "QB"), {})
+            rows.append({
+                "Contest": rec["contest"],
+                "Fee": rec["fee"],
+                "QB": f'{qb.get("name", "—")} ({qb.get("team", "")})',
+                "Salary used": sum(r.get("salary", 0) for r in roster),
+                "Players": ", ".join(r["name"] for r in roster),
+            })
+        st.dataframe(pd.DataFrame(rows), width="stretch", hide_index=True,
+                     column_config={
+                         "Fee": st.column_config.NumberColumn("Fee", format="$%d"),
+                         "Salary used": st.column_config.NumberColumn("Salary used", format="$%d"),
+                     })
+        staked = ent.total_fees(st.session_state.entered)
+        left = budget - staked
+        st.caption(
+            f"**${staked:,.0f} staked across {len(st.session_state.entered)} "
+            f"{'entry' if len(st.session_state.entered) == 1 else 'entries'}** — "
+            + (f"${left:,.0f} of your ${budget:,.0f} budget left."
+               if left >= 0 else
+               f"**${-left:,.0f} over** your ${budget:,.0f} budget.")
+            + " These lineups are removed from the Lineups tab so the same nine"
+              " players are not offered to you twice. This list is held in the"
+              " browser session and does NOT survive a reload — export it, or"
+              " re-tick after refreshing.")
+        # Undo lives HERE, not on the lineup card. Marking a lineup entered
+        # removes it from the board on the next build, so the card carrying an
+        # "undo" control is exactly the card that no longer renders -- the first
+        # version put it there and it was unreachable the moment it was needed.
+        undo_col, dl_col = st.columns([3, 2])
+        keys = list(st.session_state.entered)
+        labels = []
+        for k in keys:
+            rec = st.session_state.entered[k]
+            qb_name = next((r["name"] for r in rec["players"]
+                            if r.get("position") == "QB"), "—")
+            labels.append(f'{rec["contest"]} · {qb_name}')
+        which = undo_col.selectbox("Unmark an entry", range(len(keys)),
+                                   format_func=lambda n: labels[n], key="unmark_pick")
+        if undo_col.button("Unmark — put this lineup back on the board"):
+            st.session_state.entered.pop(keys[which], None)
+            st.rerun()
+        dl_col.download_button("Download these entries (CSV)",
+                               ent.to_csv(st.session_state.entered),
+                               file_name="entries-marked.csv", mime="text/csv")
+        st.divider()
+
     # ---- What was ACTUALLY entered ------------------------------------------
     # This goes first, above the plan. The plan below is a recommendation; this
     # is money already staked, and the two must not be confused. Hidden entirely

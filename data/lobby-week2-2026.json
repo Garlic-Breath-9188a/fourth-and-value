@@ -1,1117 +1,1117 @@
 {
- "captured": "2026-09-19",
- "week": 2,
- "source": "DraftKings lobby, hand-transcribed from 2 screenshots, Classic tournaments at $10+",
- "note": "Entry counts are a snapshot ~14 hours before a 1:00pm lock and move hard. Satellites and World Championship qualifiers are omitted: they award seats, not cash, so the rake arithmetic does not describe them. 50-50s are omitted as cash games. The 100-player games are many separate contests, each listed with its own fill; collapsing them into one row made the planner recommend a single contest ten times. 21 small-field contests are marked structure=unknown: their payout curves have not been seen, and the $20 50-50! proves rake and prize pool alone cannot distinguish a tournament from a cash game. They were previously marked gpp on an assumption.",
- "contests": [
-  {
-   "id": "w2-0",
-   "name": "NFL $3M Fantasy Football Millionaire [$1M to 1st]",
-   "entryFee": 20,
-   "totalPrizes": 3000000,
-   "entered": 83200,
-   "maxEntries": 176400,
-   "maxEntriesPerUser": 150,
-   "structure": "gpp",
-   "window": "main",
-   "lockTime": "9/20 1:00p"
-  },
-  {
-   "id": "w2-1",
-   "name": "NFL $500K Afternoon Only Rush [$100K to 1st]",
-   "entryFee": 18,
-   "totalPrizes": 500000,
-   "entered": 6768,
-   "maxEntries": 32600,
-   "maxEntriesPerUser": 150,
-   "structure": "gpp",
-   "window": "afternoon",
-   "lockTime": null
-  },
-  {
-   "id": "w2-2",
-   "name": "NFL $300K Early Only Rush [$100K to 1st]",
-   "entryFee": 20,
-   "totalPrizes": 300000,
-   "entered": 7617,
-   "maxEntries": 17600,
-   "maxEntriesPerUser": 150,
-   "structure": "gpp",
-   "window": "early",
-   "lockTime": null
-  },
-  {
-   "id": "w2-3",
-   "name": "NFL $175K Fair Catch [Single Entry]",
-   "entryFee": 12,
-   "totalPrizes": 175000,
-   "entered": 7656,
-   "maxEntries": 17100,
-   "maxEntriesPerUser": 1,
-   "structure": "gpp",
-   "window": "main",
-   "lockTime": "9/20 1:00p",
-   "cashRate": 0.241,
-   "minCashMultiple": 1.5,
-   "topPrizeMultiple": 1250.0,
-   "structureNote": "Curve known: 4135 paid of 17100, min 1.5x, top 1250.0x."
-  },
-  {
-   "id": "w2-4",
-   "name": "NFL $100K Blind Side [Single Entry]",
-   "entryFee": 27,
-   "totalPrizes": 100000,
-   "entered": 1791,
-   "maxEntries": 4319,
-   "maxEntriesPerUser": 1,
-   "structure": "gpp",
-   "window": "main",
-   "lockTime": "9/20 1:00p",
-   "cashRate": 0.2285,
-   "minCashMultiple": 2.0,
-   "topPrizeMultiple": 370.4,
-   "structureNote": "Curve known: 987 paid of 4319, min 2.0x, top 370.4x."
-  },
-  {
-   "id": "w2-5",
-   "name": "NFL $75K Screen Pass [5 Entry Max]",
-   "entryFee": 15,
-   "totalPrizes": 75000,
-   "entered": 2878,
-   "maxEntries": 5882,
-   "maxEntriesPerUser": 5,
-   "structure": "gpp",
-   "window": "main",
-   "lockTime": "9/20 1:00p"
-  },
-  {
-   "id": "w2-6",
-   "name": "NFL $75K Fair Catch [Single Entry]",
-   "entryFee": 12,
-   "totalPrizes": 75000,
-   "entered": 3787,
-   "maxEntries": 7352,
-   "maxEntriesPerUser": 1,
-   "structure": "gpp",
-   "window": "main",
-   "lockTime": "9/20 1:00p"
-  },
-  {
-   "id": "w2-7",
-   "name": "NFL $50K 1st and 10 [10 Entry Max]",
-   "entryFee": 10,
-   "totalPrizes": 50000,
-   "entered": 3165,
-   "maxEntries": 5882,
-   "maxEntriesPerUser": 10,
-   "structure": "gpp",
-   "window": "main",
-   "lockTime": "9/20 1:00p",
-   "cashRate": 0.2297,
-   "minCashMultiple": 2.0,
-   "topPrizeMultiple": 500.0,
-   "structureNote": "Curve known: 1351 paid of 5882, min 2.0x, top 500.0x."
-  },
-  {
-   "id": "w2-8",
-   "name": "NFL $50K Blind Side [Single Entry]",
-   "entryFee": 27,
-   "totalPrizes": 50000,
-   "entered": 1074,
-   "maxEntries": 2159,
-   "maxEntriesPerUser": 1,
-   "structure": "gpp",
-   "window": "main",
-   "lockTime": "9/20 1:00p"
-  },
-  {
-   "id": "w2-9",
-   "name": "NFL $50K Fair Catch [Single Entry]",
-   "entryFee": 12,
-   "totalPrizes": 50000,
-   "entered": 3475,
-   "maxEntries": 4901,
-   "maxEntriesPerUser": 1,
-   "structure": "gpp",
-   "window": "main",
-   "lockTime": "9/20 1:00p"
-  },
-  {
-   "id": "w2-10",
-   "name": "NFL $30K Fair Catch [Single Entry] (Afternoon)",
-   "entryFee": 12,
-   "totalPrizes": 30000,
-   "entered": 477,
-   "maxEntries": 2941,
-   "maxEntriesPerUser": 1,
-   "structure": "gpp",
-   "window": "afternoon",
-   "lockTime": null
-  },
-  {
-   "id": "w2-11",
-   "name": "NFL $20K Fair Catch [Single Entry] (Early Only)",
-   "entryFee": 12,
-   "totalPrizes": 20000,
-   "entered": 918,
-   "maxEntries": 1960,
-   "maxEntriesPerUser": 1,
-   "structure": "gpp",
-   "window": "early",
-   "lockTime": null
-  },
-  {
-   "id": "w2-12",
-   "name": "NFL $20K Screen Pass [3 Entry Max]",
-   "entryFee": 15,
-   "totalPrizes": 20000,
-   "entered": 829,
-   "maxEntries": 1568,
-   "maxEntriesPerUser": 3,
-   "structure": "gpp",
-   "window": "main",
-   "lockTime": "9/20 1:00p"
-  },
-  {
-   "id": "w2-13",
-   "name": "NFL $15K Hail Mary",
-   "entryFee": 12,
-   "totalPrizes": 15000,
-   "entered": 851,
-   "maxEntries": 1470,
-   "maxEntriesPerUser": 150,
-   "structure": "gpp",
-   "window": "main",
-   "lockTime": "9/20 1:00p"
-  },
-  {
-   "id": "w2-14",
-   "name": "NFL $15K Sun-Mon Special [$5K to 1st]",
-   "entryFee": 15,
-   "totalPrizes": 15000,
-   "entered": 603,
-   "maxEntries": 1176,
-   "maxEntriesPerUser": 150,
-   "structure": "gpp",
-   "window": "sun-mon",
-   "lockTime": null
-  },
-  {
-   "id": "w2-15",
-   "name": "NFL $10K Fair Catch [Single Entry] (Afternoon)",
-   "entryFee": 12,
-   "totalPrizes": 10000,
-   "entered": 240,
-   "maxEntries": 980,
-   "maxEntriesPerUser": 1,
-   "structure": "gpp",
-   "window": "afternoon",
-   "lockTime": null
-  },
-  {
-   "id": "w2-16",
-   "name": "NFL $10K Fair Catch [Single Entry] (Early Only)",
-   "entryFee": 12,
-   "totalPrizes": 10000,
-   "entered": 475,
-   "maxEntries": 980,
-   "maxEntriesPerUser": 1,
-   "structure": "gpp",
-   "window": "early",
-   "lockTime": null
-  },
-  {
-   "id": "w2-17",
-   "name": "NFL $7.5K Fair Catch [Single Entry] (Primetime)",
-   "entryFee": 12,
-   "totalPrizes": 7500,
-   "entered": 70,
-   "maxEntries": 735,
-   "maxEntriesPerUser": 1,
-   "structure": "gpp",
-   "window": "primetime",
-   "lockTime": null
-  },
-  {
-   "id": "w2-18",
-   "name": "NFL $7K Hard Count [3 Entry Max] (Early Only)",
-   "entryFee": 20,
-   "totalPrizes": 7000,
-   "entered": 234,
-   "maxEntries": 411,
-   "maxEntriesPerUser": 3,
-   "structure": "gpp",
-   "window": "early",
-   "lockTime": null
-  },
-  {
-   "id": "w2-19",
-   "name": "NFL $6K Fair Catch [Single Entry] (Mon-Thu)",
-   "entryFee": 12,
-   "totalPrizes": 6000,
-   "entered": 4,
-   "maxEntries": 588,
-   "maxEntriesPerUser": 1,
-   "structure": "gpp",
-   "window": "mon-thu",
-   "lockTime": null
-  },
-  {
-   "id": "w2-20",
-   "name": "NFL $5K Mini Hail Mary",
-   "entryFee": 12,
-   "totalPrizes": 5000,
-   "entered": 232,
-   "maxEntries": 490,
-   "maxEntriesPerUser": 150,
-   "structure": "unknown",
-   "window": "main",
-   "lockTime": "9/20 1:00p",
-   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
-  },
-  {
-   "id": "w2-21",
-   "name": "NFL $5K Mini Gridiron",
-   "entryFee": 27,
-   "totalPrizes": 5000,
-   "entered": 152,
-   "maxEntries": 215,
-   "maxEntriesPerUser": 150,
-   "structure": "unknown",
-   "window": "main",
-   "lockTime": "9/20 1:00p",
-   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
-  },
-  {
-   "id": "w2-22",
-   "name": "NFL $5K Hard Count [5 Entry Max] (Afternoon)",
-   "entryFee": 20,
-   "totalPrizes": 5000,
-   "entered": 93,
-   "maxEntries": 294,
-   "maxEntriesPerUser": 5,
-   "structure": "gpp",
-   "window": "afternoon",
-   "lockTime": null
-  },
-  {
-   "id": "w2-23",
-   "name": "NFL $4K Screen Pass [5 Entry Max] (Afternoon)",
-   "entryFee": 15,
-   "totalPrizes": 4000,
-   "entered": 123,
-   "maxEntries": 313,
-   "maxEntriesPerUser": 5,
-   "structure": "gpp",
-   "window": "afternoon",
-   "lockTime": null
-  },
-  {
-   "id": "w2-24",
-   "name": "NFL $4K Fair Catch [Single Entry] (Sun-Mon)",
-   "entryFee": 12,
-   "totalPrizes": 4000,
-   "entered": 221,
-   "maxEntries": 392,
-   "maxEntriesPerUser": 1,
-   "structure": "gpp",
-   "window": "sun-mon",
-   "lockTime": null
-  },
-  {
-   "id": "w2-25",
-   "name": "NFL $2.5K Fair Catch [Single Entry] (Primetime)",
-   "entryFee": 12,
-   "totalPrizes": 2500,
-   "entered": 32,
-   "maxEntries": 245,
-   "maxEntriesPerUser": 1,
-   "structure": "gpp",
-   "window": "primetime",
-   "lockTime": null
-  },
-  {
-   "id": "w2-26",
-   "name": "NFL $2.5K Fair Catch [Single Entry] (Afternoon)",
-   "entryFee": 12,
-   "totalPrizes": 2500,
-   "entered": 68,
-   "maxEntries": 245,
-   "maxEntriesPerUser": 1,
-   "structure": "gpp",
-   "window": "afternoon",
-   "lockTime": null
-  },
-  {
-   "id": "w2-27",
-   "name": "NFL $2K Hard Count [3 Entry Max] (Primetime)",
-   "entryFee": 20,
-   "totalPrizes": 2000,
-   "entered": 12,
-   "maxEntries": 117,
-   "maxEntriesPerUser": 3,
-   "structure": "gpp",
-   "window": "primetime",
-   "lockTime": null
-  },
-  {
-   "id": "w2-28",
-   "name": "NFL $27 Winner Take All [$1K to 1st]",
-   "entryFee": 27,
-   "totalPrizes": 1000,
-   "entered": 26,
-   "maxEntries": 43,
-   "maxEntriesPerUser": 150,
-   "structure": "unknown",
-   "window": "main",
-   "lockTime": "9/20 1:00p",
-   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
-  },
-  {
-   "id": "w2-29",
-   "name": "NFL $20 200-Player (Top 3 Win)",
-   "entryFee": 20,
-   "totalPrizes": 3600,
-   "entered": 7,
-   "maxEntries": 200,
-   "maxEntriesPerUser": 150,
-   "structure": "lottery",
-   "window": "main",
-   "lockTime": "9/20 1:00p",
-   "structureNote": "Curve known: 3 paid of 200, min 36.0x, top 90.0x.",
-   "cashRate": 0.015,
-   "minCashMultiple": 36.0,
-   "topPrizeMultiple": 90.0
-  },
-  {
-   "id": "w2-32",
-   "name": "NFL $20 40-Player",
-   "entryFee": 20,
-   "totalPrizes": 720,
-   "entered": 1,
-   "maxEntries": 40,
-   "maxEntriesPerUser": 150,
-   "structure": "unknown",
-   "window": "main",
-   "lockTime": "9/20 1:00p",
-   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
-  },
-  {
-   "id": "w2-33",
-   "name": "NFL $20 35-Player (Top 3 Win)",
-   "entryFee": 20,
-   "totalPrizes": 630,
-   "entered": 10,
-   "maxEntries": 35,
-   "maxEntriesPerUser": 150,
-   "structure": "unknown",
-   "window": "main",
-   "lockTime": "9/20 1:00p",
-   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
-  },
-  {
-   "id": "w2-100p20-0",
-   "name": "NFL $20 100-Player",
-   "entryFee": 20,
-   "totalPrizes": 1800,
-   "entered": 0,
-   "maxEntries": 100,
-   "maxEntriesPerUser": 150,
-   "structure": "flat_gpp",
-   "window": "main",
-   "lockTime": "9/20 1:00p",
-   "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
-   "cashRate": 0.2,
-   "minCashMultiple": 1.8,
-   "topPrizeMultiple": 13.5
-  },
-  {
-   "id": "w2-100p20-1",
-   "name": "NFL $20 100-Player",
-   "entryFee": 20,
-   "totalPrizes": 1800,
-   "entered": 1,
-   "maxEntries": 100,
-   "maxEntriesPerUser": 150,
-   "structure": "flat_gpp",
-   "window": "main",
-   "lockTime": "9/20 1:00p",
-   "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
-   "cashRate": 0.2,
-   "minCashMultiple": 1.8,
-   "topPrizeMultiple": 13.5
-  },
-  {
-   "id": "w2-100p20-2",
-   "name": "NFL $20 100-Player",
-   "entryFee": 20,
-   "totalPrizes": 1800,
-   "entered": 1,
-   "maxEntries": 100,
-   "maxEntriesPerUser": 150,
-   "structure": "flat_gpp",
-   "window": "main",
-   "lockTime": "9/20 1:00p",
-   "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
-   "cashRate": 0.2,
-   "minCashMultiple": 1.8,
-   "topPrizeMultiple": 13.5
-  },
-  {
-   "id": "w2-100p20-3",
-   "name": "NFL $20 100-Player",
-   "entryFee": 20,
-   "totalPrizes": 1800,
-   "entered": 2,
-   "maxEntries": 100,
-   "maxEntriesPerUser": 150,
-   "structure": "flat_gpp",
-   "window": "main",
-   "lockTime": "9/20 1:00p",
-   "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
-   "cashRate": 0.2,
-   "minCashMultiple": 1.8,
-   "topPrizeMultiple": 13.5
-  },
-  {
-   "id": "w2-100p20-4",
-   "name": "NFL $20 100-Player",
-   "entryFee": 20,
-   "totalPrizes": 1800,
-   "entered": 2,
-   "maxEntries": 100,
-   "maxEntriesPerUser": 150,
-   "structure": "flat_gpp",
-   "window": "main",
-   "lockTime": "9/20 1:00p",
-   "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
-   "cashRate": 0.2,
-   "minCashMultiple": 1.8,
-   "topPrizeMultiple": 13.5
-  },
-  {
-   "id": "w2-100p20-5",
-   "name": "NFL $20 100-Player",
-   "entryFee": 20,
-   "totalPrizes": 1800,
-   "entered": 2,
-   "maxEntries": 100,
-   "maxEntriesPerUser": 150,
-   "structure": "flat_gpp",
-   "window": "main",
-   "lockTime": "9/20 1:00p",
-   "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
-   "cashRate": 0.2,
-   "minCashMultiple": 1.8,
-   "topPrizeMultiple": 13.5
-  },
-  {
-   "id": "w2-100p20-6",
-   "name": "NFL $20 100-Player",
-   "entryFee": 20,
-   "totalPrizes": 1800,
-   "entered": 2,
-   "maxEntries": 100,
-   "maxEntriesPerUser": 150,
-   "structure": "flat_gpp",
-   "window": "main",
-   "lockTime": "9/20 1:00p",
-   "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
-   "cashRate": 0.2,
-   "minCashMultiple": 1.8,
-   "topPrizeMultiple": 13.5
-  },
-  {
-   "id": "w2-100p20-7",
-   "name": "NFL $20 100-Player",
-   "entryFee": 20,
-   "totalPrizes": 1800,
-   "entered": 1,
-   "maxEntries": 100,
-   "maxEntriesPerUser": 150,
-   "structure": "flat_gpp",
-   "window": "main",
-   "lockTime": "9/20 1:00p",
-   "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
-   "cashRate": 0.2,
-   "minCashMultiple": 1.8,
-   "topPrizeMultiple": 13.5
-  },
-  {
-   "id": "w2-100p20-8",
-   "name": "NFL $20 100-Player",
-   "entryFee": 20,
-   "totalPrizes": 1800,
-   "entered": 3,
-   "maxEntries": 100,
-   "maxEntriesPerUser": 150,
-   "structure": "flat_gpp",
-   "window": "main",
-   "lockTime": "9/20 1:00p",
-   "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
-   "cashRate": 0.2,
-   "minCashMultiple": 1.8,
-   "topPrizeMultiple": 13.5
-  },
-  {
-   "id": "w2-100p20-9",
-   "name": "NFL $20 100-Player",
-   "entryFee": 20,
-   "totalPrizes": 1800,
-   "entered": 3,
-   "maxEntries": 100,
-   "maxEntriesPerUser": 150,
-   "structure": "flat_gpp",
-   "window": "main",
-   "lockTime": "9/20 1:00p",
-   "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
-   "cashRate": 0.2,
-   "minCashMultiple": 1.8,
-   "topPrizeMultiple": 13.5
-  },
-  {
-   "id": "w2-100p20-10",
-   "name": "NFL $20 100-Player",
-   "entryFee": 20,
-   "totalPrizes": 1800,
-   "entered": 2,
-   "maxEntries": 100,
-   "maxEntriesPerUser": 150,
-   "structure": "flat_gpp",
-   "window": "main",
-   "lockTime": "9/20 1:00p",
-   "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
-   "cashRate": 0.2,
-   "minCashMultiple": 1.8,
-   "topPrizeMultiple": 13.5
-  },
-  {
-   "id": "w2-100p20-11",
-   "name": "NFL $20 100-Player",
-   "entryFee": 20,
-   "totalPrizes": 1800,
-   "entered": 4,
-   "maxEntries": 100,
-   "maxEntriesPerUser": 150,
-   "structure": "flat_gpp",
-   "window": "main",
-   "lockTime": "9/20 1:00p",
-   "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
-   "cashRate": 0.2,
-   "minCashMultiple": 1.8,
-   "topPrizeMultiple": 13.5
-  },
-  {
-   "id": "w2-100p20-12",
-   "name": "NFL $20 100-Player",
-   "entryFee": 20,
-   "totalPrizes": 1800,
-   "entered": 7,
-   "maxEntries": 100,
-   "maxEntriesPerUser": 150,
-   "structure": "flat_gpp",
-   "window": "main",
-   "lockTime": "9/20 1:00p",
-   "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
-   "cashRate": 0.2,
-   "minCashMultiple": 1.8,
-   "topPrizeMultiple": 13.5
-  },
-  {
-   "id": "w2-100p10-0",
-   "name": "NFL $10 100-Player",
-   "entryFee": 10,
-   "totalPrizes": 900,
-   "entered": 0,
-   "maxEntries": 100,
-   "maxEntriesPerUser": 150,
-   "structure": "unknown",
-   "window": "main",
-   "lockTime": "9/20 1:00p",
-   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
-  },
-  {
-   "id": "w2-100p10-1",
-   "name": "NFL $10 100-Player",
-   "entryFee": 10,
-   "totalPrizes": 900,
-   "entered": 1,
-   "maxEntries": 100,
-   "maxEntriesPerUser": 150,
-   "structure": "unknown",
-   "window": "main",
-   "lockTime": "9/20 1:00p",
-   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
+  "captured": "2026-09-20T11:41",
+  "week": 2,
+  "source": "DraftKings lobby, hand-transcribed from 2 screenshots, Classic tournaments at $10+",
+  "note": "Entry counts are a snapshot ~14 hours before a 1:00pm lock and move hard. Satellites and World Championship qualifiers are omitted: they award seats, not cash, so the rake arithmetic does not describe them. 50-50s are omitted as cash games. The 100-player games are many separate contests, each listed with its own fill; collapsing them into one row made the planner recommend a single contest ten times. 21 small-field contests are marked structure=unknown: their payout curves have not been seen, and the $20 50-50! proves rake and prize pool alone cannot distinguish a tournament from a cash game. They were previously marked gpp on an assumption. Refreshed 11:41 AM from the open-contest screens, ~80 minutes before the 1:00pm lock. CLOSED since the first capture and removed: NFL $75K Fair Catch [Single Entry], NFL $50K Fair Catch [Single Entry], NFL $20K Screen Pass [3 Entry Max]. The $175K Fair Catch showed EDIT rather than ENTER, so an entry is already in it.",
+  "contests": [
+    {
+      "id": "w2-0",
+      "name": "NFL $3M Fantasy Football Millionaire [$1M to 1st]",
+      "entryFee": 20,
+      "totalPrizes": 3000000,
+      "entered": 151900,
+      "maxEntries": 176400,
+      "maxEntriesPerUser": 150,
+      "structure": "gpp",
+      "window": "main",
+      "lockTime": "9/20 1:00p"
+    },
+    {
+      "id": "w2-1",
+      "name": "NFL $500K Afternoon Only Rush [$100K to 1st]",
+      "entryFee": 18,
+      "totalPrizes": 500000,
+      "entered": 6768,
+      "maxEntries": 32600,
+      "maxEntriesPerUser": 150,
+      "structure": "gpp",
+      "window": "afternoon",
+      "lockTime": null
+    },
+    {
+      "id": "w2-2",
+      "name": "NFL $300K Early Only Rush [$100K to 1st]",
+      "entryFee": 20,
+      "totalPrizes": 300000,
+      "entered": 7617,
+      "maxEntries": 17600,
+      "maxEntriesPerUser": 150,
+      "structure": "gpp",
+      "window": "early",
+      "lockTime": null
+    },
+    {
+      "id": "w2-3",
+      "name": "NFL $175K Fair Catch [Single Entry]",
+      "entryFee": 12,
+      "totalPrizes": 175000,
+      "entered": 15100,
+      "maxEntries": 17100,
+      "maxEntriesPerUser": 1,
+      "structure": "gpp",
+      "window": "main",
+      "lockTime": "9/20 1:00p",
+      "cashRate": 0.241,
+      "minCashMultiple": 1.5,
+      "topPrizeMultiple": 1250.0,
+      "structureNote": "Curve known: 4135 paid of 17100, min 1.5x, top 1250.0x."
+    },
+    {
+      "id": "w2-4",
+      "name": "NFL $100K Blind Side [Single Entry]",
+      "entryFee": 27,
+      "totalPrizes": 100000,
+      "entered": 3574,
+      "maxEntries": 4319,
+      "maxEntriesPerUser": 1,
+      "structure": "gpp",
+      "window": "main",
+      "lockTime": "9/20 1:00p",
+      "cashRate": 0.2285,
+      "minCashMultiple": 2.0,
+      "topPrizeMultiple": 370.4,
+      "structureNote": "Curve known: 987 paid of 4319, min 2.0x, top 370.4x."
+    },
+    {
+      "id": "w2-5",
+      "name": "NFL $75K Screen Pass [5 Entry Max]",
+      "entryFee": 15,
+      "totalPrizes": 75000,
+      "entered": 4998,
+      "maxEntries": 5882,
+      "maxEntriesPerUser": 5,
+      "structure": "gpp",
+      "window": "main",
+      "lockTime": "9/20 1:00p"
+    },
+    {
+      "id": "w2-7",
+      "name": "NFL $50K 1st and 10 [10 Entry Max]",
+      "entryFee": 10,
+      "totalPrizes": 50000,
+      "entered": 5562,
+      "maxEntries": 5882,
+      "maxEntriesPerUser": 10,
+      "structure": "gpp",
+      "window": "main",
+      "lockTime": "9/20 1:00p",
+      "cashRate": 0.2297,
+      "minCashMultiple": 2.0,
+      "topPrizeMultiple": 500.0,
+      "structureNote": "Curve known: 1351 paid of 5882, min 2.0x, top 500.0x."
+    },
+    {
+      "id": "w2-8",
+      "name": "NFL $50K Blind Side [Single Entry]",
+      "entryFee": 27,
+      "totalPrizes": 50000,
+      "entered": 2109,
+      "maxEntries": 2159,
+      "maxEntriesPerUser": 1,
+      "structure": "gpp",
+      "window": "main",
+      "lockTime": "9/20 1:00p"
+    },
+    {
+      "id": "w2-10",
+      "name": "NFL $30K Fair Catch [Single Entry] (Afternoon)",
+      "entryFee": 12,
+      "totalPrizes": 30000,
+      "entered": 477,
+      "maxEntries": 2941,
+      "maxEntriesPerUser": 1,
+      "structure": "gpp",
+      "window": "afternoon",
+      "lockTime": null
+    },
+    {
+      "id": "w2-11",
+      "name": "NFL $20K Fair Catch [Single Entry] (Early Only)",
+      "entryFee": 12,
+      "totalPrizes": 20000,
+      "entered": 918,
+      "maxEntries": 1960,
+      "maxEntriesPerUser": 1,
+      "structure": "gpp",
+      "window": "early",
+      "lockTime": null
+    },
+    {
+      "id": "w2-13",
+      "name": "NFL $15K Hail Mary",
+      "entryFee": 12,
+      "totalPrizes": 15000,
+      "entered": 1141,
+      "maxEntries": 1470,
+      "maxEntriesPerUser": 150,
+      "structure": "gpp",
+      "window": "main",
+      "lockTime": "9/20 1:00p"
+    },
+    {
+      "id": "w2-14",
+      "name": "NFL $15K Sun-Mon Special [$5K to 1st]",
+      "entryFee": 15,
+      "totalPrizes": 15000,
+      "entered": 603,
+      "maxEntries": 1176,
+      "maxEntriesPerUser": 150,
+      "structure": "gpp",
+      "window": "sun-mon",
+      "lockTime": null
+    },
+    {
+      "id": "w2-15",
+      "name": "NFL $10K Fair Catch [Single Entry] (Afternoon)",
+      "entryFee": 12,
+      "totalPrizes": 10000,
+      "entered": 240,
+      "maxEntries": 980,
+      "maxEntriesPerUser": 1,
+      "structure": "gpp",
+      "window": "afternoon",
+      "lockTime": null
+    },
+    {
+      "id": "w2-16",
+      "name": "NFL $10K Fair Catch [Single Entry] (Early Only)",
+      "entryFee": 12,
+      "totalPrizes": 10000,
+      "entered": 475,
+      "maxEntries": 980,
+      "maxEntriesPerUser": 1,
+      "structure": "gpp",
+      "window": "early",
+      "lockTime": null
+    },
+    {
+      "id": "w2-17",
+      "name": "NFL $7.5K Fair Catch [Single Entry] (Primetime)",
+      "entryFee": 12,
+      "totalPrizes": 7500,
+      "entered": 70,
+      "maxEntries": 735,
+      "maxEntriesPerUser": 1,
+      "structure": "gpp",
+      "window": "primetime",
+      "lockTime": null
+    },
+    {
+      "id": "w2-18",
+      "name": "NFL $7K Hard Count [3 Entry Max] (Early Only)",
+      "entryFee": 20,
+      "totalPrizes": 7000,
+      "entered": 234,
+      "maxEntries": 411,
+      "maxEntriesPerUser": 3,
+      "structure": "gpp",
+      "window": "early",
+      "lockTime": null
+    },
+    {
+      "id": "w2-19",
+      "name": "NFL $6K Fair Catch [Single Entry] (Mon-Thu)",
+      "entryFee": 12,
+      "totalPrizes": 6000,
+      "entered": 4,
+      "maxEntries": 588,
+      "maxEntriesPerUser": 1,
+      "structure": "gpp",
+      "window": "mon-thu",
+      "lockTime": null
+    },
+    {
+      "id": "w2-20",
+      "name": "NFL $5K Mini Hail Mary",
+      "entryFee": 12,
+      "totalPrizes": 5000,
+      "entered": 417,
+      "maxEntries": 490,
+      "maxEntriesPerUser": 150,
+      "structure": "unknown",
+      "window": "main",
+      "lockTime": "9/20 1:00p",
+      "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
+    },
+    {
+      "id": "w2-21",
+      "name": "NFL $5K Mini Gridiron",
+      "entryFee": 27,
+      "totalPrizes": 5000,
+      "entered": 152,
+      "maxEntries": 215,
+      "maxEntriesPerUser": 150,
+      "structure": "unknown",
+      "window": "main",
+      "lockTime": "9/20 1:00p",
+      "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
+    },
+    {
+      "id": "w2-22",
+      "name": "NFL $5K Hard Count [5 Entry Max] (Afternoon)",
+      "entryFee": 20,
+      "totalPrizes": 5000,
+      "entered": 93,
+      "maxEntries": 294,
+      "maxEntriesPerUser": 5,
+      "structure": "gpp",
+      "window": "afternoon",
+      "lockTime": null
+    },
+    {
+      "id": "w2-23",
+      "name": "NFL $4K Screen Pass [5 Entry Max] (Afternoon)",
+      "entryFee": 15,
+      "totalPrizes": 4000,
+      "entered": 123,
+      "maxEntries": 313,
+      "maxEntriesPerUser": 5,
+      "structure": "gpp",
+      "window": "afternoon",
+      "lockTime": null
+    },
+    {
+      "id": "w2-24",
+      "name": "NFL $4K Fair Catch [Single Entry] (Sun-Mon)",
+      "entryFee": 12,
+      "totalPrizes": 4000,
+      "entered": 221,
+      "maxEntries": 392,
+      "maxEntriesPerUser": 1,
+      "structure": "gpp",
+      "window": "sun-mon",
+      "lockTime": null
+    },
+    {
+      "id": "w2-25",
+      "name": "NFL $2.5K Fair Catch [Single Entry] (Primetime)",
+      "entryFee": 12,
+      "totalPrizes": 2500,
+      "entered": 32,
+      "maxEntries": 245,
+      "maxEntriesPerUser": 1,
+      "structure": "gpp",
+      "window": "primetime",
+      "lockTime": null
+    },
+    {
+      "id": "w2-26",
+      "name": "NFL $2.5K Fair Catch [Single Entry] (Afternoon)",
+      "entryFee": 12,
+      "totalPrizes": 2500,
+      "entered": 68,
+      "maxEntries": 245,
+      "maxEntriesPerUser": 1,
+      "structure": "gpp",
+      "window": "afternoon",
+      "lockTime": null
+    },
+    {
+      "id": "w2-27",
+      "name": "NFL $2K Hard Count [3 Entry Max] (Primetime)",
+      "entryFee": 20,
+      "totalPrizes": 2000,
+      "entered": 12,
+      "maxEntries": 117,
+      "maxEntriesPerUser": 3,
+      "structure": "gpp",
+      "window": "primetime",
+      "lockTime": null
+    },
+    {
+      "id": "w2-28",
+      "name": "NFL $27 Winner Take All [$1K to 1st]",
+      "entryFee": 27,
+      "totalPrizes": 1000,
+      "entered": 26,
+      "maxEntries": 43,
+      "maxEntriesPerUser": 150,
+      "structure": "unknown",
+      "window": "main",
+      "lockTime": "9/20 1:00p",
+      "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
+    },
+    {
+      "id": "w2-29",
+      "name": "NFL $20 200-Player (Top 3 Win)",
+      "entryFee": 20,
+      "totalPrizes": 3600,
+      "entered": 7,
+      "maxEntries": 200,
+      "maxEntriesPerUser": 150,
+      "structure": "lottery",
+      "window": "main",
+      "lockTime": "9/20 1:00p",
+      "structureNote": "Curve known: 3 paid of 200, min 36.0x, top 90.0x.",
+      "cashRate": 0.015,
+      "minCashMultiple": 36.0,
+      "topPrizeMultiple": 90.0
+    },
+    {
+      "id": "w2-32",
+      "name": "NFL $20 40-Player",
+      "entryFee": 20,
+      "totalPrizes": 720,
+      "entered": 1,
+      "maxEntries": 40,
+      "maxEntriesPerUser": 150,
+      "structure": "unknown",
+      "window": "main",
+      "lockTime": "9/20 1:00p",
+      "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
+    },
+    {
+      "id": "w2-33",
+      "name": "NFL $20 35-Player (Top 3 Win)",
+      "entryFee": 20,
+      "totalPrizes": 630,
+      "entered": 10,
+      "maxEntries": 35,
+      "maxEntriesPerUser": 150,
+      "structure": "unknown",
+      "window": "main",
+      "lockTime": "9/20 1:00p",
+      "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
+    },
+    {
+      "id": "w2-100p20-0",
+      "name": "NFL $20 100-Player",
+      "entryFee": 20,
+      "totalPrizes": 1800,
+      "entered": 0,
+      "maxEntries": 100,
+      "maxEntriesPerUser": 150,
+      "structure": "flat_gpp",
+      "window": "main",
+      "lockTime": "9/20 1:00p",
+      "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
+      "cashRate": 0.2,
+      "minCashMultiple": 1.8,
+      "topPrizeMultiple": 13.5
+    },
+    {
+      "id": "w2-100p20-1",
+      "name": "NFL $20 100-Player",
+      "entryFee": 20,
+      "totalPrizes": 1800,
+      "entered": 1,
+      "maxEntries": 100,
+      "maxEntriesPerUser": 150,
+      "structure": "flat_gpp",
+      "window": "main",
+      "lockTime": "9/20 1:00p",
+      "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
+      "cashRate": 0.2,
+      "minCashMultiple": 1.8,
+      "topPrizeMultiple": 13.5
+    },
+    {
+      "id": "w2-100p20-2",
+      "name": "NFL $20 100-Player",
+      "entryFee": 20,
+      "totalPrizes": 1800,
+      "entered": 1,
+      "maxEntries": 100,
+      "maxEntriesPerUser": 150,
+      "structure": "flat_gpp",
+      "window": "main",
+      "lockTime": "9/20 1:00p",
+      "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
+      "cashRate": 0.2,
+      "minCashMultiple": 1.8,
+      "topPrizeMultiple": 13.5
+    },
+    {
+      "id": "w2-100p20-3",
+      "name": "NFL $20 100-Player",
+      "entryFee": 20,
+      "totalPrizes": 1800,
+      "entered": 2,
+      "maxEntries": 100,
+      "maxEntriesPerUser": 150,
+      "structure": "flat_gpp",
+      "window": "main",
+      "lockTime": "9/20 1:00p",
+      "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
+      "cashRate": 0.2,
+      "minCashMultiple": 1.8,
+      "topPrizeMultiple": 13.5
+    },
+    {
+      "id": "w2-100p20-4",
+      "name": "NFL $20 100-Player",
+      "entryFee": 20,
+      "totalPrizes": 1800,
+      "entered": 2,
+      "maxEntries": 100,
+      "maxEntriesPerUser": 150,
+      "structure": "flat_gpp",
+      "window": "main",
+      "lockTime": "9/20 1:00p",
+      "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
+      "cashRate": 0.2,
+      "minCashMultiple": 1.8,
+      "topPrizeMultiple": 13.5
+    },
+    {
+      "id": "w2-100p20-5",
+      "name": "NFL $20 100-Player",
+      "entryFee": 20,
+      "totalPrizes": 1800,
+      "entered": 2,
+      "maxEntries": 100,
+      "maxEntriesPerUser": 150,
+      "structure": "flat_gpp",
+      "window": "main",
+      "lockTime": "9/20 1:00p",
+      "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
+      "cashRate": 0.2,
+      "minCashMultiple": 1.8,
+      "topPrizeMultiple": 13.5
+    },
+    {
+      "id": "w2-100p20-6",
+      "name": "NFL $20 100-Player",
+      "entryFee": 20,
+      "totalPrizes": 1800,
+      "entered": 2,
+      "maxEntries": 100,
+      "maxEntriesPerUser": 150,
+      "structure": "flat_gpp",
+      "window": "main",
+      "lockTime": "9/20 1:00p",
+      "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
+      "cashRate": 0.2,
+      "minCashMultiple": 1.8,
+      "topPrizeMultiple": 13.5
+    },
+    {
+      "id": "w2-100p20-7",
+      "name": "NFL $20 100-Player",
+      "entryFee": 20,
+      "totalPrizes": 1800,
+      "entered": 1,
+      "maxEntries": 100,
+      "maxEntriesPerUser": 150,
+      "structure": "flat_gpp",
+      "window": "main",
+      "lockTime": "9/20 1:00p",
+      "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
+      "cashRate": 0.2,
+      "minCashMultiple": 1.8,
+      "topPrizeMultiple": 13.5
+    },
+    {
+      "id": "w2-100p20-8",
+      "name": "NFL $20 100-Player",
+      "entryFee": 20,
+      "totalPrizes": 1800,
+      "entered": 3,
+      "maxEntries": 100,
+      "maxEntriesPerUser": 150,
+      "structure": "flat_gpp",
+      "window": "main",
+      "lockTime": "9/20 1:00p",
+      "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
+      "cashRate": 0.2,
+      "minCashMultiple": 1.8,
+      "topPrizeMultiple": 13.5
+    },
+    {
+      "id": "w2-100p20-9",
+      "name": "NFL $20 100-Player",
+      "entryFee": 20,
+      "totalPrizes": 1800,
+      "entered": 3,
+      "maxEntries": 100,
+      "maxEntriesPerUser": 150,
+      "structure": "flat_gpp",
+      "window": "main",
+      "lockTime": "9/20 1:00p",
+      "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
+      "cashRate": 0.2,
+      "minCashMultiple": 1.8,
+      "topPrizeMultiple": 13.5
+    },
+    {
+      "id": "w2-100p20-10",
+      "name": "NFL $20 100-Player",
+      "entryFee": 20,
+      "totalPrizes": 1800,
+      "entered": 2,
+      "maxEntries": 100,
+      "maxEntriesPerUser": 150,
+      "structure": "flat_gpp",
+      "window": "main",
+      "lockTime": "9/20 1:00p",
+      "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
+      "cashRate": 0.2,
+      "minCashMultiple": 1.8,
+      "topPrizeMultiple": 13.5
+    },
+    {
+      "id": "w2-100p20-11",
+      "name": "NFL $20 100-Player",
+      "entryFee": 20,
+      "totalPrizes": 1800,
+      "entered": 4,
+      "maxEntries": 100,
+      "maxEntriesPerUser": 150,
+      "structure": "flat_gpp",
+      "window": "main",
+      "lockTime": "9/20 1:00p",
+      "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
+      "cashRate": 0.2,
+      "minCashMultiple": 1.8,
+      "topPrizeMultiple": 13.5
+    },
+    {
+      "id": "w2-100p20-12",
+      "name": "NFL $20 100-Player",
+      "entryFee": 20,
+      "totalPrizes": 1800,
+      "entered": 7,
+      "maxEntries": 100,
+      "maxEntriesPerUser": 150,
+      "structure": "flat_gpp",
+      "window": "main",
+      "lockTime": "9/20 1:00p",
+      "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
+      "cashRate": 0.2,
+      "minCashMultiple": 1.8,
+      "topPrizeMultiple": 13.5
+    },
+    {
+      "id": "w2-100p10-0",
+      "name": "NFL $10 100-Player",
+      "entryFee": 10,
+      "totalPrizes": 900,
+      "entered": 0,
+      "maxEntries": 100,
+      "maxEntriesPerUser": 150,
+      "structure": "unknown",
+      "window": "main",
+      "lockTime": "9/20 1:00p",
+      "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
+    },
+    {
+      "id": "w2-100p10-1",
+      "name": "NFL $10 100-Player",
+      "entryFee": 10,
+      "totalPrizes": 900,
+      "entered": 1,
+      "maxEntries": 100,
+      "maxEntriesPerUser": 150,
+      "structure": "unknown",
+      "window": "main",
+      "lockTime": "9/20 1:00p",
+      "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
+    },
+    {
+      "id": "w2-sp5ka",
+      "name": "NFL $5K Screen Pass [3 Entry Max]",
+      "entryFee": 15,
+      "totalPrizes": 5000,
+      "entered": 14,
+      "maxEntries": 392,
+      "maxEntriesPerUser": 3,
+      "structure": "unknown",
+      "window": "main",
+      "lockTime": "9/20 1:00p"
+    },
+    {
+      "id": "w2-sp5kb",
+      "name": "NFL $5K Screen Pass [3 Entry Max]",
+      "entryFee": 15,
+      "totalPrizes": 5000,
+      "entered": 384,
+      "maxEntries": 392,
+      "maxEntriesPerUser": 3,
+      "structure": "unknown",
+      "window": "main",
+      "lockTime": "9/20 1:00p"
+    },
+    {
+      "id": "w2-bs5k",
+      "name": "NFL $5K Blind Side [Single Entry]",
+      "entryFee": 27,
+      "totalPrizes": 5000,
+      "entered": 168,
+      "maxEntries": 215,
+      "maxEntriesPerUser": 1,
+      "structure": "unknown",
+      "window": "main",
+      "lockTime": "9/20 1:00p"
+    }
+  ],
+  "payouts": {
+    "NFL $50K 1st and 10 [10 Entry Max]": {
+      "entryFee": 10,
+      "maxEntries": 5882,
+      "tiers": [
+        {
+          "from": 1,
+          "to": 1,
+          "prize": 5000
+        },
+        {
+          "from": 2,
+          "to": 2,
+          "prize": 2500
+        },
+        {
+          "from": 3,
+          "to": 3,
+          "prize": 1500
+        },
+        {
+          "from": 4,
+          "to": 4,
+          "prize": 1000
+        },
+        {
+          "from": 5,
+          "to": 5,
+          "prize": 750
+        },
+        {
+          "from": 6,
+          "to": 7,
+          "prize": 600
+        },
+        {
+          "from": 8,
+          "to": 10,
+          "prize": 500
+        },
+        {
+          "from": 11,
+          "to": 13,
+          "prize": 400
+        },
+        {
+          "from": 14,
+          "to": 16,
+          "prize": 300
+        },
+        {
+          "from": 17,
+          "to": 20,
+          "prize": 250
+        },
+        {
+          "from": 21,
+          "to": 25,
+          "prize": 200
+        },
+        {
+          "from": 26,
+          "to": 30,
+          "prize": 150
+        },
+        {
+          "from": 31,
+          "to": 40,
+          "prize": 100
+        },
+        {
+          "from": 41,
+          "to": 50,
+          "prize": 75
+        },
+        {
+          "from": 51,
+          "to": 60,
+          "prize": 60
+        },
+        {
+          "from": 61,
+          "to": 80,
+          "prize": 50
+        },
+        {
+          "from": 81,
+          "to": 120,
+          "prize": 40
+        },
+        {
+          "from": 121,
+          "to": 220,
+          "prize": 30
+        },
+        {
+          "from": 221,
+          "to": 446,
+          "prize": 25
+        },
+        {
+          "from": 447,
+          "to": 1351,
+          "prize": 20
+        }
+      ],
+      "topPrizeMultiple": 500.0,
+      "cashRate": 0.2297,
+      "minCashMultiple": 2.0,
+      "paidPlaces": 1351,
+      "prizePool": 50000.0,
+      "rake": 0.1499,
+      "shape": "gpp"
+    },
+    "NFL $100K Blind Side [Single Entry]": {
+      "entryFee": 27,
+      "maxEntries": 4319,
+      "tiers": [
+        {
+          "from": 1,
+          "to": 1,
+          "prize": 10000
+        },
+        {
+          "from": 2,
+          "to": 2,
+          "prize": 5000
+        },
+        {
+          "from": 3,
+          "to": 3,
+          "prize": 2500
+        },
+        {
+          "from": 4,
+          "to": 4,
+          "prize": 2000
+        },
+        {
+          "from": 5,
+          "to": 5,
+          "prize": 1500
+        },
+        {
+          "from": 6,
+          "to": 7,
+          "prize": 1250
+        },
+        {
+          "from": 8,
+          "to": 10,
+          "prize": 1000
+        },
+        {
+          "from": 11,
+          "to": 13,
+          "prize": 750
+        },
+        {
+          "from": 14,
+          "to": 16,
+          "prize": 600
+        },
+        {
+          "from": 17,
+          "to": 20,
+          "prize": 500
+        },
+        {
+          "from": 21,
+          "to": 25,
+          "prize": 400
+        },
+        {
+          "from": 26,
+          "to": 30,
+          "prize": 300
+        },
+        {
+          "from": 31,
+          "to": 35,
+          "prize": 250
+        },
+        {
+          "from": 36,
+          "to": 45,
+          "prize": 200
+        },
+        {
+          "from": 46,
+          "to": 70,
+          "prize": 150
+        },
+        {
+          "from": 71,
+          "to": 137,
+          "prize": 100
+        },
+        {
+          "from": 138,
+          "to": 267,
+          "prize": 75
+        },
+        {
+          "from": 268,
+          "to": 537,
+          "prize": 60
+        },
+        {
+          "from": 538,
+          "to": 987,
+          "prize": 54
+        }
+      ],
+      "topPrizeMultiple": 370.4,
+      "cashRate": 0.2285,
+      "minCashMultiple": 2.0,
+      "paidPlaces": 987,
+      "prizePool": 100000.0,
+      "rake": 0.1425,
+      "shape": "gpp"
+    },
+    "NFL $175K Fair Catch [Single Entry]": {
+      "entryFee": 12,
+      "maxEntries": 17156,
+      "tiers": [
+        {
+          "from": 1,
+          "to": 1,
+          "prize": 15000
+        },
+        {
+          "from": 2,
+          "to": 2,
+          "prize": 10000
+        },
+        {
+          "from": 3,
+          "to": 3,
+          "prize": 7500
+        },
+        {
+          "from": 4,
+          "to": 4,
+          "prize": 5000
+        },
+        {
+          "from": 5,
+          "to": 5,
+          "prize": 4000
+        },
+        {
+          "from": 6,
+          "to": 6,
+          "prize": 3000
+        },
+        {
+          "from": 7,
+          "to": 8,
+          "prize": 2000
+        },
+        {
+          "from": 9,
+          "to": 10,
+          "prize": 1500
+        },
+        {
+          "from": 11,
+          "to": 15,
+          "prize": 1000
+        },
+        {
+          "from": 16,
+          "to": 20,
+          "prize": 700
+        },
+        {
+          "from": 21,
+          "to": 25,
+          "prize": 500
+        },
+        {
+          "from": 26,
+          "to": 30,
+          "prize": 400
+        },
+        {
+          "from": 31,
+          "to": 35,
+          "prize": 300
+        },
+        {
+          "from": 36,
+          "to": 45,
+          "prize": 200
+        },
+        {
+          "from": 46,
+          "to": 55,
+          "prize": 150
+        },
+        {
+          "from": 56,
+          "to": 75,
+          "prize": 125
+        },
+        {
+          "from": 76,
+          "to": 100,
+          "prize": 100
+        },
+        {
+          "from": 101,
+          "to": 150,
+          "prize": 75
+        },
+        {
+          "from": 151,
+          "to": 250,
+          "prize": 50
+        },
+        {
+          "from": 251,
+          "to": 450,
+          "prize": 40
+        },
+        {
+          "from": 451,
+          "to": 750,
+          "prize": 35
+        },
+        {
+          "from": 751,
+          "to": 1200,
+          "prize": 30
+        },
+        {
+          "from": 1201,
+          "to": 1900,
+          "prize": 25
+        },
+        {
+          "from": 1901,
+          "to": 2910,
+          "prize": 20
+        },
+        {
+          "from": 2911,
+          "to": 4135,
+          "prize": 18
+        }
+      ],
+      "topPrizeMultiple": 1250.0,
+      "cashRate": 0.241,
+      "minCashMultiple": 1.5,
+      "paidPlaces": 4135,
+      "prizePool": 175000.0,
+      "rake": 0.15,
+      "shape": "gpp"
+    },
+    "NFL $20 100-Player": {
+      "entryFee": 20,
+      "maxEntries": 100,
+      "tiers": [
+        {
+          "from": 1,
+          "to": 1,
+          "prize": 270
+        },
+        {
+          "from": 2,
+          "to": 2,
+          "prize": 216
+        },
+        {
+          "from": 3,
+          "to": 3,
+          "prize": 162
+        },
+        {
+          "from": 4,
+          "to": 4,
+          "prize": 144
+        },
+        {
+          "from": 5,
+          "to": 5,
+          "prize": 126
+        },
+        {
+          "from": 6,
+          "to": 6,
+          "prize": 108
+        },
+        {
+          "from": 7,
+          "to": 8,
+          "prize": 90
+        },
+        {
+          "from": 9,
+          "to": 10,
+          "prize": 72
+        },
+        {
+          "from": 11,
+          "to": 15,
+          "prize": 54
+        },
+        {
+          "from": 16,
+          "to": 20,
+          "prize": 36
+        }
+      ],
+      "topPrizeMultiple": 13.5,
+      "cashRate": 0.2,
+      "minCashMultiple": 1.8,
+      "paidPlaces": 20,
+      "prizePool": 1800.0,
+      "rake": 0.1,
+      "shape": "gpp"
+    },
+    "NFL $20 50-50!": {
+      "entryFee": 20,
+      "maxEntries": 100,
+      "tiers": [
+        {
+          "from": 1,
+          "to": 50,
+          "prize": 36
+        }
+      ],
+      "topPrizeMultiple": 1.8,
+      "cashRate": 0.5,
+      "minCashMultiple": 1.8,
+      "paidPlaces": 50,
+      "prizePool": 1800.0,
+      "rake": 0.1,
+      "shape": "double_up"
+    },
+    "NFL $20 200-Player (Top 3 Win)": {
+      "entryFee": 20,
+      "maxEntries": 200,
+      "tiers": [
+        {
+          "from": 1,
+          "to": 1,
+          "prize": 1800
+        },
+        {
+          "from": 2,
+          "to": 2,
+          "prize": 1080
+        },
+        {
+          "from": 3,
+          "to": 3,
+          "prize": 720
+        }
+      ],
+      "topPrizeMultiple": 90.0,
+      "cashRate": 0.015,
+      "minCashMultiple": 36.0,
+      "paidPlaces": 3,
+      "prizePool": 3600.0,
+      "rake": 0.1,
+      "shape": "lottery"
+    }
   }
- ],
- "payouts": {
-  "NFL $50K 1st and 10 [10 Entry Max]": {
-   "entryFee": 10,
-   "maxEntries": 5882,
-   "tiers": [
-    {
-     "from": 1,
-     "to": 1,
-     "prize": 5000
-    },
-    {
-     "from": 2,
-     "to": 2,
-     "prize": 2500
-    },
-    {
-     "from": 3,
-     "to": 3,
-     "prize": 1500
-    },
-    {
-     "from": 4,
-     "to": 4,
-     "prize": 1000
-    },
-    {
-     "from": 5,
-     "to": 5,
-     "prize": 750
-    },
-    {
-     "from": 6,
-     "to": 7,
-     "prize": 600
-    },
-    {
-     "from": 8,
-     "to": 10,
-     "prize": 500
-    },
-    {
-     "from": 11,
-     "to": 13,
-     "prize": 400
-    },
-    {
-     "from": 14,
-     "to": 16,
-     "prize": 300
-    },
-    {
-     "from": 17,
-     "to": 20,
-     "prize": 250
-    },
-    {
-     "from": 21,
-     "to": 25,
-     "prize": 200
-    },
-    {
-     "from": 26,
-     "to": 30,
-     "prize": 150
-    },
-    {
-     "from": 31,
-     "to": 40,
-     "prize": 100
-    },
-    {
-     "from": 41,
-     "to": 50,
-     "prize": 75
-    },
-    {
-     "from": 51,
-     "to": 60,
-     "prize": 60
-    },
-    {
-     "from": 61,
-     "to": 80,
-     "prize": 50
-    },
-    {
-     "from": 81,
-     "to": 120,
-     "prize": 40
-    },
-    {
-     "from": 121,
-     "to": 220,
-     "prize": 30
-    },
-    {
-     "from": 221,
-     "to": 446,
-     "prize": 25
-    },
-    {
-     "from": 447,
-     "to": 1351,
-     "prize": 20
-    }
-   ],
-   "topPrizeMultiple": 500.0,
-   "cashRate": 0.2297,
-   "minCashMultiple": 2.0,
-   "paidPlaces": 1351,
-   "prizePool": 50000.0,
-   "rake": 0.1499,
-   "shape": "gpp"
-  },
-  "NFL $100K Blind Side [Single Entry]": {
-   "entryFee": 27,
-   "maxEntries": 4319,
-   "tiers": [
-    {
-     "from": 1,
-     "to": 1,
-     "prize": 10000
-    },
-    {
-     "from": 2,
-     "to": 2,
-     "prize": 5000
-    },
-    {
-     "from": 3,
-     "to": 3,
-     "prize": 2500
-    },
-    {
-     "from": 4,
-     "to": 4,
-     "prize": 2000
-    },
-    {
-     "from": 5,
-     "to": 5,
-     "prize": 1500
-    },
-    {
-     "from": 6,
-     "to": 7,
-     "prize": 1250
-    },
-    {
-     "from": 8,
-     "to": 10,
-     "prize": 1000
-    },
-    {
-     "from": 11,
-     "to": 13,
-     "prize": 750
-    },
-    {
-     "from": 14,
-     "to": 16,
-     "prize": 600
-    },
-    {
-     "from": 17,
-     "to": 20,
-     "prize": 500
-    },
-    {
-     "from": 21,
-     "to": 25,
-     "prize": 400
-    },
-    {
-     "from": 26,
-     "to": 30,
-     "prize": 300
-    },
-    {
-     "from": 31,
-     "to": 35,
-     "prize": 250
-    },
-    {
-     "from": 36,
-     "to": 45,
-     "prize": 200
-    },
-    {
-     "from": 46,
-     "to": 70,
-     "prize": 150
-    },
-    {
-     "from": 71,
-     "to": 137,
-     "prize": 100
-    },
-    {
-     "from": 138,
-     "to": 267,
-     "prize": 75
-    },
-    {
-     "from": 268,
-     "to": 537,
-     "prize": 60
-    },
-    {
-     "from": 538,
-     "to": 987,
-     "prize": 54
-    }
-   ],
-   "topPrizeMultiple": 370.4,
-   "cashRate": 0.2285,
-   "minCashMultiple": 2.0,
-   "paidPlaces": 987,
-   "prizePool": 100000.0,
-   "rake": 0.1425,
-   "shape": "gpp"
-  },
-  "NFL $175K Fair Catch [Single Entry]": {
-   "entryFee": 12,
-   "maxEntries": 17156,
-   "tiers": [
-    {
-     "from": 1,
-     "to": 1,
-     "prize": 15000
-    },
-    {
-     "from": 2,
-     "to": 2,
-     "prize": 10000
-    },
-    {
-     "from": 3,
-     "to": 3,
-     "prize": 7500
-    },
-    {
-     "from": 4,
-     "to": 4,
-     "prize": 5000
-    },
-    {
-     "from": 5,
-     "to": 5,
-     "prize": 4000
-    },
-    {
-     "from": 6,
-     "to": 6,
-     "prize": 3000
-    },
-    {
-     "from": 7,
-     "to": 8,
-     "prize": 2000
-    },
-    {
-     "from": 9,
-     "to": 10,
-     "prize": 1500
-    },
-    {
-     "from": 11,
-     "to": 15,
-     "prize": 1000
-    },
-    {
-     "from": 16,
-     "to": 20,
-     "prize": 700
-    },
-    {
-     "from": 21,
-     "to": 25,
-     "prize": 500
-    },
-    {
-     "from": 26,
-     "to": 30,
-     "prize": 400
-    },
-    {
-     "from": 31,
-     "to": 35,
-     "prize": 300
-    },
-    {
-     "from": 36,
-     "to": 45,
-     "prize": 200
-    },
-    {
-     "from": 46,
-     "to": 55,
-     "prize": 150
-    },
-    {
-     "from": 56,
-     "to": 75,
-     "prize": 125
-    },
-    {
-     "from": 76,
-     "to": 100,
-     "prize": 100
-    },
-    {
-     "from": 101,
-     "to": 150,
-     "prize": 75
-    },
-    {
-     "from": 151,
-     "to": 250,
-     "prize": 50
-    },
-    {
-     "from": 251,
-     "to": 450,
-     "prize": 40
-    },
-    {
-     "from": 451,
-     "to": 750,
-     "prize": 35
-    },
-    {
-     "from": 751,
-     "to": 1200,
-     "prize": 30
-    },
-    {
-     "from": 1201,
-     "to": 1900,
-     "prize": 25
-    },
-    {
-     "from": 1901,
-     "to": 2910,
-     "prize": 20
-    },
-    {
-     "from": 2911,
-     "to": 4135,
-     "prize": 18
-    }
-   ],
-   "topPrizeMultiple": 1250.0,
-   "cashRate": 0.241,
-   "minCashMultiple": 1.5,
-   "paidPlaces": 4135,
-   "prizePool": 175000.0,
-   "rake": 0.15,
-   "shape": "gpp"
-  },
-  "NFL $20 100-Player": {
-   "entryFee": 20,
-   "maxEntries": 100,
-   "tiers": [
-    {
-     "from": 1,
-     "to": 1,
-     "prize": 270
-    },
-    {
-     "from": 2,
-     "to": 2,
-     "prize": 216
-    },
-    {
-     "from": 3,
-     "to": 3,
-     "prize": 162
-    },
-    {
-     "from": 4,
-     "to": 4,
-     "prize": 144
-    },
-    {
-     "from": 5,
-     "to": 5,
-     "prize": 126
-    },
-    {
-     "from": 6,
-     "to": 6,
-     "prize": 108
-    },
-    {
-     "from": 7,
-     "to": 8,
-     "prize": 90
-    },
-    {
-     "from": 9,
-     "to": 10,
-     "prize": 72
-    },
-    {
-     "from": 11,
-     "to": 15,
-     "prize": 54
-    },
-    {
-     "from": 16,
-     "to": 20,
-     "prize": 36
-    }
-   ],
-   "topPrizeMultiple": 13.5,
-   "cashRate": 0.2,
-   "minCashMultiple": 1.8,
-   "paidPlaces": 20,
-   "prizePool": 1800.0,
-   "rake": 0.1,
-   "shape": "gpp"
-  },
-  "NFL $20 50-50!": {
-   "entryFee": 20,
-   "maxEntries": 100,
-   "tiers": [
-    {
-     "from": 1,
-     "to": 50,
-     "prize": 36
-    }
-   ],
-   "topPrizeMultiple": 1.8,
-   "cashRate": 0.5,
-   "minCashMultiple": 1.8,
-   "paidPlaces": 50,
-   "prizePool": 1800.0,
-   "rake": 0.1,
-   "shape": "double_up"
-  },
-  "NFL $20 200-Player (Top 3 Win)": {
-   "entryFee": 20,
-   "maxEntries": 200,
-   "tiers": [
-    {
-     "from": 1,
-     "to": 1,
-     "prize": 1800
-    },
-    {
-     "from": 2,
-     "to": 2,
-     "prize": 1080
-    },
-    {
-     "from": 3,
-     "to": 3,
-     "prize": 720
-    }
-   ],
-   "topPrizeMultiple": 90.0,
-   "cashRate": 0.015,
-   "minCashMultiple": 36.0,
-   "paidPlaces": 3,
-   "prizePool": 3600.0,
-   "rake": 0.1,
-   "shape": "lottery"
-  }
- }
 }

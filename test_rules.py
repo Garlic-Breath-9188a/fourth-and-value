@@ -816,3 +816,48 @@ class ContestSpreading(unittest.TestCase):
             self.skipTest("this budget did not concentrate")
         self.assertTrue(any("same tournament" in n for n in notes),
                         "concentration happened with no note explaining it")
+
+
+class ContestCapacity(unittest.TestCase):
+    """
+    Offering a contest that cannot accept the lineup is worse than offering
+    nothing: DraftKings rejects it at submission, after you think you are done.
+    """
+
+    CONTESTS = [
+        {"id": "single", "name": "Single", "entryFee": 27, "totalPrizes": 50000,
+         "maxEntriesPerUser": 1, "entered": 10, "maxEntries": 100},
+        {"id": "three", "name": "Three max", "entryFee": 15, "totalPrizes": 5000,
+         "maxEntriesPerUser": 3, "entered": 10, "maxEntries": 100},
+        {"id": "full", "name": "Sold out", "entryFee": 10, "totalPrizes": 900,
+         "maxEntriesPerUser": 150, "entered": 100, "maxEntries": 100},
+    ]
+
+    def _entered(self, *contest_ids):
+        return {f"key{i}": {"contest_id": c, "contest": c, "fee": 1.0, "players": []}
+                for i, c in enumerate(contest_ids)}
+
+    def test_a_full_contest_is_never_offered(self):
+        ids = [c["id"] for c in ent.contests_with_room(self.CONTESTS, {})]
+        self.assertNotIn("full", ids)
+
+    def test_single_entry_drops_out_once_used(self):
+        got = ent.contests_with_room(self.CONTESTS, self._entered("single"))
+        self.assertNotIn("single", [c["id"] for c in got])
+
+    def test_multi_entry_survives_until_its_limit(self):
+        for used in range(3):
+            got = ent.contests_with_room(self.CONTESTS, self._entered(*(["three"] * used)))
+            self.assertIn("three", [c["id"] for c in got], f"gone after {used} entries")
+        got = ent.contests_with_room(self.CONTESTS, self._entered("three", "three", "three"))
+        self.assertNotIn("three", [c["id"] for c in got])
+
+    def test_entries_left_counts_down(self):
+        three = self.CONTESTS[1]
+        self.assertEqual(ent.entries_left(three, {}), 3)
+        self.assertEqual(ent.entries_left(three, self._entered("three")), 2)
+        self.assertEqual(ent.entries_left(three, self._entered("three", "three", "three")), 0)
+
+    def test_cheapest_first(self):
+        got = ent.contests_with_room(self.CONTESTS, {})
+        self.assertEqual([c["entryFee"] for c in got], sorted(c["entryFee"] for c in got))

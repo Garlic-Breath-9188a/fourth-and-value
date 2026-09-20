@@ -7,10 +7,10 @@
     "note": "670 players, 13 games, all Sunday 9/20 1:00-4:25pm -- one clean main slate with no primetime to filter. Statuses live at the pull: 578 active, 60 IR, 21 out, 9 questionable, 2 doubtful."
   },
   "contests": {
-    "captured": "2026-09-19",
+    "captured": "2026-09-20",
     "week": 2,
-    "source": "DraftKings lobby, hand-transcribed from 2 screenshots, Classic tournaments at $10+",
-    "note": "47 contests, 31 on the main slate. Entry counts are a snapshot ~14h before lock and move hard. Satellites and World Championship qualifiers omitted (seats, not cash); 50-50s omitted (cash games)."
+    "source": "DraftKings lobby, hand-transcribed; refreshed 11:41 AM from the open-contest screens",
+    "note": "47 contests, 31 on the main slate, ~80 minutes before the 1:00pm lock. $75K Fair Catch, $50K Fair Catch and $20K Screen Pass had CLOSED since the first capture and are removed. Entry counts are a snapshot and move hard. Payout curves now verified for $100K Blind Side, $50K Blind Side and $75K Screen Pass \u2014 each reconciles to its advertised pool and place count exactly."
   },
   "variance": {
     "captured": "2026-09-02",

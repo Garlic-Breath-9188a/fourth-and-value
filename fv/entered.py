@@ -166,3 +166,34 @@ def match_generated(placed_roster: list[dict], lineups: list[list[dict]]) -> int
 def overlap_with(placed_roster: list[dict], lineup: list[dict]) -> int:
     """How many of the nine a placed entry shares with a generated lineup."""
     return len(_name_team(placed_roster) & _name_team(lineup))
+
+
+def contests_with_room(contests: list[dict], entered: dict) -> list[dict]:
+    """
+    Contests that can still take one more of YOUR lineups.
+
+    Two limits, and both bite. `maxEntriesPerUser` is how many of your own
+    lineups DraftKings will accept -- offering a [Single Entry] contest twice is
+    not a rounding error, it is a lineup that will be rejected at submission.
+    `maxEntries` is the contest filling up, which happens for real: the $50K
+    Blind Side was 2,109 of 2,159 about eighty minutes before lock.
+
+    Ordered cheapest first, then by prize pool, because that is the order a
+    person scanning a dropdown wants.
+    """
+    used: dict[str, int] = {}
+    for rec in entered.values():
+        cid = rec.get("contest_id", "")
+        used[cid] = used.get(cid, 0) + 1
+    room = [c for c in contests
+            if used.get(c["id"], 0) < c.get("maxEntriesPerUser", 1)
+            and c.get("entered", 0) < c.get("maxEntries", 10 ** 9)]
+    room.sort(key=lambda c: (c["entryFee"], -c.get("totalPrizes", 0)))
+    return room
+
+
+def entries_left(contest: dict, entered: dict) -> int:
+    """How many more of your lineups this contest will accept."""
+    used = sum(1 for rec in entered.values()
+               if rec.get("contest_id", "") == contest["id"])
+    return max(0, contest.get("maxEntriesPerUser", 1) - used)
