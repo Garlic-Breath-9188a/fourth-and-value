@@ -162,6 +162,7 @@
       ]
     }
   ],
-  "staked": 59,
-  "unrecorded": "The $12 NFL $175K Fair Catch [Single Entry] shows EDIT rather than ENTER on the lobby, so an entry is already in it, but no screenshot of that lineup exists yet. Its fee IS counted in `staked`; its roster is not recorded."
+  "staked": 47,
+  "unrecorded": "The $12 NFL $175K Fair Catch [Single Entry] shows EDIT rather than ENTER on the lobby, so an entry is already in it, but no screenshot of that lineup exists yet. It is NOT counted in `staked`, which must equal the fees of the entries recorded here -- see stakedIncludingUnrecorded for the real total.",
+  "stakedIncludingUnrecorded": 59
 }
