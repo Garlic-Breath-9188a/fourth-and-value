@@ -275,25 +275,14 @@ _slate_meta = _manifest("slate")
 _slate_week = _slate_meta.get("week")
 _board_stale = _captured("contests") < _captured("slate") != "unknown"
 
-f1, f2, f3 = st.columns([1.1, 1.1, 2.4])
-f1.metric(f"Slate captured{f' · week {_slate_week}' if _slate_week else ''}", _captured("slate"),
-          help="When the DraftKings salary export in this build was taken. Player "
-               "availability comes from that file's Status column and is only as fresh "
-               "as the file.")
-f2.metric("Contest board", _captured("contests"),
-          delta="older than the slate" if _board_stale else None,
-          delta_color="inverse" if _board_stale else "normal",
-          help="When the tournament list was transcribed from the lobby.")
-if use_live and feed:
-    f3.metric("Injury wire", f"{len(feed)} flagged",
-              help="Live from Sleeper, refreshed every six hours. Players the wire says "
-                   "cannot play are removed from the pool even when the salary file still "
-                   "lists them as available.")
-elif use_live:
-    f3.error("**Injury wire unreachable.** Falling back to the salary file's own Status "
+# The freshness line lives on the Lineups tab, one compressed row. These two are
+# not freshness notes -- an injury wire that is off or unreachable changes which
+# players are eligible, so it stays loud and above the tabs.
+if use_live and not feed:
+    st.error("**Injury wire unreachable.** Falling back to the salary file's own Status "
              "column, which is frozen at export time.", icon="⚠️")
-else:
-    f3.warning("**Injury cross-check is off.** Availability is whatever the salary file said "
+elif not use_live:
+    st.warning("**Injury cross-check is off.** Availability is whatever the salary file said "
                "when it was exported.", icon="⚠️")
 
 tab_board, tab_pool, tab_entry, tab_strategy, tab_about = st.tabs(
@@ -319,7 +308,8 @@ with tab_board:
     _kal = _manifest("kalshi")
     _kal_n = (_kal.get("note", "").split(" ")[0] if _kal.get("note", "")[:1].isdigit() else "?")
     _bits = [
-        ("Player pool", _captured("slate"), f"{_pool_n} players", False),
+        (f"Player pool{f' · wk {_slate_week}' if _slate_week else ''}",
+         _captured("slate"), f"{_pool_n} players", False),
         ("Injury wire", f"{_inj_n} records" if _inj_n else "off",
          "live, 6-hourly" if _inj_n else "using the salary file", not _inj_n),
         ("Kalshi", _captured("kalshi"), f"{_kal_n} matched",
