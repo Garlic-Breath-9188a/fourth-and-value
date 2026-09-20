@@ -1,6 +1,18 @@
 {
   "ledger": [
     {
+      "id": "fade-flagged-mispriced",
+      "claim": "Keep the players the mispricing board flags as overpriced out of your lineups, and require one it flags as underpriced.",
+      "source": "Proposed as a cheaper alternative to a blanket 10% exposure cap, after the optimizer put the second-most overpriced player on the Week 2 2026 board in 6 of 10 lineups",
+      "domain": "lineup",
+      "verdict": "null",
+      "plain": "Excluding the flagged players does not measurably improve a lineup. Refusing every candidate containing a flagged fade moves the chance of a 180-point roster from 0.256% to 0.273% — up, consistently, in both halves of the data, and never clearing its interval. REQUIRING a flagged cheap target is worse than doing nothing. So the mispricing board stays information for a person to read, not a rule the builder enforces. The player-level effect is real; it does not survive the trip to the lineup level.",
+      "result": "P(180+) paired by week, in percentage points. No flagged fade: in-sample +0.014 (95% CI −0.011 to 0.038), out of sample +0.012 (−0.034 to 0.057), all 143 week-trials +0.013 (−0.008 to 0.035). At most one fade: +0.002 (−0.006 to 0.009). At least one flagged target: −0.026 (−0.051 to −0.002), WORSE, and −0.032 (−0.062 to −0.003) in sample. Both rules together −0.010 (−0.046 to 0.026). Baseline P(180+) 0.256%",
+      "sample": "143 week-trials, 2017–2025, 2,500 candidates per week from one shared pool per week so every arm is paired exactly; usage model fitted on 2017–2023 only and 2024–2025 held out",
+      "detail": "Read the P(180+) column only. The fade set is by construction the EXPENSIVE half of the board, so excluding it removes expensive players and the avg and best-of-10 columns fall for that reason rather than on merit.\n\nTwo things make this a real null rather than a disappointing one.\n\nThe direction is consistent — positive in both periods for the fade rule — but the magnitude is an order of magnitude below anything that ships. Constructive stacking moved P(180+) from 0.13% to 0.25% and dropping tight ends from FLEX moved it 0.17% to 0.25%; those are +0.08 to +0.12pp against +0.013pp here. Resolving an effect this small would need roughly three times the data available, so it is also underpowered — but an effect that needs 400 weeks to detect is not a default worth adding.\n\nThe target side failing is the more interesting half, and there is a mechanism already on record. The two cheapest roster slots account for 10.9% of lineup-score variance and the two dearest for 32.7%; tournaments are won in the expensive slots. A +1.51-point edge on a slot that barely moves the variance cannot buy tail probability, and forcing that slot costs diversity — the no-fade arm rejects 39% of candidates, which is the same trade-off that makes tight exposure caps lose.\n\nWhat this does NOT refute is the board itself. The player-level measurement stands; this says only that a mechanical rule built on it does not beat plain construction.",
+      "evidence": "scripts/test-fade-penalty.mjs · evidence/fade-penalty-2026-09-20.txt · evidence/fade-penalty.csv"
+    },
+    {
       "id": "outsized-game-redistribution",
       "claim": "A WR or RB who has an outsized score draws extra attention from the next week's defence and trends down, while his team-mates trend up.",
       "source": "Proposed by the user, 2026-09-19",
