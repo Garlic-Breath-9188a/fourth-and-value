@@ -172,12 +172,41 @@ def plan(contests: list[dict], budget: float, lineups: int,
         if not options:
             notes.append(f"No room left in any ${fee:,.0f} tournament for lineup {i + 1}.")
             continue
-        # Prefer the contest keeping least, then the largest prize pool.
-        best = min(options, key=lambda c: (rake_pct(c) if rake_pct(c) is not None else 99,
+        # Prefer a contest not used yet, THEN the one keeping least, then the
+        # largest prize pool.
+        #
+        # Without the first key this filled one contest to its per-user limit
+        # before touching another: on the Week 2 board all ten lineups were
+        # assigned to "NFL $50K 1st and 10 [10 Entry Max]", which is legal and
+        # looked like a bug because every lineup showed the same contest name.
+        # Spreading first costs nothing when a tier has several tournaments, and
+        # single-entry contests -- which force it -- measured 12.7% rake against
+        # 13.7% for 21+-entry ones and remove opponents who can submit 150
+        # optimised lineups against one.
+        best = min(options, key=lambda c: (filled.get(c["id"], 0),
+                                           rake_pct(c) if rake_pct(c) is not None else 99,
                                            -c["totalPrizes"]))
         filled[best["id"]] = filled.get(best["id"], 0) + 1
         entries.append(Entry(best, i, _reason(best, [c for c in pool if c["entryFee"] == fee])))
 
+    # Concentration must explain itself. Ten entries in one tournament is a real
+    # choice -- it is the lowest-rake seat at that fee -- but it makes the whole
+    # week depend on one field and one payout curve, and it is not what the
+    # portfolio's own diversity is for.
+    per_contest: dict[str, int] = {}
+    for e in entries:
+        per_contest[e.contest["name"]] = per_contest.get(e.contest["name"], 0) + 1
+    for name, n in sorted(per_contest.items(), key=lambda kv: -kv[1]):
+        if n < 2:
+            continue
+        fee = next(e.fee for e in entries if e.contest["name"] == name)
+        rivals = len({c["id"] for c in pool if c["entryFee"] == fee})
+        notes.append(
+            f"{n} of your lineups are in the same tournament ({name}). "
+            f"It is the only tournament at ${fee:,.0f} with a known payout structure"
+            if rivals == 1 else
+            f"{n} of your lineups are in the same tournament ({name}) — "
+            f"{rivals} tournaments at ${fee:,.0f} have a known payout structure and it keeps the least")
     left = budget - sum(e.fee for e in entries)
     if left >= base:
         notes.append(f"${left:,.0f} unspent — the next step up costs more than that.")

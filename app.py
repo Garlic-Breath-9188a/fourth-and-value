@@ -264,14 +264,18 @@ with st.sidebar:
     qb_exposure = st.slider("Max one QB may appear (%)", 10, 100, rules.QB_EXPOSURE_PCT, step=10,
                             help="Tighter caps were measured over 101 weeks and did not help — "
                                  "the chance of a big week fell from 1.12% to 0.83% at 20%.")
-    rb_exposure = st.slider("Max one RB may appear (%)", 10, 100, rules.EXPOSURE_PCT, step=10,
+    rb_exposure = st.slider("Max one RB may appear (%)", 10, 100, rules.RB_EXPOSURE_PCT, step=10,
                             help="Running backs are the most concentrated position in a "
-                                 "portfolio because few are worth playing. This cap is not a "
-                                 "measured setting — no test has been run on it.")
-    ceiling_weight = st.slider("Ceiling weight", 0.0, 1.0, 0.25, 0.05,
+                                 "portfolio because few are worth playing. A cap only does "
+                                 "something while it BINDS: no back reached more than 6 of 10 "
+                                 "lineups unprompted on this slate, so every setting above ~60% "
+                                 "gives the same portfolio. Tighter caps were measured and cost "
+                                 "the tail — P(180+) 1.12% → 0.83% at 20%.")
+    ceiling_weight = st.slider("Ceiling weight", 0.0, 1.0, rules.CEILING_WEIGHT_DEFAULT, 0.05,
                                help="0 chases each player's expected score; 1 chases his best-case "
-                                    "score, favouring boom-or-bust players. Whether moving this "
-                                    "helps is unmeasured.")
+                                    "score, favouring boom-or-bust players. Every player here has "
+                                    "a ceiling from his own scoring spread, so this genuinely "
+                                    "reorders the board. Whether it helps is unmeasured.")
     seed = st.number_input("Seed", 1, 9999, 1,
                            help="Lineups are drawn at random from the good ones. The seed fixes "
                                 "that randomness: same seed gives the same ten lineups every "

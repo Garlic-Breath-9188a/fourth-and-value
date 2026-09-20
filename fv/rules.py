@@ -49,14 +49,48 @@ that carries it: a second same-team receiver alone only reached 0.17%.
 """
 
 QB_EXPOSURE_PCT = 33
+RB_EXPOSURE_PCT = 30
 EXPOSURE_PCT = 75
 """
 How much of the portfolio one player may occupy.
 
-Tighter quarterback caps were measured over 101 weeks and did NOT help --
-P(180+) fell from 1.12% to 0.83% at a 20% cap. The default here is deliberately
-mild: it prevents a single quarterback owning most of the portfolio without
-forcing the fifth-best quarterback into it.
+Three numbers, not one, because they do different jobs:
+
+  QB_EXPOSURE_PCT   the quarterback slider's default
+  RB_EXPOSURE_PCT   the running back slider's default
+  EXPOSURE_PCT      the cap applied to every position WITHOUT a slider
+                    (WR, TE, DST). Changing it silently retunes those too.
+
+**A cap only does something while it binds.** On the Week 2 2026 slate no running
+back appeared in more than 6 of 10 lineups unprompted, so at a count of 10 every
+setting from 60% upward produced an identical portfolio. The RB slider used to
+default to EXPOSURE_PCT (75%), which sits inside that dead zone -- moving it
+looked broken because it genuinely changed nothing. 30% keeps the default in the
+live part of the range.
+
+Note that tighter caps were MEASURED and they cost the tail: P(180+) fell from
+1.12% to 0.83% at a 20% quarterback cap over 101 weeks. 30% is inside the region
+where that was measured, so this default is a deliberate user preference for a
+spread portfolio, not an improvement. It is set here rather than argued about in
+the UI so the trade-off stays written down.
+"""
+
+CEILING_WEIGHT_DEFAULT = 1.0
+"""
+How far the builder leans on each player's ceiling rather than his mean.
+
+0 chases the expected score, 1 chases the best case. This is a live control here,
+unlike the Next.js build where the live pool's ceiling is a flat per-position
+multiple and therefore cannot reorder anyone within a position: every player in
+this pool carries a ceiling derived from his own scoring spread, with ratios
+observed from 0.25 to 2.49, so the setting changes which players are picked at
+every step of the slider.
+
+Set to 1.0 as a user preference for a tournament build. It is NOT a measured
+improvement -- the "Ceiling Only" arm of the ablation showed no detectable
+difference over 139 weeks -- and it is not harmful either. A top-heavy payout only
+pays for the tail, which is the argument for it; the measurement simply has not
+resolved it.
 """
 
 MAX_SHARED_PLAYERS = 7

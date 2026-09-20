@@ -741,3 +741,78 @@ class ContestSelection(unittest.TestCase):
         placed, notes = select.build([self._c(structure="unknown")], 100, 10)
         self.assertEqual(placed, [])
         self.assertTrue(notes and "payout shape" in notes[0])
+
+
+class SliderDefaults(unittest.TestCase):
+    """
+    The RB cap default sat at 75%, above the point where it binds.
+
+    On the Week 2 2026 slate no running back reached more than 6 of 10 lineups
+    unprompted, so every setting from 60% up produced an identical portfolio --
+    the slider looked broken because moving it around the default genuinely
+    changed nothing.
+    """
+
+    def test_rb_default_is_inside_the_binding_range(self):
+        # At the usual 10 lineups the cap must be low enough to bite.
+        self.assertLess(rules.RB_EXPOSURE_PCT, 60)
+        self.assertGreaterEqual(rules.RB_EXPOSURE_PCT, 10)
+
+    def test_other_positions_keep_their_own_cap(self):
+        # Changing the RB slider default must not retune WR/TE/DST, which have
+        # no slider and fall back to EXPOSURE_PCT.
+        self.assertNotEqual(rules.RB_EXPOSURE_PCT, rules.EXPOSURE_PCT)
+        self.assertEqual(rules.EXPOSURE_PCT, 75)
+
+    def test_ceiling_weight_default_is_in_range(self):
+        self.assertGreaterEqual(rules.CEILING_WEIGHT_DEFAULT, 0.0)
+        self.assertLessEqual(rules.CEILING_WEIGHT_DEFAULT, 1.0)
+
+    def test_rb_cap_actually_changes_the_portfolio_at_the_default(self):
+        """A default that cannot change anything is the bug this replaced."""
+        data = Path(__file__).parent / "data"
+        rows = load_salaries((data / "DKSalaries.csv").read_text())
+        pool = [r for r in keep_starting_quarterbacks(rows) if rosterable(r)]
+        # The builder reads each player's ceiling, so the pool must be prepared
+        # the same way the app prepares it.
+        pool = apply_ceilings(pool, load_json(data / "player-variance.json"))
+        loose = build_portfolio(pool, 10, seed=1, rb_exposure=100)
+        tight = build_portfolio(pool, 10, seed=1, rb_exposure=rules.RB_EXPOSURE_PCT)
+        self.assertNotEqual([ent.roster_key(l) for l in loose],
+                            [ent.roster_key(l) for l in tight])
+
+
+class ContestSpreading(unittest.TestCase):
+    """All ten lineups were assigned to one tournament, which read as a bug."""
+
+    def _lobby(self):
+        return json.loads((Path(__file__).parent / "data" / "lobby-week2-2026.json").read_text())
+
+    def test_distinct_contests_are_filled_before_one_is_reused(self):
+        contests = self._lobby()["contests"]
+        entries, _ = plan(contests, 200, 10)
+        if len(entries) < 2:
+            self.skipTest("budget funded fewer than two entries")
+        # No contest may take a second entry while another at the same fee is free.
+        used = {}
+        for e in entries:
+            used[e.contest["id"]] = used.get(e.contest["id"], 0) + 1
+        for e in entries:
+            if used[e.contest["id"]] < 2:
+                continue
+            same_fee = {c["id"] for c in contests
+                        if c.get("structure") == "gpp" and c.get("window") == "main"
+                        and c["entryFee"] == e.fee}
+            unused = same_fee - set(used)
+            self.assertEqual(unused, set(),
+                             f"{e.contest['name']} reused while {unused} were free")
+
+    def test_concentration_is_explained_rather_than_silent(self):
+        entries, notes = plan(self._lobby()["contests"], 100, 10)
+        per = {}
+        for e in entries:
+            per[e.contest["name"]] = per.get(e.contest["name"], 0) + 1
+        if max(per.values(), default=0) < 2:
+            self.skipTest("this budget did not concentrate")
+        self.assertTrue(any("same tournament" in n for n in notes),
+                        "concentration happened with no note explaining it")
