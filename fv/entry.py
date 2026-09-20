@@ -90,6 +90,11 @@ def playable(contests: list[dict], lock_label: str | None,
     Boards captured before the window field existed have no such marking, so
     the filter is skipped rather than silently dropping every contest.
     """
+    # structure must be a KNOWN gpp. "unknown" is refused rather than assumed:
+    # the $20 50-50! and the $20 200-Player (Top 3 Win) sit on the same board at
+    # the same $20 fee, the same $1,800-and-$3,600 pools and the SAME 10.0%
+    # rake, and one pays half the field at 1.8x while the other pays three of
+    # two hundred at 36x. Nothing the lobby displays separates them.
     out = [c for c in contests
            if c.get("structure") == "gpp" and c.get("totalPrizes", 0) > 0
            and not booster_shaped(c)]

@@ -19,6 +19,7 @@ from fv.roster import order_roster, stack_role, is_stacked, fill_dk_template, DK
 from fv.optimize import build_portfolio, build_lineup
 from fv.entry import plan, rake_pct
 from fv import entry as entry_mod
+from fv import shape
 import random
 
 DATA = Path(__file__).resolve().parent / "data"
@@ -592,3 +593,55 @@ class InjuryWireNameMatching(unittest.TestCase):
         found = injuries.cross_check(rows, feed)
         self.assertEqual(len(found), 1, "the suffix must not hide an Out ruling")
         self.assertEqual(found[0]["live_status"], "Out")
+
+
+class PayoutShape(unittest.TestCase):
+    """
+    Rake cannot tell a tournament from a cash game or a lottery.
+
+    Two contests on the same Week 2 board, both $20, both 10.0% rake:
+      NFL $20 50-50!                 pays 50% of the field at 1.8x
+      NFL $20 200-Player (Top 3 Win) pays 3 of 200 at 36x
+
+    The planner ranked on rake and wanted to put a whole budget into whichever
+    small-field game kept the least, which on this board is a double-up.
+    """
+
+    def test_the_two_contests_that_motivated_this_classify_apart(self):
+        du = shape.from_tiers(20, 100, [{"from": 1, "to": 50, "prize": 36}])
+        lot = shape.from_tiers(20, 200, [{"from": 1, "to": 1, "prize": 1800},
+                                         {"from": 2, "to": 2, "prize": 1080},
+                                         {"from": 3, "to": 3, "prize": 720}])
+        self.assertEqual(du["shape"], shape.DOUBLE_UP)
+        self.assertEqual(lot["shape"], shape.LOTTERY)
+        # The point: identical on every column the lobby shows.
+        self.assertEqual(du["rake"], lot["rake"])
+
+    def test_a_standard_gpp_classifies_as_one(self):
+        gpp = shape.from_tiers(27, 4319,
+                               [{"from": 1, "to": 1, "prize": 10000},
+                                {"from": 2, "to": 987, "prize": 54}])
+        self.assertEqual(gpp["shape"], shape.GPP)
+        self.assertTrue(shape.playable_shape(gpp["shape"]))
+
+    def test_neither_a_double_up_nor_a_lottery_is_playable(self):
+        self.assertFalse(shape.playable_shape(shape.DOUBLE_UP))
+        self.assertFalse(shape.playable_shape(shape.LOTTERY))
+
+    def test_an_unknown_curve_is_refused_not_assumed(self):
+        # The entire reason this module exists: 21 contests on the Week 2 board
+        # were marked gpp on an assumption before anyone had seen their curves.
+        self.assertEqual(shape.classify(None, None), shape.UNKNOWN)
+        self.assertEqual(shape.classify(0.2, None), shape.UNKNOWN)
+        self.assertEqual(shape.from_tiers(20, 100, [])["shape"], shape.UNKNOWN)
+        self.assertFalse(shape.playable_shape(shape.UNKNOWN))
+
+    def test_the_planner_refuses_a_contest_of_unknown_shape(self):
+        board = [
+            {"id": "a", "name": "Mystery 100-Player", "entryFee": 10, "totalPrizes": 900,
+             "maxEntries": 100, "structure": "unknown", "window": "main", "lockTime": None},
+            {"id": "b", "name": "Real GPP", "entryFee": 10, "totalPrizes": 9000,
+             "maxEntries": 1000, "structure": "gpp", "window": "main", "lockTime": None},
+        ]
+        kept = [c["id"] for c in entry_mod.playable(board, None, None)]
+        self.assertEqual(kept, ["b"])

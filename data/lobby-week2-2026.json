@@ -2,7 +2,7 @@
  "captured": "2026-09-19",
  "week": 2,
  "source": "DraftKings lobby, hand-transcribed from 2 screenshots, Classic tournaments at $10+",
- "note": "Entry counts are a snapshot ~14 hours before a 1:00pm lock and move hard. Satellites and World Championship qualifiers are omitted: they award seats, not cash, so the rake arithmetic does not describe them. 50-50s are omitted as cash games. The 100-player games are many separate contests, each listed with its own fill; collapsing them into one row made the planner recommend a single contest ten times.",
+ "note": "Entry counts are a snapshot ~14 hours before a 1:00pm lock and move hard. Satellites and World Championship qualifiers are omitted: they award seats, not cash, so the rake arithmetic does not describe them. 50-50s are omitted as cash games. The 100-player games are many separate contests, each listed with its own fill; collapsing them into one row made the planner recommend a single contest ten times. 21 small-field contests are marked structure=unknown: their payout curves have not been seen, and the $20 50-50! proves rake and prize pool alone cannot distinguish a tournament from a cash game. They were previously marked gpp on an assumption.",
  "contests": [
   {
    "id": "w2-0",
@@ -252,9 +252,10 @@
    "entered": 232,
    "maxEntries": 490,
    "maxEntriesPerUser": 150,
-   "structure": "gpp",
+   "structure": "unknown",
    "window": "main",
-   "lockTime": "9/20 1:00p"
+   "lockTime": "9/20 1:00p",
+   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
   },
   {
    "id": "w2-21",
@@ -264,9 +265,10 @@
    "entered": 152,
    "maxEntries": 215,
    "maxEntriesPerUser": 150,
-   "structure": "gpp",
+   "structure": "unknown",
    "window": "main",
-   "lockTime": "9/20 1:00p"
+   "lockTime": "9/20 1:00p",
+   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
   },
   {
    "id": "w2-22",
@@ -348,9 +350,10 @@
    "entered": 26,
    "maxEntries": 43,
    "maxEntriesPerUser": 150,
-   "structure": "gpp",
+   "structure": "unknown",
    "window": "main",
-   "lockTime": "9/20 1:00p"
+   "lockTime": "9/20 1:00p",
+   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
   },
   {
    "id": "w2-29",
@@ -360,9 +363,12 @@
    "entered": 7,
    "maxEntries": 200,
    "maxEntriesPerUser": 150,
-   "structure": "gpp",
+   "structure": "lottery",
    "window": "main",
-   "lockTime": "9/20 1:00p"
+   "lockTime": "9/20 1:00p",
+   "structureNote": "Payout curve known: 3 paid of 200.",
+   "cashRate": 0.015,
+   "minCashMultiple": 36.0
   },
   {
    "id": "w2-32",
@@ -372,9 +378,10 @@
    "entered": 1,
    "maxEntries": 40,
    "maxEntriesPerUser": 150,
-   "structure": "gpp",
+   "structure": "unknown",
    "window": "main",
-   "lockTime": "9/20 1:00p"
+   "lockTime": "9/20 1:00p",
+   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
   },
   {
    "id": "w2-33",
@@ -384,9 +391,10 @@
    "entered": 10,
    "maxEntries": 35,
    "maxEntriesPerUser": 150,
-   "structure": "gpp",
+   "structure": "unknown",
    "window": "main",
-   "lockTime": "9/20 1:00p"
+   "lockTime": "9/20 1:00p",
+   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
   },
   {
    "id": "w2-100p20-0",
@@ -396,9 +404,10 @@
    "entered": 0,
    "maxEntries": 100,
    "maxEntriesPerUser": 150,
-   "structure": "gpp",
+   "structure": "unknown",
    "window": "main",
-   "lockTime": "9/20 1:00p"
+   "lockTime": "9/20 1:00p",
+   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
   },
   {
    "id": "w2-100p20-1",
@@ -408,9 +417,10 @@
    "entered": 1,
    "maxEntries": 100,
    "maxEntriesPerUser": 150,
-   "structure": "gpp",
+   "structure": "unknown",
    "window": "main",
-   "lockTime": "9/20 1:00p"
+   "lockTime": "9/20 1:00p",
+   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
   },
   {
    "id": "w2-100p20-2",
@@ -420,9 +430,10 @@
    "entered": 1,
    "maxEntries": 100,
    "maxEntriesPerUser": 150,
-   "structure": "gpp",
+   "structure": "unknown",
    "window": "main",
-   "lockTime": "9/20 1:00p"
+   "lockTime": "9/20 1:00p",
+   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
   },
   {
    "id": "w2-100p20-3",
@@ -432,9 +443,10 @@
    "entered": 2,
    "maxEntries": 100,
    "maxEntriesPerUser": 150,
-   "structure": "gpp",
+   "structure": "unknown",
    "window": "main",
-   "lockTime": "9/20 1:00p"
+   "lockTime": "9/20 1:00p",
+   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
   },
   {
    "id": "w2-100p20-4",
@@ -444,9 +456,10 @@
    "entered": 2,
    "maxEntries": 100,
    "maxEntriesPerUser": 150,
-   "structure": "gpp",
+   "structure": "unknown",
    "window": "main",
-   "lockTime": "9/20 1:00p"
+   "lockTime": "9/20 1:00p",
+   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
   },
   {
    "id": "w2-100p20-5",
@@ -456,9 +469,10 @@
    "entered": 2,
    "maxEntries": 100,
    "maxEntriesPerUser": 150,
-   "structure": "gpp",
+   "structure": "unknown",
    "window": "main",
-   "lockTime": "9/20 1:00p"
+   "lockTime": "9/20 1:00p",
+   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
   },
   {
    "id": "w2-100p20-6",
@@ -468,9 +482,10 @@
    "entered": 2,
    "maxEntries": 100,
    "maxEntriesPerUser": 150,
-   "structure": "gpp",
+   "structure": "unknown",
    "window": "main",
-   "lockTime": "9/20 1:00p"
+   "lockTime": "9/20 1:00p",
+   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
   },
   {
    "id": "w2-100p20-7",
@@ -480,9 +495,10 @@
    "entered": 1,
    "maxEntries": 100,
    "maxEntriesPerUser": 150,
-   "structure": "gpp",
+   "structure": "unknown",
    "window": "main",
-   "lockTime": "9/20 1:00p"
+   "lockTime": "9/20 1:00p",
+   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
   },
   {
    "id": "w2-100p20-8",
@@ -492,9 +508,10 @@
    "entered": 3,
    "maxEntries": 100,
    "maxEntriesPerUser": 150,
-   "structure": "gpp",
+   "structure": "unknown",
    "window": "main",
-   "lockTime": "9/20 1:00p"
+   "lockTime": "9/20 1:00p",
+   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
   },
   {
    "id": "w2-100p20-9",
@@ -504,9 +521,10 @@
    "entered": 3,
    "maxEntries": 100,
    "maxEntriesPerUser": 150,
-   "structure": "gpp",
+   "structure": "unknown",
    "window": "main",
-   "lockTime": "9/20 1:00p"
+   "lockTime": "9/20 1:00p",
+   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
   },
   {
    "id": "w2-100p20-10",
@@ -516,9 +534,10 @@
    "entered": 2,
    "maxEntries": 100,
    "maxEntriesPerUser": 150,
-   "structure": "gpp",
+   "structure": "unknown",
    "window": "main",
-   "lockTime": "9/20 1:00p"
+   "lockTime": "9/20 1:00p",
+   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
   },
   {
    "id": "w2-100p20-11",
@@ -528,9 +547,10 @@
    "entered": 4,
    "maxEntries": 100,
    "maxEntriesPerUser": 150,
-   "structure": "gpp",
+   "structure": "unknown",
    "window": "main",
-   "lockTime": "9/20 1:00p"
+   "lockTime": "9/20 1:00p",
+   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
   },
   {
    "id": "w2-100p20-12",
@@ -540,9 +560,10 @@
    "entered": 7,
    "maxEntries": 100,
    "maxEntriesPerUser": 150,
-   "structure": "gpp",
+   "structure": "unknown",
    "window": "main",
-   "lockTime": "9/20 1:00p"
+   "lockTime": "9/20 1:00p",
+   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
   },
   {
    "id": "w2-100p10-0",
@@ -552,9 +573,10 @@
    "entered": 0,
    "maxEntries": 100,
    "maxEntriesPerUser": 150,
-   "structure": "gpp",
+   "structure": "unknown",
    "window": "main",
-   "lockTime": "9/20 1:00p"
+   "lockTime": "9/20 1:00p",
+   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
   },
   {
    "id": "w2-100p10-1",
@@ -564,9 +586,56 @@
    "entered": 1,
    "maxEntries": 100,
    "maxEntriesPerUser": 150,
-   "structure": "gpp",
+   "structure": "unknown",
    "window": "main",
-   "lockTime": "9/20 1:00p"
+   "lockTime": "9/20 1:00p",
+   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
   }
- ]
+ ],
+ "payouts": {
+  "NFL $20 50-50!": {
+   "entryFee": 20,
+   "maxEntries": 100,
+   "tiers": [
+    {
+     "from": 1,
+     "to": 50,
+     "prize": 36
+    }
+   ],
+   "cashRate": 0.5,
+   "minCashMultiple": 1.8,
+   "paidPlaces": 50,
+   "prizePool": 1800.0,
+   "rake": 0.1,
+   "shape": "double_up"
+  },
+  "NFL $20 200-Player (Top 3 Win)": {
+   "entryFee": 20,
+   "maxEntries": 200,
+   "tiers": [
+    {
+     "from": 1,
+     "to": 1,
+     "prize": 1800
+    },
+    {
+     "from": 2,
+     "to": 2,
+     "prize": 1080
+    },
+    {
+     "from": 3,
+     "to": 3,
+     "prize": 720
+    }
+   ],
+   "cashRate": 0.015,
+   "minCashMultiple": 36.0,
+   "paidPlaces": 3,
+   "prizePool": 3600.0,
+   "rake": 0.1,
+   "shape": "lottery"
+  }
+ }
 }
