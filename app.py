@@ -49,6 +49,17 @@ st.set_page_config(page_title="Fourth & Value", page_icon="🏈", layout="wide")
 
 st.markdown("""
 <style>
+  /* Freshness strip: one line, small, red where something predates the slate. */
+  .fresh { display:flex; flex-wrap:wrap; gap:.35rem .9rem; align-items:baseline;
+           margin:-.3rem 0 .5rem; padding:.3rem .55rem; border-radius:6px;
+           background:rgba(128,128,128,.07); font-size:.72rem; line-height:1.25; }
+  .fresh .fi { display:inline-flex; align-items:baseline; gap:.32rem; white-space:nowrap; }
+  .fresh .fi b { font-weight:600; opacity:.75; }
+  .fresh .fi i { font-style:normal; font-variant-numeric:tabular-nums; }
+  .fresh .fi u { text-decoration:none; opacity:.55; }
+  .fresh .fi.bad i { color:#d33; font-weight:700; }
+  .fresh .fi.bad b { color:#d33; }
+
   .block-container { padding-top: 2.2rem; max-width: 1900px; }
   .lu { border:1px solid rgba(128,128,128,.28); border-radius:8px; height:100%;
         overflow:hidden; }
@@ -296,29 +307,32 @@ entries, entry_notes = plan(lobby["contests"], budget, len(lineups), lock_label)
 
 with tab_board:
     # ---- Where every input came from, and when -----------------------------
-    # Asked for after the header showed Week 1 dates against a Week 2 slate and
-    # looked entirely normal. A stale input is invisible unless it is dated next
-    # to the thing it feeds, so each source states its own age here rather than
-    # being trusted because the app loaded without complaint.
-    _fresh = [
-        ("Player pool", _captured("slate"),
-         f"{len(pool)} on this slate · statuses frozen at export"),
-        ("Injury wire", "live" if (use_live and feed) else "not used",
-         f"{len(feed)} flagged, refreshed 6-hourly" if (use_live and feed)
-         else "falling back to the salary file"),
-        ("Kalshi props", _captured("kalshi"), _manifest("kalshi").get("note", "")[:60]),
-        ("Last season", _captured("prior"), "blended into the projection"),
-        ("Contest board", _captured("contests"),
-         "older than the slate" if _board_stale else "current"),
+    # One compressed line rather than five metric cards: this is a check you
+    # glance at, not a dashboard. Added after the header showed Week 1 dates
+    # against a Week 2 slate and looked entirely normal -- a stale input is
+    # invisible unless it is dated next to the thing it feeds.
+    #
+    # Last season is deliberately absent: it is a closed season and cannot go
+    # stale, so dating it was noise.
+    _pool_n = len(pool)
+    _inj_n = len(feed) if (use_live and feed) else 0
+    _kal = _manifest("kalshi")
+    _kal_n = (_kal.get("note", "").split(" ")[0] if _kal.get("note", "")[:1].isdigit() else "?")
+    _bits = [
+        ("Player pool", _captured("slate"), f"{_pool_n} players", False),
+        ("Injury wire", f"{_inj_n} records" if _inj_n else "off",
+         "live, 6-hourly" if _inj_n else "using the salary file", not _inj_n),
+        ("Kalshi", _captured("kalshi"), f"{_kal_n} matched",
+         _captured("kalshi") < _captured("slate")),
+        ("Contests", _captured("contests"), f"{len(lobby['contests'])} listed",
+         _board_stale),
     ]
-    cols = st.columns(len(_fresh))
-    for col, (label, when, sub) in zip(cols, _fresh):
-        stale = when not in ("live",) and when < _captured("slate")
-        col.metric(label, when, delta="stale" if stale else None,
-                   delta_color="inverse" if stale else "normal", help=sub)
-    st.caption("Every input dates itself. Anything marked **stale** was captured before the "
-               "salary file and may describe last week.")
-    st.divider()
+    st.markdown(
+        '<div class="fresh">' + "".join(
+            f'<span class="fi{" bad" if warn else ""}">'
+            f'<b>{label}</b><i>{when}</i><u>{extra}</u></span>'
+            for label, when, extra, warn in _bits
+        ) + "</div>", unsafe_allow_html=True)
 
     if not lineups:
         st.error("No lineups could be built. Loosen the must-play list.")
