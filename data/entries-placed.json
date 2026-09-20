@@ -1,5 +1,5 @@
 {
-  "source": "DK Contest Details/Week 2/contests entered/ \u2014 two screenshots of the DraftKings lineup screen, 2026-09-20 11:55 and 12:03",
+  "source": "DK Contest Details/Week 2/contests entered/ \u2014 three screenshots of the DraftKings lineup screen, 2026-09-20 11:55, 12:03 and 12:10",
   "transcribed": "2026-09-20",
   "slateLock": "2026-09-20T13:00:00-04:00",
   "note": "HAND-TRANSCRIBED from the lineup screens, not exported. Each roster sums to exactly $50,000 against the $0 remaining salary both screens show. Both lineups were built by hand and differ from the generated board: the Blind Side entry shares 1 of 9 players with the board's best lineup and the Millionaire entry was built independently. Winnings unknown at transcription; these contests lock 2026-09-20 1:00pm ET. A.J. Brown is a NEW ENGLAND receiver in the 2026 file and is on IR, which is the stated reason for Hunter Henry in the Blind Side entry \u2014 not the Philadelphia player of the same name.",
@@ -35,6 +35,17 @@
       "entered": 15100,
       "maxEntries": 17100,
       "entriesPerUser": 1,
+      "liveIn": "Sun 1:00pm"
+    },
+    {
+      "id": "screenpass-75k",
+      "name": "NFL $75K Screen Pass [5 Entry Max]",
+      "entryFee": 15,
+      "totalPrizes": 75000,
+      "topPrize": 10000,
+      "entered": 5325,
+      "maxEntries": 5882,
+      "entriesPerUser": 5,
       "liveIn": "Sun 1:00pm"
     }
   ],
@@ -160,9 +171,70 @@
           "salary": 3000
         }
       ]
+    },
+    {
+      "entry": 3,
+      "contestId": "screenpass-75k",
+      "remainingSalary": 0,
+      "roster": [
+        {
+          "slot": "QB",
+          "name": "T. Lawrence",
+          "team": "JAX",
+          "salary": 5800
+        },
+        {
+          "slot": "RB",
+          "name": "B. Robinson",
+          "team": "ATL",
+          "salary": 8200
+        },
+        {
+          "slot": "RB",
+          "name": "K. Monangai",
+          "team": "CHI",
+          "salary": 5300
+        },
+        {
+          "slot": "WR",
+          "name": "P. Washington",
+          "team": "JAX",
+          "salary": 5900
+        },
+        {
+          "slot": "WR",
+          "name": "J. Waddle",
+          "team": "DEN",
+          "salary": 6500
+        },
+        {
+          "slot": "WR",
+          "name": "J. Meyers",
+          "team": "JAX",
+          "salary": 4900
+        },
+        {
+          "slot": "TE",
+          "name": "E. Engram",
+          "team": "DEN",
+          "salary": 3300
+        },
+        {
+          "slot": "FLEX",
+          "name": "C. Lamb",
+          "team": "DAL",
+          "salary": 7300
+        },
+        {
+          "slot": "DST",
+          "name": "Steelers",
+          "team": "PIT",
+          "salary": 2800
+        }
+      ]
     }
   ],
-  "staked": 47,
+  "staked": 62,
   "unrecorded": "The $12 NFL $175K Fair Catch [Single Entry] shows EDIT rather than ENTER on the lobby, so an entry is already in it, but no screenshot of that lineup exists yet. It is NOT counted in `staked`, which must equal the fees of the entries recorded here -- see stakedIncludingUnrecorded for the real total.",
-  "stakedIncludingUnrecorded": 59
+  "stakedIncludingUnrecorded": 74
 }
