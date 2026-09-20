@@ -13,6 +13,7 @@ from fv import rules
 from fv import pool as pool_mod
 from fv import injuries
 from fv import entered as ent
+from fv import blend as blend_mod
 from fv.slate import parse_kickoff, kickoff_windows, slate_options, main_slate, restrict, in_slate
 from fv.pool import load_salaries, keep_starting_quarterbacks, apply_ceilings, rosterable, load_json
 from fv.roster import order_roster, stack_role, is_stacked, fill_dk_template, DK_SLOTS
@@ -861,3 +862,72 @@ class ContestCapacity(unittest.TestCase):
     def test_cheapest_first(self):
         got = ent.contests_with_room(self.CONTESTS, {})
         self.assertEqual([c["entryFee"] for c in got], sorted(c["entryFee"] for c in got))
+
+
+class UsedQuarterbacks(unittest.TestCase):
+    """A quarterback already staked must not come back on the board."""
+
+    POOL = [
+        {"id": "1", "name": "Jordan Love", "position": "QB", "team": "GB", "projection": 20.0},
+        {"id": "2", "name": "Caleb Williams", "position": "QB", "team": "CHI", "projection": 22.0},
+        {"id": "3", "name": "Bryce Young", "position": "QB", "team": "CAR", "projection": 18.0},
+        {"id": "4", "name": "Javonte Williams", "position": "RB", "team": "DAL", "projection": 15.0},
+        {"id": "5", "name": "Christian Watson", "position": "WR", "team": "GB", "projection": 12.0},
+    ]
+
+    def test_reads_both_records(self):
+        placed = {"entries": [{"roster": [{"slot": "QB", "name": "J. Love", "team": "GB"}]}]}
+        session = {"k": {"players": [{"position": "QB", "name": "Caleb Williams", "team": "CHI"}]}}
+        used = ent.quarterbacks_used(placed, session)
+        self.assertEqual(used, {("j", "love", "GB"), ("c", "williams", "CHI")})
+
+    def test_abbreviated_and_full_names_match(self):
+        placed = {"entries": [{"roster": [{"slot": "QB", "name": "J. Love", "team": "GB"}]}]}
+        left = ent.without_used_quarterbacks(self.POOL, ent.quarterbacks_used(placed, {}))
+        self.assertNotIn("Jordan Love", [p["name"] for p in left])
+
+    def test_the_team_disambiguates_two_williamses(self):
+        """C. Williams is Caleb at CHI; Javonte Williams at DAL must survive."""
+        placed = {"entries": [{"roster": [{"slot": "QB", "name": "C. Williams", "team": "CHI"}]}]}
+        left = ent.without_used_quarterbacks(self.POOL, ent.quarterbacks_used(placed, {}))
+        names = [p["name"] for p in left]
+        self.assertNotIn("Caleb Williams", names)
+        self.assertIn("Javonte Williams", names)
+
+    def test_only_quarterbacks_are_dropped(self):
+        placed = {"entries": [{"roster": [
+            {"slot": "QB", "name": "J. Love", "team": "GB"},
+            {"slot": "WR", "name": "C. Watson", "team": "GB"}]}]}
+        left = ent.without_used_quarterbacks(self.POOL, ent.quarterbacks_used(placed, {}))
+        self.assertIn("Christian Watson", [p["name"] for p in left])
+
+    def test_nothing_entered_changes_nothing(self):
+        self.assertEqual(ent.without_used_quarterbacks(self.POOL, set()), self.POOL)
+
+
+class BlendBeforeCeilings(unittest.TestCase):
+    """
+    The ceiling is a multiple of the projection, so it must be derived AFTER
+    the blend. Doing it first leaves every ceiling scaled to DraftKings'
+    one-game average, and at ceiling weight 1.0 the builder uses only that.
+    """
+
+    def test_ceiling_tracks_the_blended_projection(self):
+        data = Path(__file__).parent / "data"
+        rows = load_salaries((data / "DKSalaries.csv").read_text())
+        rows = [r for r in keep_starting_quarterbacks(rows) if rosterable(r)]
+        prior = blend_mod.load_prior(data / "prior-season-2025.json")
+        variance = load_json(data / "player-variance.json")
+
+        wrong = apply_ceilings([dict(r) for r in rows], variance)          # ceilings first
+        wrong = blend_mod.apply_blend(wrong, prior, 2)                      # then blend
+        right = apply_ceilings(blend_mod.apply_blend([dict(r) for r in rows], prior, 2), variance)
+
+        by_wrong = {r["name"]: r for r in wrong}
+        drifted = [n for n, r in ((p["name"], p) for p in right)
+                   if abs(by_wrong[n]["ceiling"] - r["ceiling"]) > 0.01]
+        self.assertTrue(drifted, "the two orders should differ in week 2")
+        # In the correct order every ceiling is a multiple of its own projection.
+        for r in right:
+            if r["projection"] > 0:
+                self.assertGreaterEqual(r["ceiling"] / r["projection"], 1.14, r["name"])

@@ -197,3 +197,66 @@ def entries_left(contest: dict, entered: dict) -> int:
     used = sum(1 for rec in entered.values()
                if rec.get("contest_id", "") == contest["id"])
     return max(0, contest.get("maxEntriesPerUser", 1) - used)
+
+
+def _qb_keys(roster) -> set:
+    """
+    Identity of the quarterbacks in one roster, as (initial, surname, team).
+
+    Placed entries are transcribed from a screen showing "T. Lawrence" while the
+    pool holds "Trevor Lawrence", so this reuses the same loose identity
+    `_name_team` uses. The team is part of the key deliberately: "C. Williams"
+    is Caleb Williams at CHI and Javonte Williams at DAL, and both were on the
+    same entered lineup.
+
+    Placed rosters carry `slot`; session records carry `position`. A FLEX is
+    never a quarterback, so reading either field is safe.
+    """
+    out = set()
+    for p in roster:
+        if (p.get("position") or p.get("slot")) != "QB":
+            continue
+        parts = (p.get("name") or "").replace(".", "").split()
+        if not parts:
+            continue
+        out.add((parts[0][0].lower(), parts[-1].lower(), p.get("team", "")))
+    return out
+
+
+def quarterbacks_used(placed: dict | None = None, session: dict | None = None) -> set:
+    """
+    Every quarterback already staked, from both records of what was entered.
+
+    Both are needed and they are different things: `placed` is the file
+    transcribed from DraftKings, `session` is what was ticked in this browser.
+    Reading only one of them would let a quarterback through.
+    """
+    keys: set = set()
+    for e in (placed or {}).get("entries", []):
+        keys |= _qb_keys(e.get("roster", []))
+    for rec in (session or {}).values():
+        keys |= _qb_keys(rec.get("players", []))
+    return keys
+
+
+def without_used_quarterbacks(pool: list[dict], used: set) -> list[dict]:
+    """
+    The pool minus quarterbacks already entered. Every other position is kept.
+
+    One quarterback per week per portfolio is a concentration choice, not a
+    measured edge -- and the measurement points the other way, since tighter
+    quarterback caps cost P(180+) (1.12% to 0.83% at a 20% cap over 101 weeks).
+    What it does buy is protection against the downside that WAS measured: when
+    the quarterback a portfolio leans on busts, the chance every lineup fails
+    rises from 32% to 53%.
+    """
+    if not used:
+        return list(pool)
+    out = []
+    for p in pool:
+        if p.get("position") == "QB":
+            parts = (p.get("name") or "").replace(".", "").split()
+            if parts and (parts[0][0].lower(), parts[-1].lower(), p.get("team", "")) in used:
+                continue
+        out.append(p)
+    return out

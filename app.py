@@ -123,10 +123,38 @@ st.markdown("""
 
 @st.cache_data(show_spinner=False)
 def load_pool(version: str):
+    """
+    The raw rosterable pool, WITHOUT ceilings.
+
+    Ceilings are a multiple of the projection, so applying them here would
+    compute them from DraftKings' unblended average -- in week 2 that is one
+    game. Use `prepared_pool`, which blends first and then derives the ceiling
+    from the blended number.
+    """
     rows = load_salaries((DATA / "DKSalaries.csv").read_text())
     rows = keep_starting_quarterbacks(rows)
-    rows = [r for r in rows if rosterable(r)]
-    return apply_ceilings(rows, load_json(DATA / "player-variance.json"))
+    return [r for r in rows if rosterable(r)]
+
+
+def prepared_pool(rows: list[dict], week: int) -> list[dict]:
+    """
+    Blend, THEN derive ceilings. The order is the whole point.
+
+    `apply_ceilings` sets ceiling = projection x the player's own spread ratio,
+    so running it before the blend leaves every ceiling scaled to the number the
+    blend exists to correct. With the ceiling weight at 1.0 the builder leans on
+    that number entirely, which would quietly undo the blend.
+
+    This was a real defect, not a hypothetical: `portfolio()` rebuilt its pool
+    from `load_pool` and never blended at all, so the board displayed blended
+    projections while the lineups were constructed from DraftKings' raw
+    averages. On the Week 2 2026 slate the shipped lineups scored 151.5 on the
+    blend against 162.8 for lineups actually built on it, sharing 3 of 9
+    players.
+    """
+    blended = blend_mod.apply_blend([dict(r) for r in rows],
+                                    load_prior_season(_data_version()), int(week))
+    return apply_ceilings(blended, load_json(DATA / "player-variance.json"))
 
 
 @st.cache_data(show_spinner=False)
@@ -192,13 +220,17 @@ def load_placed_entries():
 
 @st.cache_data(show_spinner=True)
 def portfolio(ids, count, seed, ceiling_weight, qb_exposure, rb_exposure, must_play,
-              require_wr1, avoid_keys):
+              require_wr1, avoid_keys, week):
     """
     `avoid_keys` holds the rosters already entered. They are built extra and
     then filtered out, rather than being forbidden during construction, so the
     board still comes back full after you have entered several.
+
+    `week` is an argument rather than a global because it drives the blend, and
+    the blend must be inside this function: rebuilding the pool from `load_pool`
+    and forgetting it is exactly the bug this signature replaces.
     """
-    pool = [p for p in load_pool(_data_version()) if p["id"] in set(ids)]
+    pool = prepared_pool([p for p in load_pool(_data_version()) if p["id"] in set(ids)], week)
     avoid = set(avoid_keys)
     want = count + len(avoid)
     built = build_portfolio(pool, want, seed=seed, ceiling_weight=ceiling_weight,
@@ -248,7 +280,9 @@ with st.sidebar:
              "last. Week 1 uses DraftKings' number unchanged; week 2 is 25% this "
              "season and 75% of 2025, rising as games accumulate.")
     prior = load_prior_season(_data_version())
-    pool = blend_mod.apply_blend([dict(r) for r in pool], prior, int(nfl_week))
+    # Same helper the builder uses, so what is displayed and what is constructed
+    # can never disagree again.
+    pool = prepared_pool(pool, int(nfl_week))
     blended = sum(1 for r in pool if "%" in str(r.get("projection_source", "")))
     if int(nfl_week) > 1:
         w = blend_mod.current_weight(blend_mod.games_played_before(int(nfl_week)))
@@ -271,6 +305,12 @@ with st.sidebar:
                                  "lineups unprompted on this slate, so every setting above ~60% "
                                  "gives the same portfolio. Tighter caps were measured and cost "
                                  "the tail — P(180+) 1.12% → 0.83% at 20%.")
+    avoid_used_qbs = st.checkbox(
+        "Skip quarterbacks already entered", value=True,
+        help="A quarterback in a lineup you have already staked is not offered again "
+             "this week. Concentration protection, not a measured edge: tighter QB caps "
+             "were measured to cost the tail, but a busted QB you leaned on takes the "
+             "whole portfolio down 53% of the time against 32%.")
     ceiling_weight = st.slider("Ceiling weight", 0.0, 1.0, rules.CEILING_WEIGHT_DEFAULT, 0.05,
                                help="0 chases each player's expected score; 1 chases his best-case "
                                     "score, favouring boom-or-bust players. Every player here has "
@@ -333,9 +373,27 @@ elif not use_live:
 tab_board, tab_pool, tab_entry, tab_strategy, tab_about = st.tabs(
     ["Lineups", "Player pool", "Entry plan", "Strategy", "About"])
 
-lineups = portfolio(tuple(p["id"] for p in pool), n_lineups, seed,
+# ---- Do not build another lineup around a quarterback already staked --------
+# Asked for directly. One quarterback per week is a concentration choice rather
+# than a measured edge -- tighter QB caps were measured to COST the tail
+# (P(180+) 1.12% -> 0.83% at a 20% cap) -- but it buys the downside that was
+# measured: when the quarterback a portfolio leans on busts, the chance every
+# lineup fails rises from 32% to 53%.
+used_qbs = ent.quarterbacks_used(load_placed_entries(), st.session_state.entered)
+build_ids = ent.without_used_quarterbacks(pool, used_qbs) if avoid_used_qbs else pool
+if avoid_used_qbs and used_qbs and len(build_ids) < len(pool):
+    gone = sorted({p["name"] for p in pool} - {p["name"] for p in build_ids})
+    st.caption(f"Not building on {len(gone)} quarterback(s) already entered: "
+               + ", ".join(gone) + ". Turn this off in the sidebar to reuse them.")
+if avoid_used_qbs and not any(p["position"] == "QB" for p in build_ids):
+    st.error("Every quarterback on this slate is already in an entered lineup. "
+             "Turn off 'Skip quarterbacks already entered' in the sidebar to build more.",
+             icon="⚠️")
+    build_ids = pool
+
+lineups = portfolio(tuple(p["id"] for p in build_ids), n_lineups, seed,
                     ceiling_weight, qb_exposure, rb_exposure, must_play, require_wr1,
-                    tuple(sorted(st.session_state.entered)))
+                    tuple(sorted(st.session_state.entered)), int(nfl_week))
 lock_label = f"{slate.locks_at.strftime('%-m/%-d %-I:%M')}p"
 entries, entry_notes = plan(lobby["contests"], budget, len(lineups), lock_label)
 
