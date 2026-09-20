@@ -20,6 +20,7 @@ from fv.optimize import build_portfolio, build_lineup
 from fv.entry import plan, rake_pct
 from fv import entry as entry_mod
 from fv import shape
+from fv import select
 import random
 
 DATA = Path(__file__).resolve().parent / "data"
@@ -675,3 +676,68 @@ class PayoutShape(unittest.TestCase):
         ]
         kept = [c["id"] for c in entry_mod.playable(board, None, None)]
         self.assertEqual(kept, ["b"])
+
+
+class ContestSelection(unittest.TestCase):
+    """
+    Scoring contests on what was measured, not on rake alone.
+
+    fv/entry.py ranked on rake and put ten entries in one contest -- and before
+    the payout curves arrived, ten entries in a double-up.
+    """
+
+    def _c(self, **kw):
+        base = {"id": "x", "name": "Test GPP", "entryFee": 12, "totalPrizes": 100000,
+                "entered": 5000, "maxEntries": 9804, "maxEntriesPerUser": 1,
+                "structure": "gpp", "window": "main", "topPrizeMultiple": 800}
+        base.update(kw)
+        return base
+
+    def test_a_flat_tournament_is_refused_however_good_its_rake(self):
+        # 10% rake, the best on the Week 2 board, topping out at 14x.
+        self.assertIsNone(select.score(self._c(structure="flat_gpp", topPrizeMultiple=13.5)))
+
+    def test_double_ups_lotteries_and_unknowns_are_refused(self):
+        for s in ("double_up", "lottery", "unknown"):
+            self.assertIsNone(select.score(self._c(structure=s)), s)
+
+    def test_a_tiny_field_is_refused(self):
+        self.assertIsNone(select.score(self._c(maxEntries=100)))
+
+    def test_lower_rake_scores_higher(self):
+        cheap = select.score(self._c(id="a", totalPrizes=105000))   # less kept
+        dear = select.score(self._c(id="b", totalPrizes=90000))
+        self.assertGreater(cheap.score, dear.score)
+
+    def test_a_bigger_top_prize_scores_higher(self):
+        big = select.score(self._c(id="a", topPrizeMultiple=1250))
+        small = select.score(self._c(id="b", topPrizeMultiple=100))
+        self.assertGreater(big.score, small.score)
+
+    def test_an_unknown_top_prize_never_scores_as_well_as_a_known_good_one(self):
+        # The $20 100-Player looked excellent on every column that WAS known.
+        unknown = select.score(self._c(id="a", topPrizeMultiple=None))
+        known = select.score(self._c(id="b", topPrizeMultiple=1250))
+        self.assertGreater(known.score, unknown.score)
+
+    def test_single_entry_scores_higher_than_multi(self):
+        single = select.score(self._c(id="a", maxEntriesPerUser=1))
+        multi = select.score(self._c(id="b", maxEntriesPerUser=150))
+        self.assertGreater(single.score, multi.score)
+
+    def test_the_budget_spreads_across_contests_before_repeating_one(self):
+        board = [self._c(id=f"c{i}", name=f"GPP {i}", entryFee=10, maxEntriesPerUser=20)
+                 for i in range(5)]
+        placed, _ = select.build(board, 50, 5)
+        self.assertEqual(len({p["contest"]["id"] for p in placed}), 5,
+                         "five entries across five contests, not five in one")
+
+    def test_it_never_overspends_the_budget(self):
+        board = [self._c(id=f"c{i}", name=f"GPP {i}", entryFee=27) for i in range(10)]
+        placed, _ = select.build(board, 100, 10)
+        self.assertLessEqual(sum(p["fee"] for p in placed), 100)
+
+    def test_an_empty_board_says_so_rather_than_returning_nothing_quietly(self):
+        placed, notes = select.build([self._c(structure="unknown")], 100, 10)
+        self.assertEqual(placed, [])
+        self.assertTrue(notes and "payout shape" in notes[0])

@@ -21,6 +21,7 @@ from fv.optimize import build_portfolio, projection
 from fv.roster import order_roster, stack_role, is_stacked, to_dk_csv, fill_dk_template
 from fv.entry import plan, rake_pct
 from fv import blend as blend_mod
+from fv import select as select_mod
 
 DATA = Path(__file__).resolve().parent / "data"
 
@@ -667,6 +668,37 @@ with tab_entry:
             f"{_captured('slate')}.** The tournaments below are last week's and cannot be "
             "entered. Transcribe the current lobby into `data/lobby-week1-2026.json` before "
             "using this plan.", icon="⚠️")
+    # ---- Scored on what was measured, not on rake alone ---------------------
+    st.markdown("### Best contests for your budget")
+    _picks, _notes = select_mod.build(lobby["contests"], budget, len(lineups))
+    if _picks:
+        st.dataframe(
+            pd.DataFrame([{
+                "Contest": p["contest"]["name"], "Fee": p["fee"],
+                "Rake": (p["contest"]["maxEntries"] * p["contest"]["entryFee"]
+                         - p["contest"]["totalPrizes"])
+                        / (p["contest"]["maxEntries"] * p["contest"]["entryFee"]) * 100,
+                "Top prize": p["contest"].get("topPrizeMultiple"),
+                "Why": p["why"],
+            } for p in _picks]),
+            width="stretch", hide_index=True,
+            column_config={
+                "Fee": st.column_config.NumberColumn("Fee", format="$%d"),
+                "Rake": st.column_config.NumberColumn("Rake", format="%.1f%%"),
+                "Top prize": st.column_config.NumberColumn("Top prize", format="%.0fx"),
+            })
+        _spent = sum(p["fee"] for p in _picks)
+        st.caption(
+            f"**\\${_spent:,.0f} of \\${budget:,.0f} across {len({p['contest']['id'] for p in _picks})} "
+            f"contests.** Scored on rake, top-prize size, single-entry and overlay — every one of "
+            "those measured here. Contests whose payout curve has not been seen are refused rather "
+            "than assumed: on this board a double-up and a lottery both showed 10.0% rake, the best "
+            "number on it. **None of this is an edge.** Every contest keeps 14–15%, and a player "
+            "with no edge loses that.")
+    for n in _notes:
+        st.warning(n)
+    st.divider()
+
     st.markdown("### The plan")
     for n in entry_notes:
         st.warning(n)
