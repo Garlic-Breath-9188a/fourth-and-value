@@ -1,8 +1,8 @@
 {
-  "captured": "2026-09-20T11:41",
+  "captured": "2026-09-20T12:50",
   "week": 2,
   "source": "DraftKings lobby, hand-transcribed from 2 screenshots, Classic tournaments at $10+",
-  "note": "Entry counts are a snapshot ~14 hours before a 1:00pm lock and move hard. Satellites and World Championship qualifiers are omitted: they award seats, not cash, so the rake arithmetic does not describe them. 50-50s are omitted as cash games. The 100-player games are many separate contests, each listed with its own fill; collapsing them into one row made the planner recommend a single contest ten times. 21 small-field contests are marked structure=unknown: their payout curves have not been seen, and the $20 50-50! proves rake and prize pool alone cannot distinguish a tournament from a cash game. They were previously marked gpp on an assumption. Refreshed 11:41 AM from the open-contest screens, ~80 minutes before the 1:00pm lock. CLOSED since the first capture and removed: NFL $75K Fair Catch [Single Entry], NFL $50K Fair Catch [Single Entry], NFL $20K Screen Pass [3 Entry Max]. The $175K Fair Catch showed EDIT rather than ENTER, so an entry is already in it.",
+  "note": "Entry counts are a snapshot ~14 hours before a 1:00pm lock and move hard. Satellites and World Championship qualifiers are omitted: they award seats, not cash, so the rake arithmetic does not describe them. 50-50s are omitted as cash games. The 100-player games are many separate contests, each listed with its own fill; collapsing them into one row made the planner recommend a single contest ten times. 21 small-field contests are marked structure=unknown: their payout curves have not been seen, and the $20 50-50! proves rake and prize pool alone cannot distinguish a tournament from a cash game. They were previously marked gpp on an assumption. Refreshed 11:41 AM from the open-contest screens, ~80 minutes before the 1:00pm lock. CLOSED since the first capture and removed: NFL $75K Fair Catch, NFL $50K Fair Catch, NFL $20K Screen Pass, NFL $50K Blind Side (the last confirmed closed at 12:50, ~10 minutes before lock). Contests fill and close inside the final hour; treat any capture older than a few minutes as provisional.",
   "contests": [
     {
       "id": "w2-0",
@@ -99,18 +99,6 @@
       "minCashMultiple": 2.0,
       "topPrizeMultiple": 500.0,
       "structureNote": "Curve known: 1351 paid of 5882, min 2.0x, top 500.0x."
-    },
-    {
-      "id": "w2-8",
-      "name": "NFL $50K Blind Side [Single Entry]",
-      "entryFee": 27,
-      "totalPrizes": 50000,
-      "entered": 2109,
-      "maxEntries": 2159,
-      "maxEntriesPerUser": 1,
-      "structure": "gpp",
-      "window": "main",
-      "lockTime": "9/20 1:00p"
     },
     {
       "id": "w2-10",
