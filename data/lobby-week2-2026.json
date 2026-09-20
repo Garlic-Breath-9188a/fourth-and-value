@@ -50,7 +50,11 @@
    "maxEntriesPerUser": 1,
    "structure": "gpp",
    "window": "main",
-   "lockTime": "9/20 1:00p"
+   "lockTime": "9/20 1:00p",
+   "cashRate": 0.241,
+   "minCashMultiple": 1.5,
+   "topPrizeMultiple": 1250.0,
+   "structureNote": "Curve known: 4135 paid of 17100, min 1.5x, top 1250.0x."
   },
   {
    "id": "w2-4",
@@ -62,7 +66,11 @@
    "maxEntriesPerUser": 1,
    "structure": "gpp",
    "window": "main",
-   "lockTime": "9/20 1:00p"
+   "lockTime": "9/20 1:00p",
+   "cashRate": 0.2285,
+   "minCashMultiple": 2.0,
+   "topPrizeMultiple": 370.4,
+   "structureNote": "Curve known: 987 paid of 4319, min 2.0x, top 370.4x."
   },
   {
    "id": "w2-5",
@@ -98,7 +106,11 @@
    "maxEntriesPerUser": 10,
    "structure": "gpp",
    "window": "main",
-   "lockTime": "9/20 1:00p"
+   "lockTime": "9/20 1:00p",
+   "cashRate": 0.2297,
+   "minCashMultiple": 2.0,
+   "topPrizeMultiple": 500.0,
+   "structureNote": "Curve known: 1351 paid of 5882, min 2.0x, top 500.0x."
   },
   {
    "id": "w2-8",
@@ -366,9 +378,10 @@
    "structure": "lottery",
    "window": "main",
    "lockTime": "9/20 1:00p",
-   "structureNote": "Payout curve known: 3 paid of 200.",
+   "structureNote": "Curve known: 3 paid of 200, min 36.0x, top 90.0x.",
    "cashRate": 0.015,
-   "minCashMultiple": 36.0
+   "minCashMultiple": 36.0,
+   "topPrizeMultiple": 90.0
   },
   {
    "id": "w2-32",
@@ -404,10 +417,13 @@
    "entered": 0,
    "maxEntries": 100,
    "maxEntriesPerUser": 150,
-   "structure": "unknown",
+   "structure": "flat_gpp",
    "window": "main",
    "lockTime": "9/20 1:00p",
-   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
+   "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
+   "cashRate": 0.2,
+   "minCashMultiple": 1.8,
+   "topPrizeMultiple": 13.5
   },
   {
    "id": "w2-100p20-1",
@@ -417,10 +433,13 @@
    "entered": 1,
    "maxEntries": 100,
    "maxEntriesPerUser": 150,
-   "structure": "unknown",
+   "structure": "flat_gpp",
    "window": "main",
    "lockTime": "9/20 1:00p",
-   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
+   "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
+   "cashRate": 0.2,
+   "minCashMultiple": 1.8,
+   "topPrizeMultiple": 13.5
   },
   {
    "id": "w2-100p20-2",
@@ -430,10 +449,13 @@
    "entered": 1,
    "maxEntries": 100,
    "maxEntriesPerUser": 150,
-   "structure": "unknown",
+   "structure": "flat_gpp",
    "window": "main",
    "lockTime": "9/20 1:00p",
-   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
+   "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
+   "cashRate": 0.2,
+   "minCashMultiple": 1.8,
+   "topPrizeMultiple": 13.5
   },
   {
    "id": "w2-100p20-3",
@@ -443,10 +465,13 @@
    "entered": 2,
    "maxEntries": 100,
    "maxEntriesPerUser": 150,
-   "structure": "unknown",
+   "structure": "flat_gpp",
    "window": "main",
    "lockTime": "9/20 1:00p",
-   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
+   "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
+   "cashRate": 0.2,
+   "minCashMultiple": 1.8,
+   "topPrizeMultiple": 13.5
   },
   {
    "id": "w2-100p20-4",
@@ -456,10 +481,13 @@
    "entered": 2,
    "maxEntries": 100,
    "maxEntriesPerUser": 150,
-   "structure": "unknown",
+   "structure": "flat_gpp",
    "window": "main",
    "lockTime": "9/20 1:00p",
-   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
+   "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
+   "cashRate": 0.2,
+   "minCashMultiple": 1.8,
+   "topPrizeMultiple": 13.5
   },
   {
    "id": "w2-100p20-5",
@@ -469,10 +497,13 @@
    "entered": 2,
    "maxEntries": 100,
    "maxEntriesPerUser": 150,
-   "structure": "unknown",
+   "structure": "flat_gpp",
    "window": "main",
    "lockTime": "9/20 1:00p",
-   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
+   "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
+   "cashRate": 0.2,
+   "minCashMultiple": 1.8,
+   "topPrizeMultiple": 13.5
   },
   {
    "id": "w2-100p20-6",
@@ -482,10 +513,13 @@
    "entered": 2,
    "maxEntries": 100,
    "maxEntriesPerUser": 150,
-   "structure": "unknown",
+   "structure": "flat_gpp",
    "window": "main",
    "lockTime": "9/20 1:00p",
-   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
+   "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
+   "cashRate": 0.2,
+   "minCashMultiple": 1.8,
+   "topPrizeMultiple": 13.5
   },
   {
    "id": "w2-100p20-7",
@@ -495,10 +529,13 @@
    "entered": 1,
    "maxEntries": 100,
    "maxEntriesPerUser": 150,
-   "structure": "unknown",
+   "structure": "flat_gpp",
    "window": "main",
    "lockTime": "9/20 1:00p",
-   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
+   "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
+   "cashRate": 0.2,
+   "minCashMultiple": 1.8,
+   "topPrizeMultiple": 13.5
   },
   {
    "id": "w2-100p20-8",
@@ -508,10 +545,13 @@
    "entered": 3,
    "maxEntries": 100,
    "maxEntriesPerUser": 150,
-   "structure": "unknown",
+   "structure": "flat_gpp",
    "window": "main",
    "lockTime": "9/20 1:00p",
-   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
+   "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
+   "cashRate": 0.2,
+   "minCashMultiple": 1.8,
+   "topPrizeMultiple": 13.5
   },
   {
    "id": "w2-100p20-9",
@@ -521,10 +561,13 @@
    "entered": 3,
    "maxEntries": 100,
    "maxEntriesPerUser": 150,
-   "structure": "unknown",
+   "structure": "flat_gpp",
    "window": "main",
    "lockTime": "9/20 1:00p",
-   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
+   "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
+   "cashRate": 0.2,
+   "minCashMultiple": 1.8,
+   "topPrizeMultiple": 13.5
   },
   {
    "id": "w2-100p20-10",
@@ -534,10 +577,13 @@
    "entered": 2,
    "maxEntries": 100,
    "maxEntriesPerUser": 150,
-   "structure": "unknown",
+   "structure": "flat_gpp",
    "window": "main",
    "lockTime": "9/20 1:00p",
-   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
+   "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
+   "cashRate": 0.2,
+   "minCashMultiple": 1.8,
+   "topPrizeMultiple": 13.5
   },
   {
    "id": "w2-100p20-11",
@@ -547,10 +593,13 @@
    "entered": 4,
    "maxEntries": 100,
    "maxEntriesPerUser": 150,
-   "structure": "unknown",
+   "structure": "flat_gpp",
    "window": "main",
    "lockTime": "9/20 1:00p",
-   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
+   "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
+   "cashRate": 0.2,
+   "minCashMultiple": 1.8,
+   "topPrizeMultiple": 13.5
   },
   {
    "id": "w2-100p20-12",
@@ -560,10 +609,13 @@
    "entered": 7,
    "maxEntries": 100,
    "maxEntriesPerUser": 150,
-   "structure": "unknown",
+   "structure": "flat_gpp",
    "window": "main",
    "lockTime": "9/20 1:00p",
-   "structureNote": "Payout curve not known. Rake alone cannot tell a tournament from a double-up: the $20 50-50! on this same board is $20, $1,800 prizes, 100 max and 10.0% rake -- identical on every visible column -- and pays 50% of the field at 1.8x."
+   "structureNote": "Curve known: 20 paid of 100, min 1.8x, top 13.5x.",
+   "cashRate": 0.2,
+   "minCashMultiple": 1.8,
+   "topPrizeMultiple": 13.5
   },
   {
    "id": "w2-100p10-0",
@@ -593,6 +645,428 @@
   }
  ],
  "payouts": {
+  "NFL $50K 1st and 10 [10 Entry Max]": {
+   "entryFee": 10,
+   "maxEntries": 5882,
+   "tiers": [
+    {
+     "from": 1,
+     "to": 1,
+     "prize": 5000
+    },
+    {
+     "from": 2,
+     "to": 2,
+     "prize": 2500
+    },
+    {
+     "from": 3,
+     "to": 3,
+     "prize": 1500
+    },
+    {
+     "from": 4,
+     "to": 4,
+     "prize": 1000
+    },
+    {
+     "from": 5,
+     "to": 5,
+     "prize": 750
+    },
+    {
+     "from": 6,
+     "to": 7,
+     "prize": 600
+    },
+    {
+     "from": 8,
+     "to": 10,
+     "prize": 500
+    },
+    {
+     "from": 11,
+     "to": 13,
+     "prize": 400
+    },
+    {
+     "from": 14,
+     "to": 16,
+     "prize": 300
+    },
+    {
+     "from": 17,
+     "to": 20,
+     "prize": 250
+    },
+    {
+     "from": 21,
+     "to": 25,
+     "prize": 200
+    },
+    {
+     "from": 26,
+     "to": 30,
+     "prize": 150
+    },
+    {
+     "from": 31,
+     "to": 40,
+     "prize": 100
+    },
+    {
+     "from": 41,
+     "to": 50,
+     "prize": 75
+    },
+    {
+     "from": 51,
+     "to": 60,
+     "prize": 60
+    },
+    {
+     "from": 61,
+     "to": 80,
+     "prize": 50
+    },
+    {
+     "from": 81,
+     "to": 120,
+     "prize": 40
+    },
+    {
+     "from": 121,
+     "to": 220,
+     "prize": 30
+    },
+    {
+     "from": 221,
+     "to": 446,
+     "prize": 25
+    },
+    {
+     "from": 447,
+     "to": 1351,
+     "prize": 20
+    }
+   ],
+   "topPrizeMultiple": 500.0,
+   "cashRate": 0.2297,
+   "minCashMultiple": 2.0,
+   "paidPlaces": 1351,
+   "prizePool": 50000.0,
+   "rake": 0.1499,
+   "shape": "gpp"
+  },
+  "NFL $100K Blind Side [Single Entry]": {
+   "entryFee": 27,
+   "maxEntries": 4319,
+   "tiers": [
+    {
+     "from": 1,
+     "to": 1,
+     "prize": 10000
+    },
+    {
+     "from": 2,
+     "to": 2,
+     "prize": 5000
+    },
+    {
+     "from": 3,
+     "to": 3,
+     "prize": 2500
+    },
+    {
+     "from": 4,
+     "to": 4,
+     "prize": 2000
+    },
+    {
+     "from": 5,
+     "to": 5,
+     "prize": 1500
+    },
+    {
+     "from": 6,
+     "to": 7,
+     "prize": 1250
+    },
+    {
+     "from": 8,
+     "to": 10,
+     "prize": 1000
+    },
+    {
+     "from": 11,
+     "to": 13,
+     "prize": 750
+    },
+    {
+     "from": 14,
+     "to": 16,
+     "prize": 600
+    },
+    {
+     "from": 17,
+     "to": 20,
+     "prize": 500
+    },
+    {
+     "from": 21,
+     "to": 25,
+     "prize": 400
+    },
+    {
+     "from": 26,
+     "to": 30,
+     "prize": 300
+    },
+    {
+     "from": 31,
+     "to": 35,
+     "prize": 250
+    },
+    {
+     "from": 36,
+     "to": 45,
+     "prize": 200
+    },
+    {
+     "from": 46,
+     "to": 70,
+     "prize": 150
+    },
+    {
+     "from": 71,
+     "to": 137,
+     "prize": 100
+    },
+    {
+     "from": 138,
+     "to": 267,
+     "prize": 75
+    },
+    {
+     "from": 268,
+     "to": 537,
+     "prize": 60
+    },
+    {
+     "from": 538,
+     "to": 987,
+     "prize": 54
+    }
+   ],
+   "topPrizeMultiple": 370.4,
+   "cashRate": 0.2285,
+   "minCashMultiple": 2.0,
+   "paidPlaces": 987,
+   "prizePool": 100000.0,
+   "rake": 0.1425,
+   "shape": "gpp"
+  },
+  "NFL $175K Fair Catch [Single Entry]": {
+   "entryFee": 12,
+   "maxEntries": 17156,
+   "tiers": [
+    {
+     "from": 1,
+     "to": 1,
+     "prize": 15000
+    },
+    {
+     "from": 2,
+     "to": 2,
+     "prize": 10000
+    },
+    {
+     "from": 3,
+     "to": 3,
+     "prize": 7500
+    },
+    {
+     "from": 4,
+     "to": 4,
+     "prize": 5000
+    },
+    {
+     "from": 5,
+     "to": 5,
+     "prize": 4000
+    },
+    {
+     "from": 6,
+     "to": 6,
+     "prize": 3000
+    },
+    {
+     "from": 7,
+     "to": 8,
+     "prize": 2000
+    },
+    {
+     "from": 9,
+     "to": 10,
+     "prize": 1500
+    },
+    {
+     "from": 11,
+     "to": 15,
+     "prize": 1000
+    },
+    {
+     "from": 16,
+     "to": 20,
+     "prize": 700
+    },
+    {
+     "from": 21,
+     "to": 25,
+     "prize": 500
+    },
+    {
+     "from": 26,
+     "to": 30,
+     "prize": 400
+    },
+    {
+     "from": 31,
+     "to": 35,
+     "prize": 300
+    },
+    {
+     "from": 36,
+     "to": 45,
+     "prize": 200
+    },
+    {
+     "from": 46,
+     "to": 55,
+     "prize": 150
+    },
+    {
+     "from": 56,
+     "to": 75,
+     "prize": 125
+    },
+    {
+     "from": 76,
+     "to": 100,
+     "prize": 100
+    },
+    {
+     "from": 101,
+     "to": 150,
+     "prize": 75
+    },
+    {
+     "from": 151,
+     "to": 250,
+     "prize": 50
+    },
+    {
+     "from": 251,
+     "to": 450,
+     "prize": 40
+    },
+    {
+     "from": 451,
+     "to": 750,
+     "prize": 35
+    },
+    {
+     "from": 751,
+     "to": 1200,
+     "prize": 30
+    },
+    {
+     "from": 1201,
+     "to": 1900,
+     "prize": 25
+    },
+    {
+     "from": 1901,
+     "to": 2910,
+     "prize": 20
+    },
+    {
+     "from": 2911,
+     "to": 4135,
+     "prize": 18
+    }
+   ],
+   "topPrizeMultiple": 1250.0,
+   "cashRate": 0.241,
+   "minCashMultiple": 1.5,
+   "paidPlaces": 4135,
+   "prizePool": 175000.0,
+   "rake": 0.15,
+   "shape": "gpp"
+  },
+  "NFL $20 100-Player": {
+   "entryFee": 20,
+   "maxEntries": 100,
+   "tiers": [
+    {
+     "from": 1,
+     "to": 1,
+     "prize": 270
+    },
+    {
+     "from": 2,
+     "to": 2,
+     "prize": 216
+    },
+    {
+     "from": 3,
+     "to": 3,
+     "prize": 162
+    },
+    {
+     "from": 4,
+     "to": 4,
+     "prize": 144
+    },
+    {
+     "from": 5,
+     "to": 5,
+     "prize": 126
+    },
+    {
+     "from": 6,
+     "to": 6,
+     "prize": 108
+    },
+    {
+     "from": 7,
+     "to": 8,
+     "prize": 90
+    },
+    {
+     "from": 9,
+     "to": 10,
+     "prize": 72
+    },
+    {
+     "from": 11,
+     "to": 15,
+     "prize": 54
+    },
+    {
+     "from": 16,
+     "to": 20,
+     "prize": 36
+    }
+   ],
+   "topPrizeMultiple": 13.5,
+   "cashRate": 0.2,
+   "minCashMultiple": 1.8,
+   "paidPlaces": 20,
+   "prizePool": 1800.0,
+   "rake": 0.1,
+   "shape": "gpp"
+  },
   "NFL $20 50-50!": {
    "entryFee": 20,
    "maxEntries": 100,
@@ -603,6 +1077,7 @@
      "prize": 36
     }
    ],
+   "topPrizeMultiple": 1.8,
    "cashRate": 0.5,
    "minCashMultiple": 1.8,
    "paidPlaces": 50,
@@ -630,6 +1105,7 @@
      "prize": 720
     }
    ],
+   "topPrizeMultiple": 90.0,
    "cashRate": 0.015,
    "minCashMultiple": 36.0,
    "paidPlaces": 3,

@@ -36,12 +36,19 @@ refusing to guess when it is not is the whole point of `UNKNOWN`.
 from __future__ import annotations
 
 GPP = "gpp"
+FLAT_GPP = "flat_gpp"
 DOUBLE_UP = "double_up"
 LOTTERY = "lottery"
 UNKNOWN = "unknown"
 
+# Smallest top prize, as a multiple of the buy-in, worth entering a stacked
+# lineup into. Below this a tournament build is taking tournament variance for
+# a payoff that cannot repay it.
+MIN_TOP_MULTIPLE = 50
 
-def classify(cash_rate: float | None, min_cash_multiple: float | None) -> str:
+
+def classify(cash_rate: float | None, min_cash_multiple: float | None,
+             top_multiple: float | None = None) -> str:
     """
     What kind of contest is this?
 
@@ -57,6 +64,21 @@ def classify(cash_rate: float | None, min_cash_multiple: float | None) -> str:
     if cash_rate <= 0.10 or min_cash_multiple >= 10:
         return LOTTERY
     if 0.10 < cash_rate <= 0.35:
+        # Cash rate and minimum cash say "tournament" for all of these. They do
+        # not say what there is to WIN, and that turned out to be the dimension
+        # that matters most here. On one Week 2 board:
+        #
+        #   NFL $175K Fair Catch    24.1% paid, 1.5x min, top prize  1,250x
+        #   NFL $50K 1st and 10     23.0% paid, 2.0x min, top prize    500x
+        #   NFL $100K Blind Side    22.9% paid, 2.0x min, top prize    370x
+        #   NFL $20 100-Player      20.0% paid, 1.8x min, top prize     14x
+        #
+        # The last one is a tournament by every other measure and is not one in
+        # any sense this project cares about. Stacking exists to buy the upper
+        # tail; in a contest topping out at 14x the buy-in there is no tail to
+        # buy, and the variance is being taken for nothing.
+        if top_multiple is not None and top_multiple < MIN_TOP_MULTIPLE:
+            return FLAT_GPP
         return GPP
     return UNKNOWN
 
@@ -75,13 +97,15 @@ def from_tiers(entry_fee: float, max_entries: int, tiers: list[dict]) -> dict:
     collected = entry_fee * max_entries
     cash_rate = paid / max_entries
     min_multiple = min(float(t["prize"]) for t in tiers) / entry_fee
+    top_multiple = max(float(t["prize"]) for t in tiers) / entry_fee
     return {
         "cashRate": round(cash_rate, 4),
         "minCashMultiple": round(min_multiple, 2),
+        "topPrizeMultiple": round(top_multiple, 1),
         "paidPlaces": paid,
         "prizePool": pool,
         "rake": round((collected - pool) / collected, 4) if collected else None,
-        "shape": classify(cash_rate, min_multiple),
+        "shape": classify(cash_rate, min_multiple, top_multiple),
     }
 
 
@@ -89,10 +113,14 @@ def playable_shape(shape: str) -> bool:
     """
     Should a tournament build be entered here?
 
-    Only a GPP. A double-up pays for clearing the median, which is the opposite
-    of what a stacked, high-variance lineup is built to do. A lottery paying
-    three of two hundred is not a tournament in any useful sense -- the project
-    measured booster-shaped curves as far worse than they look on rake.
-    UNKNOWN is refused, because the alternative is guessing.
+    Only a GPP with a top prize worth chasing.
+
+    A double-up pays for clearing the median, which is the opposite of what a
+    stacked, high-variance lineup is built to do. A lottery paying three of two
+    hundred is not a tournament in any useful sense. A FLAT_GPP has the right
+    payout shape and nothing at the top -- the $20 100-Player pays 20% of the
+    field but tops out at 14x the buy-in, so the tail stacking buys is worth
+    almost nothing there. UNKNOWN is refused, because the alternative is
+    guessing, and guessing is what put a double-up at the head of the plan.
     """
     return shape == GPP

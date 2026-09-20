@@ -617,6 +617,36 @@ class PayoutShape(unittest.TestCase):
         # The point: identical on every column the lobby shows.
         self.assertEqual(du["rake"], lot["rake"])
 
+    def test_a_flat_tournament_is_not_playable_however_good_its_rake(self):
+        # The $20 100-Player: 20% of the field paid, 1.8x minimum cash, 10.0%
+        # rake -- the best rake on the Week 2 board. Cash rate and min cash both
+        # say tournament. Its top prize is 13.5x the buy-in, so the upper tail a
+        # stacked lineup exists to buy is worth almost nothing.
+        flat = shape.from_tiers(20, 100, [
+            {"from": 1, "to": 1, "prize": 270}, {"from": 2, "to": 2, "prize": 216},
+            {"from": 3, "to": 3, "prize": 162}, {"from": 4, "to": 4, "prize": 144},
+            {"from": 5, "to": 5, "prize": 126}, {"from": 6, "to": 6, "prize": 108},
+            {"from": 7, "to": 8, "prize": 90}, {"from": 9, "to": 10, "prize": 72},
+            {"from": 11, "to": 15, "prize": 54}, {"from": 16, "to": 20, "prize": 36}])
+        self.assertEqual(flat["shape"], shape.FLAT_GPP)
+        self.assertAlmostEqual(flat["cashRate"], 0.20)
+        self.assertLess(flat["topPrizeMultiple"], shape.MIN_TOP_MULTIPLE)
+        self.assertFalse(shape.playable_shape(flat["shape"]))
+
+    def test_real_curves_reconcile_to_their_advertised_pools(self):
+        # Every transcribed curve must sum to the prize pool DraftKings
+        # advertises. A curve that does not is a transcription error, and it
+        # would otherwise produce confident, wrong rake and cash-rate figures.
+        import json as _json
+        from pathlib import Path as _Path
+        f = _Path("data/payouts-week2.json")
+        if not f.exists():
+            self.skipTest("no payout curves shipped")
+        for name, c in _json.loads(f.read_text()).items():
+            r = shape.from_tiers(c["entryFee"], c["maxEntries"], c["tiers"])
+            self.assertAlmostEqual(r["prizePool"], c["prizePool"], places=2,
+                                   msg=f"{name} curve does not sum to its pool")
+
     def test_a_standard_gpp_classifies_as_one(self):
         gpp = shape.from_tiers(27, 4319,
                                [{"from": 1, "to": 1, "prize": 10000},
