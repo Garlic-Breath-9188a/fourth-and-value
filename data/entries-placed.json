@@ -1,8 +1,8 @@
 {
-  "source": "DK Contest Details/Week 2/contests entered/ \u2014 five screenshots of the DraftKings lineup screen, 2026-09-20 11:55 to 12:25",
+  "source": "DK Contest Details/Week 2/contests entered/ \u2014 six screenshots of the DraftKings lineup screen, 2026-09-20 11:55 to 12:29",
   "transcribed": "2026-09-20",
   "slateLock": "2026-09-20T13:00:00-04:00",
-  "note": "HAND-TRANSCRIBED from the lineup screens, not exported. Each roster sums to exactly $50,000 against the $0 remaining salary both screens show. Both lineups were built by hand and differ from the generated board: the Blind Side entry shares 1 of 9 players with the board's best lineup and the Millionaire entry was built independently. Winnings unknown at transcription; these contests lock 2026-09-20 1:00pm ET. The $175K Fair Catch roster was captured last, at 12:25, from the UPDATE ENTRY screen; its fee had been counted before its lineup was known and the file said so at the time. A.J. Brown is a NEW ENGLAND receiver in the 2026 file and is on IR, which is the stated reason for Hunter Henry in the Blind Side entry \u2014 not the Philadelphia player of the same name.",
+  "note": "HAND-TRANSCRIBED from the lineup screens, not exported. Each roster sums to exactly $50,000 against the $0 remaining salary both screens show. Both lineups were built by hand and differ from the generated board: the Blind Side entry shares 1 of 9 players with the board's best lineup and the Millionaire entry was built independently. Winnings unknown at transcription; these contests lock 2026-09-20 1:00pm ET. The $175K Fair Catch roster was captured last, at 12:25, from the UPDATE ENTRY screen; its fee had been counted before its lineup was known and the file said so at the time. A.J. Brown is a NEW ENGLAND receiver in the 2026 file and is on IR, which is the stated reason for Hunter Henry in the Blind Side entry \u2014 not the Philadelphia player of the same name. Entry 6 is a SECOND lineup in the $15K Hail Mary, which allows 150 per user. 'A. Williams' there is Antonio Williams, WR WAS $4,400 \u2014 matched on salary and team, not on the initial, since Javonte Williams RB DAL is on the same roster.",
   "contests": [
     {
       "id": "blindside-100k",
@@ -53,7 +53,7 @@
       "name": "NFL $15K Hail Mary",
       "entryFee": 12,
       "totalPrizes": 15000,
-      "entered": 1246,
+      "entered": 1377,
       "maxEntries": 1470,
       "entriesPerUser": 150,
       "liveIn": "Sun 1:00pm"
@@ -364,8 +364,69 @@
           "salary": 3600
         }
       ]
+    },
+    {
+      "entry": 6,
+      "contestId": "hailmary-15k",
+      "remainingSalary": 0,
+      "roster": [
+        {
+          "slot": "QB",
+          "name": "D. Prescott",
+          "team": "DAL",
+          "salary": 6400
+        },
+        {
+          "slot": "RB",
+          "name": "A. Jones Sr.",
+          "team": "MIN",
+          "salary": 5100
+        },
+        {
+          "slot": "RB",
+          "name": "T. Etienne Jr.",
+          "team": "NO",
+          "salary": 6000
+        },
+        {
+          "slot": "WR",
+          "name": "C. Lamb",
+          "team": "DAL",
+          "salary": 7300
+        },
+        {
+          "slot": "WR",
+          "name": "A. Williams",
+          "team": "WAS",
+          "salary": 4400
+        },
+        {
+          "slot": "WR",
+          "name": "G. Pickens",
+          "team": "DAL",
+          "salary": 6300
+        },
+        {
+          "slot": "TE",
+          "name": "G. Kittle",
+          "team": "SF",
+          "salary": 4600
+        },
+        {
+          "slot": "FLEX",
+          "name": "J. Williams",
+          "team": "DAL",
+          "salary": 6400
+        },
+        {
+          "slot": "DST",
+          "name": "Seahawks",
+          "team": "SEA",
+          "salary": 3500
+        }
+      ]
     }
   ],
-  "staked": 86,
-  "stakedIncludingUnrecorded": 86
+  "staked": 98,
+  "stakedIncludingUnrecorded": 98
 }
