@@ -51,20 +51,32 @@ not make it a profit.
 
 ## What happened when it was actually played
 
-Week 1 of 2026 was the first slate this tool advised on and then saw graded. Ten
-entries, $105 staked, nine of them scored.
+Two slates of 2026 have been played and graded, from DraftKings' own contest
+entry history export rather than transcribed screens.
 
-| | |
-|---|---|
-| Mean finishing percentile | **61.3%** (95% CI 42.6–79.9) |
-| Cashed | 2 of 9, against 23.1% of places paid |
-| Return | $90 on $100 staked, **−10%** |
+| | Week 1 | Week 2 | both |
+|---|---|---|---|
+| Entries | 10 | 6 | 16 |
+| Staked | $105 | $98 | $203 |
+| Returned | $90 | **$0** | $90 |
+| ROI | −14.3% | **−100%** | **−55.7%** |
+| Cashed | 2 of 10 | **0 of 6** | 2 of 16 |
+| Mean finishing percentile | 60.4% | 63.4% | **61.5%** (95% CI 48.5–74.6) |
 
-A player with no edge finishes at the 50th percentile, so 61.3% reads badly —
-and the interval is 37 points wide, which is what nine entries on one slate buys
-you. It is not evidence of anything. It is recorded because it is the account
-rather than a backtest, and because this project reports its bad numbers in the
-same place as its good ones.
+A player with no edge finishes at the 50th percentile and cashes about 23% of
+the time, so both weeks read badly. The interval still spans 50, which is what
+sixteen entries buys you — it is not evidence of an anti-edge. It is recorded
+because it is the account rather than a backtest, and because this project
+reports its bad numbers in the same place as its good ones.
+
+**Week 2 came with an uncomfortable finding.** Every one of those six lineups was
+built by hand on DraftKings' board rather than taken from this app, and a bug
+meant the app's own board was not using the blended projection either. Scored on
+actual points, the fixed board's best lineup beat the best hand-built one
+156.4 to 130.1, and its *worst* lineup beat four of the six. One slate, so not a
+measurement — but the direction is not flattering to either the bug or the
+hand-building. One entry also lost Saquon Barkley to a first-series injury,
+which no model could have carried.
 
 One detail is worth more than the average: the two entries that cashed were the
 two largest stakes, in two of the lowest-rake contests entered. The best contest
