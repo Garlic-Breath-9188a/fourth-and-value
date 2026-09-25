@@ -682,5 +682,211 @@
         "prize": 25
       }
     ]
+  },
+  "NFL $200K Red Zone [$25K to 1st, Single Entry]": {
+    "cashRate": 0.2198,
+    "minCashMultiple": 1.5,
+    "topPrizeMultiple": 500.0,
+    "paidPlaces": 999,
+    "prizePool": 200000.0,
+    "rake": 0.1199,
+    "shape": "gpp",
+    "entryFee": 50,
+    "maxEntries": 4545,
+    "tiers": [
+      {
+        "from": 1,
+        "to": 1,
+        "prize": 25000
+      },
+      {
+        "from": 2,
+        "to": 2,
+        "prize": 15000
+      },
+      {
+        "from": 3,
+        "to": 3,
+        "prize": 10000
+      },
+      {
+        "from": 4,
+        "to": 4,
+        "prize": 7500
+      },
+      {
+        "from": 5,
+        "to": 5,
+        "prize": 5000
+      },
+      {
+        "from": 6,
+        "to": 6,
+        "prize": 3000
+      },
+      {
+        "from": 7,
+        "to": 8,
+        "prize": 2000
+      },
+      {
+        "from": 9,
+        "to": 10,
+        "prize": 1500
+      },
+      {
+        "from": 11,
+        "to": 15,
+        "prize": 1000
+      },
+      {
+        "from": 16,
+        "to": 25,
+        "prize": 750
+      },
+      {
+        "from": 26,
+        "to": 40,
+        "prize": 500
+      },
+      {
+        "from": 41,
+        "to": 60,
+        "prize": 350
+      },
+      {
+        "from": 61,
+        "to": 90,
+        "prize": 250
+      },
+      {
+        "from": 91,
+        "to": 140,
+        "prize": 200
+      },
+      {
+        "from": 141,
+        "to": 235,
+        "prize": 150
+      },
+      {
+        "from": 236,
+        "to": 370,
+        "prize": 120
+      },
+      {
+        "from": 371,
+        "to": 585,
+        "prize": 100
+      },
+      {
+        "from": 586,
+        "to": 999,
+        "prize": 75
+      }
+    ]
+  },
+  "NFL $100K Red Zone [Single Entry]": {
+    "cashRate": 0.2262,
+    "minCashMultiple": 2.0,
+    "topPrizeMultiple": 200.0,
+    "paidPlaces": 514,
+    "prizePool": 100000.0,
+    "rake": 0.1197,
+    "shape": "gpp",
+    "entryFee": 50,
+    "maxEntries": 2272,
+    "tiers": [
+      {
+        "from": 1,
+        "to": 1,
+        "prize": 10000
+      },
+      {
+        "from": 2,
+        "to": 2,
+        "prize": 5000
+      },
+      {
+        "from": 3,
+        "to": 3,
+        "prize": 3000
+      },
+      {
+        "from": 4,
+        "to": 4,
+        "prize": 2000
+      },
+      {
+        "from": 5,
+        "to": 5,
+        "prize": 1500
+      },
+      {
+        "from": 6,
+        "to": 7,
+        "prize": 1250
+      },
+      {
+        "from": 8,
+        "to": 10,
+        "prize": 1000
+      },
+      {
+        "from": 11,
+        "to": 13,
+        "prize": 750
+      },
+      {
+        "from": 14,
+        "to": 16,
+        "prize": 600
+      },
+      {
+        "from": 17,
+        "to": 20,
+        "prize": 500
+      },
+      {
+        "from": 21,
+        "to": 25,
+        "prize": 450
+      },
+      {
+        "from": 26,
+        "to": 30,
+        "prize": 400
+      },
+      {
+        "from": 31,
+        "to": 35,
+        "prize": 350
+      },
+      {
+        "from": 36,
+        "to": 45,
+        "prize": 300
+      },
+      {
+        "from": 46,
+        "to": 65,
+        "prize": 250
+      },
+      {
+        "from": 66,
+        "to": 105,
+        "prize": 200
+      },
+      {
+        "from": 106,
+        "to": 186,
+        "prize": 150
+      },
+      {
+        "from": 187,
+        "to": 514,
+        "prize": 100
+      }
+    ]
   }
 }

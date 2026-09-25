@@ -2,7 +2,7 @@
   "captured": "2026-09-25T11:11",
   "week": 3,
   "source": "DraftKings lobby, hand-transcribed from 3 screenshots, Classic at $50 and under",
-  "note": "14 contests, all on the Sunday 9/27 main slate (13 games, 1:00-4:25pm, no primetime). Entry fees above $50 are omitted: the budget cannot reach them. Satellites, Tiers, 50-50s and the 3/5-Player contests are omitted as well -- the first pay seats not cash, the rest are not large-field tournaments. STRUCTURE CARRIED FORWARD for the weekly products whose payout curves were verified in Week 2 at the same fee -- Fair Catch, Blind Side, Screen Pass, 1st and 10, Hail Mary, Millionaire. RED ZONE, THREE-POINT STANCE and 4TH AND 10 are new and marked unknown: they have no captured grid, and the three Red Zone contests are the LOWEST-RAKE on the board at 12.0% against 14.2-15.0% for everything else, so their grids are the single most valuable capture this week. Entry counts are a snapshot ~50 hours before lock and will move.",
+  "note": "14 contests, all on the Sunday 9/27 main slate (13 games, 1:00-4:25pm, no primetime). Entry fees above $50 are omitted: the budget cannot reach them. Satellites, Tiers, 50-50s and the 3/5-Player contests are omitted as well -- the first pay seats not cash, the rest are not large-field tournaments. STRUCTURE CARRIED FORWARD for the weekly products whose payout curves were verified in Week 2 at the same fee -- Fair Catch, Blind Side, Screen Pass, 1st and 10, Hail Mary, Millionaire. RED ZONE grids were captured on 2026-09-25 for the $200K and $100K and both reconcile exactly; the $50K carries their shape, flagged in structureSource. Red Zone is the LOWEST-RAKE product on the board at 12.0% against 14.2-15.0% for everything else. THREE-POINT STANCE and 4TH AND 10 remain unknown. Entry counts are a snapshot ~50 hours before lock and will move.",
   "contests": [
     {
       "id": "w3-mill",
@@ -24,9 +24,10 @@
       "entered": 619,
       "maxEntries": 4545,
       "maxEntriesPerUser": 1,
-      "structure": "unknown",
+      "structure": "gpp",
       "window": "main",
-      "lockTime": "9/27 1:00p"
+      "lockTime": "9/27 1:00p",
+      "structureSource": "payout grid captured 2026-09-25 and reconciled to the advertised pool"
     },
     {
       "id": "w3-fc175",
@@ -72,9 +73,10 @@
       "entered": 270,
       "maxEntries": 2272,
       "maxEntriesPerUser": 1,
-      "structure": "unknown",
+      "structure": "gpp",
       "window": "main",
-      "lockTime": "9/27 1:00p"
+      "lockTime": "9/27 1:00p",
+      "structureSource": "payout grid captured 2026-09-25 and reconciled to the advertised pool"
     },
     {
       "id": "w3-sp75",
@@ -120,9 +122,10 @@
       "entered": 211,
       "maxEntries": 1136,
       "maxEntriesPerUser": 1,
-      "structure": "unknown",
+      "structure": "gpp",
       "window": "main",
-      "lockTime": "9/27 1:00p"
+      "lockTime": "9/27 1:00p",
+      "structureSource": "carried from the $100K and $200K Red Zone grids -- same product, same $50 fee, same 12.0% rake; its own grid was not captured"
     },
     {
       "id": "w3-fc50",
