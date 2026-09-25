@@ -3,7 +3,13 @@
 A DraftKings NFL Classic lineup builder for large-field tournaments, and an
 honest record of how well it works.
 
-**[Open the app](https://share.streamlit.io)** · built with Streamlit
+**[Open the app](https://fourth-and-value.streamlit.app)** · built with Streamlit
+
+<!-- The link above is the deployed instance. It used to point at
+     https://share.streamlit.io, which is Streamlit's own homepage and not this app --
+     so there was no way to reach the deployment from the repo, or to check that a push
+     had actually gone live. Community Cloud also serves the auto-generated
+     fourth-and-value-5i4r8soqyjhqydsgwycm9z.streamlit.app; both resolve here. -->
 
 ## What it does
 
