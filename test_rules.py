@@ -172,12 +172,21 @@ class MustPlay(unittest.TestCase):
     control that should have stopped it was switched off too.
     """
 
-    def _qb(self, pool, surname):
-        return next(p for p in pool if surname in p["name"] and p["position"] == "QB")
+    def _qb(self, pool, _unused=None):
+        """
+        A quarterback from THIS slate, picked by price rather than by name.
+
+        This used to look up "Hurts", which fails the moment Philadelphia is not
+        on the slate -- it was broken by the Week 3 export. A test that names a
+        player is pinned to one week and fails for a reason that has nothing to
+        do with what it is testing. Pick the most expensive quarterback: there is
+        always exactly one, whatever the week.
+        """
+        return max((p for p in pool if p["position"] == "QB"), key=lambda p: p["salary"])
 
     def test_must_play_qb_appears_once_at_a_tight_cap(self):
         pool, _ = live_pool()
-        qb = self._qb(pool, "Hurts")
+        qb = self._qb(pool)
         lineups = build_portfolio(pool, 10, seed=1, attempts=8000,
                                   qb_exposure=10, must_play={qb["id"]})
         holding = [l for l in lineups if any(p["id"] == qb["id"] for p in l)]
@@ -185,7 +194,7 @@ class MustPlay(unittest.TestCase):
 
     def test_exposure_cap_still_binds_with_a_must_play(self):
         pool, _ = live_pool()
-        qb = self._qb(pool, "Hurts")
+        qb = self._qb(pool)
         lineups = build_portfolio(pool, 10, seed=1, attempts=8000,
                                   qb_exposure=10, must_play={qb["id"]})
         starters = [next(p for p in l if p["position"] == "QB")["id"] for l in lineups]
@@ -203,7 +212,7 @@ class MustPlay(unittest.TestCase):
 
     def test_several_must_plays_all_land(self):
         pool, _ = live_pool()
-        picks = {self._qb(pool, "Hurts")["id"]}
+        picks = {self._qb(pool)["id"]}
         for pos in ("RB", "TE"):
             picks.add(max((p for p in pool if p["position"] == pos),
                           key=lambda p: p["projection"])["id"])

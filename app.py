@@ -177,7 +177,20 @@ def load_usage(version: str):
 
 @st.cache_data(show_spinner=False)
 def load_lobby(version: str):
-    return json.loads((DATA / "lobby-week2-2026.json").read_text())
+    """
+    The most recent lobby transcription on disk.
+
+    Chosen by the week number in the filename rather than hardcoded, because a
+    hardcoded `lobby-week2-2026.json` means every new slate needs a code edit to
+    go live -- and the failure is silent: the app keeps serving last week's
+    contests against this week's players, which looks like a data problem and is
+    not one. Older files stay for the record.
+    """
+    files = sorted(DATA.glob("lobby-week*-*.json"),
+                   key=lambda f: int(f.stem.split("-")[1].replace("week", "")))
+    if not files:
+        return {"contests": [], "note": "no lobby file on disk"}
+    return json.loads(files[-1].read_text())
 
 
 @st.cache_data(ttl=21600, show_spinner="Checking the injury wire…")
@@ -950,7 +963,7 @@ with tab_entry:
         st.error(
             f"**This contest board is from {_captured('contests')} and the slate is from "
             f"{_captured('slate')}.** The tournaments below are last week's and cannot be "
-            "entered. Transcribe the current lobby into `data/lobby-week1-2026.json` before "
+            "entered. Transcribe the current lobby into `data/lobby-week<N>-2026.json` before "
             "using this plan.", icon="⚠️")
     # ---- Scored on what was measured, not on rake alone ---------------------
     st.markdown("### Best contests for your budget")

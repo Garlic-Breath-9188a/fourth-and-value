@@ -1,16 +1,16 @@
 {
   "_comment": "When each shipped data file was actually captured from its source. Recorded explicitly because a file's modification time resets whenever it is copied, which made the app report the day it was deployed as the day the slate was pulled. UPDATE THESE WHEN YOU REFRESH A FILE -- the header showed Week 1 dates against a Week 2 slate because this was forgotten once.",
   "slate": {
-    "captured": "2026-09-19",
-    "week": 2,
-    "source": "DraftKings salary export, Week 2 2026",
-    "note": "670 players, 13 games, all Sunday 9/20 1:00-4:25pm -- one clean main slate with no primetime to filter. Statuses live at the pull: 578 active, 60 IR, 21 out, 9 questionable, 2 doubtful."
+    "captured": "2026-09-25",
+    "week": 3,
+    "source": "DraftKings salary export, Week 3 2026",
+    "note": "671 players, 13 games, all Sunday 9/27 1:00-4:25pm \u2014 one clean main slate with no primetime to filter. Statuses at the pull: 557 active, 62 IR, 15 out, 37 questionable."
   },
   "contests": {
-    "captured": "2026-09-20",
-    "week": 2,
-    "source": "DraftKings lobby, hand-transcribed; refreshed 11:41 AM from the open-contest screens",
-    "note": "47 contests, 31 on the main slate, ~80 minutes before the 1:00pm lock. $75K Fair Catch, $50K Fair Catch and $20K Screen Pass had CLOSED since the first capture and are removed. Entry counts are a snapshot and move hard. Payout curves now verified for $100K Blind Side, $50K Blind Side and $75K Screen Pass \u2014 each reconciles to its advertised pool and place count exactly."
+    "captured": "2026-09-25",
+    "week": 3,
+    "source": "DraftKings lobby, hand-transcribed from 3 screenshots, Classic at $50 and under",
+    "note": "14 contests. The three Red Zone single-entries are the lowest-rake on the board at 12.0% but have no payout grid, so they are unknown and unplayable until one is captured."
   },
   "variance": {
     "captured": "2026-09-02",
@@ -28,9 +28,9 @@
     "note": "178 players matched to the slate. Not used by the projection -- forward validation only, because no historical Kalshi data exists to backtest against."
   },
   "usage": {
-    "captured": "2026-09-20",
-    "week": 2,
+    "captured": "2026-09-25",
+    "week": 3,
     "source": "nflverse snap_counts + stats_player_week, 2026",
-    "note": "390 players. Last game's snap share and touches -- the measured mispricing signal. Week 1 is complete for all 32 teams; week 2 covers only the Thursday game. Not used by the projection: it feeds the mispricing board only."
+    "note": "431 players. Last game's snap share and touches. 373 players' latest game is week 2; 25 are week 3 (Thursday night, not on this slate); 33 are still week 1 and are therefore two weeks stale \u2014 `games` and `week` are published per player so that is visible rather than hidden."
   }
 }
