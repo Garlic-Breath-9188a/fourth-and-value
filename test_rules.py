@@ -650,7 +650,7 @@ class PayoutShape(unittest.TestCase):
         # would otherwise produce confident, wrong rake and cash-rate figures.
         import json as _json
         from pathlib import Path as _Path
-        f = _Path("data/payouts-week2.json")
+        f = _Path("data/payouts.json")
         if not f.exists():
             self.skipTest("no payout curves shipped")
         for name, c in _json.loads(f.read_text()).items():

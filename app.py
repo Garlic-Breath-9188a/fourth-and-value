@@ -7,7 +7,7 @@ measured constant is in fv/rules.py next to the result that set it.
 from __future__ import annotations
 import hashlib
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import pandas as pd
@@ -291,8 +291,26 @@ with st.sidebar:
     # The week is inferred from the slate date, because the salary export does
     # not carry it. Editable, since a wrong week silently changes every
     # projection and that should be visible rather than buried.
-    season_start = datetime(slate.locks_at.year, 9, 1, tzinfo=slate.locks_at.tzinfo)
-    guessed = max(1, min(18, ((slate.locks_at - season_start).days // 7) + 1))
+    # The week comes from the manifest, which is written when the slate is
+    # captured and therefore KNOWS it. The old heuristic counted weeks from
+    # September 1st and was one too high EVERY week of the season -- 9/13 read
+    # as week 2, 9/20 as week 3, 9/27 as week 4 -- because the season does not
+    # start on the 1st. That is not a cosmetic error: at week 2 it put the blend
+    # at 50% this season instead of 25%, which is half of the correction the
+    # blend exists to make, in the direction of trusting one game too much.
+    #
+    # The date arithmetic survives only as a fallback for a board captured
+    # without a week, and is anchored on the slate's own first Sunday rather
+    # than on the calendar month.
+    manifest_week = _manifest("slate").get("week")
+    if manifest_week:
+        guessed = int(manifest_week)
+    else:
+        first_sunday = datetime(slate.locks_at.year, 9, 1, tzinfo=slate.locks_at.tzinfo)
+        while first_sunday.weekday() != 6:                    # 6 = Sunday
+            first_sunday += timedelta(days=1)
+        first_sunday += timedelta(days=7)                     # week 1 is the SECOND Sunday
+        guessed = max(1, min(18, ((slate.locks_at - first_sunday).days // 7) + 1))
     nfl_week = st.number_input(
         "NFL week", 1, 18, int(guessed), key="nfl_week",
         help="Sets how much of the projection comes from this season rather than "

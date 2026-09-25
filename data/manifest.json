@@ -23,9 +23,10 @@
     "note": "578 players. Flat 2025 average, blended against the in-season average at n/(n+3) so a single Week 1 game cannot carry a projection."
   },
   "kalshi": {
-    "captured": "2026-09-20",
+    "captured": "2026-09-25",
+    "week": 3,
     "source": "Kalshi public read API, player prop ladders",
-    "note": "178 players matched to the slate. Not used by the projection -- forward validation only, because no historical Kalshi data exists to backtest against."
+    "note": "150 of 671 DK players matched exactly. Not used by the projection -- forward validation only, because no historical Kalshi data exists to backtest against. Passing-TD and anytime-TD markets returned nothing at this capture."
   },
   "usage": {
     "captured": "2026-09-25",
