@@ -114,8 +114,17 @@ def score(c: dict) -> Scored | None:
     return Scored(contest=c, score=round(total, 4), rake=r, reasons=reasons)
 
 
+#: No single entry may take more than this share of the week's budget.
+#: The entry planner once put $27 of a $40 budget on one seat, which is how a
+#: week ends up riding on a single lineup. Quality-first selection walks
+#: straight back into it -- the best contest on a board is often the dearest --
+#: so the cap is applied to the SELECTION, not bolted on afterwards.
+MAX_SEAT_SHARE = 0.5
+
+
 def build(contests: list[dict], budget: float, lineups: int,
-          window: str = "main") -> tuple[list[dict], list[str]]:
+          window: str = "main",
+          max_seat_share: float = MAX_SEAT_SHARE) -> tuple[list[dict], list[str]]:
     """
     Pick contests for a budget, best first, one lineup per entry.
 
@@ -124,13 +133,28 @@ def build(contests: list[dict], budget: float, lineups: int,
     curve; the project measured that portfolio diversity is load-bearing for
     best-of-N, and the same argument applies across contests.
     """
-    pool = [s for s in (score(c) for c in contests
-                        if c.get("window") == window) if s]
+    # Boards captured before the window field existed have no such marking, so
+    # the filter is skipped rather than silently emptying the board -- the same
+    # rule `entry.playable` follows, and a test pins it.
+    has_windows = any("window" in c for c in contests)
+    eligible = [c for c in contests if not has_windows or c.get("window") == window]
+
+    seat_cap = budget * max_seat_share
+    affordable = [c for c in eligible if c["entryFee"] <= seat_cap]
+    capped = len(eligible) - len(affordable)
+    # If the cap leaves nothing, the budget is smaller than one good seat. Fall
+    # back to the cheapest single entry rather than reporting an empty board.
+    pool = [s for s in (score(c) for c in (affordable or eligible)) if s]
     pool.sort(key=lambda s: -s.score)
     if not pool:
         return [], ["No contest on this slate has a known, playable payout shape."]
+    notes_head = []
+    if capped:
+        notes_head.append(
+            f"{capped} contest(s) cost more than ${seat_cap:,.0f}, half the budget, and were "
+            f"skipped so one seat cannot carry the week.")
 
-    placed, notes = [], []
+    placed, notes = [], list(notes_head)
     spent, used = 0.0, {}
     # Pass one: the best contests, one entry each.
     for s in pool:

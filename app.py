@@ -23,6 +23,7 @@ from fv.entry import plan, rake_pct, playable
 from fv import blend as blend_mod
 from fv import select as select_mod
 from fv import mispricing as mispricing_mod
+from fv import kalshi as kalshi_mod
 
 DATA = Path(__file__).resolve().parent / "data"
 
@@ -751,6 +752,77 @@ expected.
                        "keep it.")
 
 with tab_pool:
+    # ---- What the Kalshi prop markets imply, and what it changes: NOTHING ----
+    # Asked for directly. The honest headline goes first: no salary, projection,
+    # ceiling or lineup on this page is touched by any of it. The panel exists so
+    # the signal can be judged before it is trusted, which is the order this
+    # project works in.
+    _kalshi_props = load_json(DATA / "kalshi-props.json")
+    _kjoined = kalshi_mod.join_to_pool(pool, _kalshi_props, blend_mod.key)
+    _khave = [r for r in _kjoined if r["kalshi_points"] is not None]
+    KM = kalshi_mod.MEASURED
+
+    st.markdown("### What the betting markets imply")
+    if not _khave:
+        st.caption("No Kalshi ladders matched this slate.")
+    else:
+        st.warning(
+            f"**These numbers change nothing.** No projection, ceiling, salary or lineup on "
+            f"this page uses them. Kalshi is shown so it can be judged, not applied — "
+            f"the project standard is that nothing becomes a default until it shows held-out "
+            f"value, and it has two weeks of evidence, not a season.", icon="ℹ️")
+        st.caption(
+            f"**Kalshi totals are PARTIAL.** The ladders price yards and receptions; the "
+            f"touchdown markets returned no players, and a touchdown is 4 DK points for a pass "
+            f"and 6 for a rush or catch. A Kalshi number will read low against a projection "
+            f"always, and that gap is a missing term rather than a disagreement. "
+            f"{len(_khave)} of {len(pool)} players have a market.")
+
+        _kdf = pd.DataFrame([{
+            "Pos": r["position"], "Player": r["name"], "Team": r["team"],
+            "Salary": r["salary"],
+            "Our proj": round(r["projection"], 1),
+            "Kalshi (no TD)": round(r["kalshi_points"], 1),
+            "Gap": round(r["projection"] - r["kalshi_points"], 1),
+            "Priced": ", ".join(x.replace("_", " ") for x in r["kalshi_covered"]),
+            "Rungs": r["kalshi_rungs"],
+        } for r in sorted(_khave, key=lambda r: -(r["projection"] - r["kalshi_points"]))])
+
+        st.markdown("**Where our projection is highest above the market** — "
+                    "the top of this list is where we are most optimistic relative to people "
+                    "with money on it, though part of every gap is the missing touchdown.")
+        st.dataframe(_kdf.head(15), width="stretch", hide_index=True,
+                     column_config={"Salary": st.column_config.NumberColumn("Salary", format="$%d")})
+        st.markdown("**Where the market is above our projection** — "
+                    "these are the ones worth a second look, because the missing touchdown "
+                    "works AGAINST the market here and it is still higher.")
+        st.dataframe(_kdf.tail(10).iloc[::-1], width="stretch", hide_index=True,
+                     column_config={"Salary": st.column_config.NumberColumn("Salary", format="$%d")})
+
+        with st.expander("Is it any good? The first forward validation"):
+            st.markdown(f"""
+This could not be tested for most of the project's life: settled Kalshi markets
+have empty books, so a week not captured before kickoff is gone for good. The
+scheduled snapshot job has been building the archive, and there are now pre-lock
+captures for **Week 1 and Week 2** with graded results for both.
+
+Scored on the **{KM['target']}** across **{KM['players']} player-weeks**:
+
+| estimator | MAE | correlation |
+|---|---|---|
+| **Kalshi implied** | **{KM['kalshi_mae']:.2f}** | **{KM['kalshi_corr']:.3f}** |
+| DraftKings' own average, rescaled | {KM['dk_mae']:.2f} | {KM['dk_corr']:.3f} |
+
+{KM['note']}
+
+**Two weeks is not a measurement.** It is the first two data points of one, and
+the advantage is driven by Week 2 — Week 1 was a dead heat. For scale, the
+prior-season blend that does ship was worth 0.541 MAE and was measured over 40
+slates. This is 0.46 over two. Reproduce with
+`app/scripts/test_kalshi_projection.py`.
+""")
+    st.divider()
+
     used = {}
     for l in lineups:
         for p in l:

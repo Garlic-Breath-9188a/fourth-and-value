@@ -125,89 +125,38 @@ def plan(contests: list[dict], budget: float, lineups: int,
          lock_label: str | None = None,
          window: str | None = "main") -> tuple[list[Entry], list[str]]:
     """
-    Spread the budget across one entry per lineup, buying up where it fits.
+    Assign each lineup a contest, best contests first.
 
-    Funds a mid tier BEFORE upgrading a single entry to something larger: one
-    $27 seat and nine $3 seats spends the budget but concentrates the week on
-    one lineup, and the rake saved on that seat does not pay for the
-    concentration.
+    Delegates the CHOICE to `select.build`, which scores rake, top-heaviness,
+    single-entry and overlay, and spreads across distinct contests before
+    re-entering one. This function only maps the result onto lineup slots.
+
+    It used to ladder fees instead: start every lineup at the cheapest tournament
+    on the board, then buy seats up one at a time with whatever was left. On a
+    $100 budget with ten lineups at a $10 minimum there is nothing left, so it
+    put ALL TEN into the single cheapest contest -- which on the Week 3 board was
+    the WORST rake available at 15.0%, while three 12.0% contests went unused.
+    It also disagreed with the "Best contests for your budget" panel on the same
+    screen, which was reading from `select.build` and saying something else
+    entirely. Two selectors, two answers, and the tab showed the worse one.
+
+    Fewer, better seats is the intended behaviour: if the budget funds four good
+    contests and not ten poor ones, four lineups get assigned and the rest are
+    reported unassigned rather than crammed into whatever is cheapest.
     """
-    pool = sorted(playable(contests, lock_label, window), key=lambda c: c["entryFee"])
-    notes: list[str] = []
-    if not pool:
-        return [], ["No tournaments on this slate in the contest file."]
+    from . import select as _select
 
-    fees = sorted({c["entryFee"] for c in pool})
-    base = fees[0]
-    if base * lineups > budget:
-        affordable = int(budget // base)
+    picks, notes = _select.build(contests, budget, lineups, window or "main")
+    if lock_label:
+        picks = [p for p in picks if p["contest"].get("lockTime") in (None, lock_label)]
+    entries = [Entry(p["contest"], i, p.get("why", "")) for i, p in enumerate(picks)]
+
+    if entries and len(entries) < lineups:
         notes.append(
-            f"${budget:,.0f} covers {affordable} of {lineups} lineups at the cheapest "
-            f"tournament on the board (${base:,.0f}). Entering fewer.")
-        lineups = max(1, affordable)
-
-    chosen_fees = [base] * lineups
-    spend = base * lineups
-    # Buy up one seat at a time, cheapest step first, so the money spreads.
-    improved = True
-    while improved:
-        improved = False
-        for i in range(lineups):
-            nxt = next((f for f in fees
-                        if f > chosen_fees[i] and f >= chosen_fees[i] * MEANINGFUL_STEP), None)
-            if nxt and spend - chosen_fees[i] + nxt <= budget:
-                spend += nxt - chosen_fees[i]
-                chosen_fees[i] = nxt
-                improved = True
-                break
-
-    # Assign a contest to each fee, respecting each contest's own entry limit.
-    # A [Single Entry] contest takes one lineup; entering it twice is not a
-    # rounding error, it is a lineup that cannot be submitted.
-    entries: list[Entry] = []
-    filled: dict[str, int] = {}
-    for i, fee in enumerate(sorted(chosen_fees, reverse=True)):
-        options = [c for c in pool if c["entryFee"] == fee
-                   and filled.get(c["id"], 0) < c.get("maxEntriesPerUser", 1)]
-        if not options:
-            notes.append(f"No room left in any ${fee:,.0f} tournament for lineup {i + 1}.")
-            continue
-        # Prefer a contest not used yet, THEN the one keeping least, then the
-        # largest prize pool.
-        #
-        # Without the first key this filled one contest to its per-user limit
-        # before touching another: on the Week 2 board all ten lineups were
-        # assigned to "NFL $50K 1st and 10 [10 Entry Max]", which is legal and
-        # looked like a bug because every lineup showed the same contest name.
-        # Spreading first costs nothing when a tier has several tournaments, and
-        # single-entry contests -- which force it -- measured 12.7% rake against
-        # 13.7% for 21+-entry ones and remove opponents who can submit 150
-        # optimised lineups against one.
-        best = min(options, key=lambda c: (filled.get(c["id"], 0),
-                                           rake_pct(c) if rake_pct(c) is not None else 99,
-                                           -c["totalPrizes"]))
-        filled[best["id"]] = filled.get(best["id"], 0) + 1
-        entries.append(Entry(best, i, _reason(best, [c for c in pool if c["entryFee"] == fee])))
-
-    # Concentration must explain itself. Ten entries in one tournament is a real
-    # choice -- it is the lowest-rake seat at that fee -- but it makes the whole
-    # week depend on one field and one payout curve, and it is not what the
-    # portfolio's own diversity is for.
-    per_contest: dict[str, int] = {}
-    for e in entries:
-        per_contest[e.contest["name"]] = per_contest.get(e.contest["name"], 0) + 1
-    for name, n in sorted(per_contest.items(), key=lambda kv: -kv[1]):
-        if n < 2:
-            continue
-        fee = next(e.fee for e in entries if e.contest["name"] == name)
-        rivals = len({c["id"] for c in pool if c["entryFee"] == fee})
-        notes.append(
-            f"{n} of your lineups are in the same tournament ({name}). "
-            f"It is the only tournament at ${fee:,.0f} with a known payout structure"
-            if rivals == 1 else
-            f"{n} of your lineups are in the same tournament ({name}) — "
-            f"{rivals} tournaments at ${fee:,.0f} have a known payout structure and it keeps the least")
+            f"{len(entries)} of {lineups} lineups have a contest. The rest are unassigned "
+            f"because the budget buys better seats than it buys more of them -- raise the "
+            f"budget or build fewer lineups.")
     left = budget - sum(e.fee for e in entries)
-    if left >= base:
-        notes.append(f"${left:,.0f} unspent — the next step up costs more than that.")
+    if entries and left >= min(e.fee for e in entries):
+        notes.append(f"${left:,.0f} unspent.")
     return entries, notes

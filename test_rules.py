@@ -337,12 +337,47 @@ class EntryPlan(unittest.TestCase):
         self.assertAlmostEqual(rake_pct(c), 16.0, delta=0.5)
 
     def test_budget_is_spent_and_spread(self):
+        """
+        The two things this class exists to guard, unchanged: most of the budget
+        gets spent, and no single seat eats the week.
+
+        The entry COUNT is no longer asserted at 10. The planner used to fill
+        every lineup at the cheapest fee on the board and only then buy seats up,
+        which on a $100 budget with a $10 minimum put all ten entries in the one
+        cheapest contest -- the worst rake available, while better ones went
+        unused. It now picks by contest quality and spreads across distinct
+        contests, so a budget buys fewer, better seats and some lineups may go
+        unassigned. That is deliberate; the assertions below are the part that
+        was protecting against a real bug.
+        """
         entries, _ = plan(self.contests, 40, 10, "9/13 1:00p")
-        self.assertEqual(len(entries), 10)
+        self.assertTrue(entries)
         spend = sum(e.fee for e in entries)
         self.assertLessEqual(spend, 40)
-        self.assertGreaterEqual(spend, 36)
+        self.assertGreaterEqual(spend, 36, "most of the budget should be spent")
         self.assertLessEqual(max(e.fee for e in entries), 20, "one seat must not eat the week")
+        ids = [e.contest["id"] for e in entries]
+        self.assertEqual(len(set(ids)), len(ids), "distinct contests before repeating one")
+
+    def test_no_seat_may_exceed_half_the_budget(self):
+        """Quality-first selection walks straight into the $27-of-$40 bug."""
+        for budget in (20, 40, 100, 200):
+            entries, _ = plan(self.contests, budget, 10, "9/13 1:00p")
+            if not entries:
+                continue
+            with self.subTest(budget=budget):
+                self.assertLessEqual(max(e.fee for e in entries), budget * 0.5 + 1e-9)
+
+    def test_the_cheapest_worst_contest_does_not_absorb_everything(self):
+        """The reported bug: ten lineups, one contest, the worst rake on the board."""
+        entries, _ = plan(self.contests, 100, 10, "9/13 1:00p")
+        if len(entries) < 2:
+            self.skipTest("budget funded fewer than two entries")
+        counts = {}
+        for e in entries:
+            counts[e.contest["id"]] = counts.get(e.contest["id"], 0) + 1
+        self.assertLess(max(counts.values()), len(entries),
+                        "not every entry may land in the same contest")
 
     def test_entry_limits_are_respected(self):
         entries, _ = plan(self.contests, 40, 10, "9/13 1:00p")
@@ -380,12 +415,15 @@ class EntryPlan(unittest.TestCase):
         """An older capture has no window field; the filter must not empty it."""
         legacy = [{k: v for k, v in c.items() if k != "window"} for c in self.contests]
         entries, _ = plan(legacy, 40, 10, "9/13 1:00p")
-        self.assertEqual(len(entries), 10)
+        self.assertTrue(entries, "a board with no window field must still plan")
 
     def test_small_budget_reduces_entries_and_says_so(self):
         entries, notes = plan(self.contests, 10, 10, "9/13 1:00p")
         self.assertLess(len(entries), 10)
-        self.assertTrue(any("covers" in n for n in notes))
+        # The wording is not pinned -- only that the shortfall is explained
+        # rather than silently delivering fewer entries than were asked for.
+        self.assertTrue(any("lineups" in n or "budget" in n for n in notes),
+                        f"a short budget must say why: {notes}")
 
 
 if __name__ == "__main__":
