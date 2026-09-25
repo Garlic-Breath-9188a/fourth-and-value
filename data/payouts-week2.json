@@ -888,5 +888,191 @@
         "prize": 100
       }
     ]
+  },
+  "NFL $150K Three-Point Stance [5 Entry Max]": {
+    "cashRate": 0.2349,
+    "minCashMultiple": 1.52,
+    "topPrizeMultiple": 606.1,
+    "paidPlaces": 1245,
+    "prizePool": 150000.0,
+    "rake": 0.1424,
+    "shape": "gpp",
+    "entryFee": 33,
+    "maxEntries": 5300,
+    "tiers": [
+      {
+        "from": 1,
+        "to": 1,
+        "prize": 20000
+      },
+      {
+        "from": 2,
+        "to": 2,
+        "prize": 10000
+      },
+      {
+        "from": 3,
+        "to": 3,
+        "prize": 7000
+      },
+      {
+        "from": 4,
+        "to": 4,
+        "prize": 5000
+      },
+      {
+        "from": 5,
+        "to": 5,
+        "prize": 3500
+      },
+      {
+        "from": 6,
+        "to": 6,
+        "prize": 2000
+      },
+      {
+        "from": 7,
+        "to": 8,
+        "prize": 1500
+      },
+      {
+        "from": 9,
+        "to": 10,
+        "prize": 1000
+      },
+      {
+        "from": 11,
+        "to": 15,
+        "prize": 700
+      },
+      {
+        "from": 16,
+        "to": 20,
+        "prize": 500
+      },
+      {
+        "from": 21,
+        "to": 25,
+        "prize": 400
+      },
+      {
+        "from": 26,
+        "to": 35,
+        "prize": 300
+      },
+      {
+        "from": 36,
+        "to": 50,
+        "prize": 250
+      },
+      {
+        "from": 51,
+        "to": 75,
+        "prize": 200
+      },
+      {
+        "from": 76,
+        "to": 100,
+        "prize": 150
+      },
+      {
+        "from": 101,
+        "to": 150,
+        "prize": 125
+      },
+      {
+        "from": 151,
+        "to": 250,
+        "prize": 100
+      },
+      {
+        "from": 251,
+        "to": 450,
+        "prize": 75
+      },
+      {
+        "from": 451,
+        "to": 750,
+        "prize": 60
+      },
+      {
+        "from": 751,
+        "to": 1245,
+        "prize": 50
+      }
+    ]
+  },
+  "NFL $30K 4th and 10 [10 Entry Max]": {
+    "cashRate": 0.2346,
+    "minCashMultiple": 2.0,
+    "topPrizeMultiple": 75.0,
+    "paidPlaces": 205,
+    "prizePool": 30000.0,
+    "rake": 0.1419,
+    "shape": "gpp",
+    "entryFee": 40,
+    "maxEntries": 874,
+    "tiers": [
+      {
+        "from": 1,
+        "to": 1,
+        "prize": 3000
+      },
+      {
+        "from": 2,
+        "to": 2,
+        "prize": 2000
+      },
+      {
+        "from": 3,
+        "to": 3,
+        "prize": 1000
+      },
+      {
+        "from": 4,
+        "to": 4,
+        "prize": 700
+      },
+      {
+        "from": 5,
+        "to": 5,
+        "prize": 500
+      },
+      {
+        "from": 6,
+        "to": 7,
+        "prize": 400
+      },
+      {
+        "from": 8,
+        "to": 10,
+        "prize": 300
+      },
+      {
+        "from": 11,
+        "to": 15,
+        "prize": 250
+      },
+      {
+        "from": 16,
+        "to": 30,
+        "prize": 200
+      },
+      {
+        "from": 31,
+        "to": 55,
+        "prize": 150
+      },
+      {
+        "from": 56,
+        "to": 110,
+        "prize": 100
+      },
+      {
+        "from": 111,
+        "to": 205,
+        "prize": 80
+      }
+    ]
   }
 }
