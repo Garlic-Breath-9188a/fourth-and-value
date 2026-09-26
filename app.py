@@ -206,11 +206,20 @@ def live_injuries():
 
 @st.cache_data(show_spinner=False)
 def load_open_board(version: str):
-    """The open contest board with live fill, or None when it is not shipped."""
-    try:
-        return json.loads((DATA / "contests-open-0913.json").read_text())
-    except (OSError, ValueError):
-        return None
+    """
+    The CURRENT contest board. Deliberately the same object the rest of the page
+    uses, not a second file.
+
+    This used to read `contests-open-0913.json`, captured on 13 September, and
+    render its 37 contests under the heading "Still open". They were Week 1
+    contests; every one of them had locked a fortnight earlier. The $400K
+    Bootleg was being offered as an open seat two slates after it finished.
+
+    A second file describing the same thing as the lobby is a second thing to
+    keep fresh, and the one nobody refreshes is the one that lies. There is now
+    one board.
+    """
+    return load_lobby(version)
 
 
 @st.cache_data(show_spinner=False)
@@ -1011,10 +1020,14 @@ with tab_entry:
     # smaller loss -- and it is also the most perishable, which is why the
     # snapshot time is stated everywhere it appears.
     board = load_open_board(_data_version())
-    if board:
+    if board and board.get("contests"):
         staked_now = ent.placed_fees(placed)
         left = max(0.0, budget - staked_now)
         st.markdown("### Still open, and what is left to spend")
+        st.caption(
+            f"Board captured **{board.get('captured', 'unknown')}**. Contests fill and close; "
+            f"anything here can be gone by lock, and the fill percentages are from that capture "
+            f"rather than live.")
         h1, h2, h3 = st.columns(3)
         h1.metric("Budget", f"${budget:,.0f}")
         h2.metric("Already staked", f"${staked_now:,.0f}",
@@ -1064,11 +1077,13 @@ with tab_entry:
                 f"\\${top['Fee']:.0f} to enter, {top['Full']:.0f}% full, "
                 f"\\${top['Overlay']:,.0f} of the prize pool not yet paid for by entrants. "
                 f"At capacity it would keep {top['Rake if it fills']:.1f}%.")
+        _lock = next((c.get("lockTime") for c in board["contests"] if c.get("lockTime")), "lock")
         st.caption(
-            f"Board captured {board['captured'][:16].replace('T', ' ')}, locking "
-            f"{board['locks'][11:16]}. **Entry counts move hard in the last hours** — the four "
-            "contests already entered went from 35–58% full on 09-12 to 58–92% by 09-13 05:45, "
-            "so an overlay shown here is what was true at capture, not a forecast of lock. "
+            f"Board captured {str(board.get('captured', ''))[:16].replace('T', ' ')}, locking "
+            f"{_lock}. **Entry counts move hard in the last hours** — on the Week 3 board they "
+            "roughly doubled between Friday morning and Friday night, and the $15K Hail Mary "
+            "filled and closed in that window. An overlay shown here is what was true at "
+            "capture, not a forecast of lock. "
             "A negative rake means the house is currently topping up the prize pool. "
             "It makes the hole shallower; it is not an edge, and this tool has never "
             "demonstrated one.")
