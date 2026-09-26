@@ -156,12 +156,24 @@ def build(contests: list[dict], budget: float, lineups: int,
 
     placed, notes = [], list(notes_head)
     spent, used = 0.0, {}
-    # Pass one: the best contests, one entry each.
+    cheapest = min(s.contest["entryFee"] for s in pool)
+    # Pass one: the best contests, one entry each -- but only while taking one
+    # still leaves enough to seat the lineups behind it.
+    #
+    # Score order alone put the two $50 Red Zone contests at the top of the Week
+    # 3 board, spent the whole $100 on them, and left eight of ten lineups with
+    # no contest at all. The best seat on the board is often the dearest, and a
+    # greedy walk down the ranking buys one or two of them and stops. A lineup
+    # you built and cannot enter is worth nothing, so a contest is only taken
+    # when the rest can still be funded at the cheapest fee available.
     for s in pool:
         if len(placed) >= lineups:
             break
         fee = s.contest["entryFee"]
         if spent + fee > budget:
+            continue
+        remaining_slots = lineups - len(placed) - 1
+        if budget - spent - fee < remaining_slots * cheapest:
             continue
         placed.append({"contest": s.contest, "fee": fee, "score": s.score,
                        "why": "; ".join(s.reasons)})
@@ -191,3 +203,18 @@ def build(contests: list[dict], budget: float, lineups: int,
                      "nothing else on the board has a known playable shape at a "
                      "price that fits.")
     return placed, notes
+
+
+def ranked(contests: list[dict], window: str = "main") -> list:
+    """
+    Every playable contest in quality order, best first.
+
+    Exposed so the Entry plan tab can show what did NOT make the budget. A list
+    of picks with no runners-up hides the fact that the cut-off was money rather
+    than merit.
+    """
+    has_windows = any("window" in c for c in contests)
+    eligible = [c for c in contests if not has_windows or c.get("window") == window]
+    out = [s for s in (score(c) for c in eligible) if s]
+    out.sort(key=lambda s: -s.score)
+    return out

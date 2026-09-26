@@ -151,6 +151,18 @@ def plan(contests: list[dict], budget: float, lineups: int,
         picks = [p for p in picks if p["contest"].get("lockTime") in (None, lock_label)]
     entries = [Entry(p["contest"], i, p.get("why", "")) for i, p in enumerate(picks)]
 
+    # Concentration must explain itself. select.build spreads across distinct
+    # contests first and only then re-enters one, but the second pass is
+    # invisible unless it says so.
+    per: dict[str, int] = {}
+    for e in entries:
+        per[e.contest["name"]] = per.get(e.contest["name"], 0) + 1
+    for name, n in sorted(per.items(), key=lambda kv: -kv[1]):
+        if n > 1:
+            notes.append(
+                f"{n} of your lineups are in the same tournament ({name}). Every other contest "
+                f"that fits the budget was already taken once first.")
+
     if entries and len(entries) < lineups:
         notes.append(
             f"{len(entries)} of {lineups} lineups have a contest. The rest are unassigned "

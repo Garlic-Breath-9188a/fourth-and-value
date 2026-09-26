@@ -1096,71 +1096,92 @@ with tab_entry:
             "entered. Transcribe the current lobby into `data/lobby-week<N>-2026.json` before "
             "using this plan.", icon="⚠️")
     # ---- Scored on what was measured, not on rake alone ---------------------
-    st.markdown("### Best contests for your budget")
-    _picks, _notes = select_mod.build(lobby["contests"], budget, len(lineups))
-    if _picks:
-        st.dataframe(
-            pd.DataFrame([{
-                "Contest": p["contest"]["name"], "Fee": p["fee"],
-                "Rake": (p["contest"]["maxEntries"] * p["contest"]["entryFee"]
-                         - p["contest"]["totalPrizes"])
-                        / (p["contest"]["maxEntries"] * p["contest"]["entryFee"]) * 100,
-                "Top prize": p["contest"].get("topPrizeMultiple"),
-                "Why": p["why"],
-            } for p in _picks]),
-            width="stretch", hide_index=True,
-            column_config={
-                "Fee": st.column_config.NumberColumn("Fee", format="$%d"),
-                "Rake": st.column_config.NumberColumn("Rake", format="%.1f%%"),
-                "Top prize": st.column_config.NumberColumn("Top prize", format="%.0fx"),
-            })
-        _spent = sum(p["fee"] for p in _picks)
-        st.caption(
-            f"**\\${_spent:,.0f} of \\${budget:,.0f} across {len({p['contest']['id'] for p in _picks})} "
-            f"contests.** Scored on rake, top-prize size, single-entry and overlay — every one of "
-            "those measured here. Contests whose payout curve has not been seen are refused rather "
-            "than assumed: on this board a double-up and a lottery both showed 10.0% rake, the best "
-            "number on it. **None of this is an edge.** Every contest keeps 14–15%, and a player "
-            "with no edge loses that.")
-    for n in _notes:
-        st.warning(n)
-    st.divider()
-
-    st.markdown("### The plan")
-    for n in entry_notes:
-        st.warning(n)
-    if entries:
-        table = pd.DataFrame([{
+    # ---- One plan, not two lists of the same contests --------------------
+    # This tab used to render "Best contests for your budget" and "The plan"
+    # back to back. Both came from the same scorer, so the same contests were
+    # listed twice and the page read as though it were recommending twice as
+    # many as the budget could buy.
+    st.markdown(f"### Your ${budget:,.0f}")
+    if not entries:
+        st.warning("No contest on this slate fits the budget with a known payout shape.")
+    else:
+        _spent = sum(e.fee for e in entries)
+        _rake = sum(e.fee * (rake_pct(e.contest) or 0) / 100 for e in entries)
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Staked", f"${_spent:,.0f}", f"of ${budget:,.0f}", delta_color="off")
+        c2.metric("Entries", f"{len(entries)}", f"{len(lineups)} lineups built", delta_color="off")
+        c3.metric("Blended rake", f"{100*_rake/_spent:.1f}%", f"${_rake:,.0f} to the house",
+                  delta_color="off")
+        _table = pd.DataFrame([{
             "Entered": f"{i}|{e.contest['id']}" in st.session_state.contests_done,
-            "Lineup": i + 1, "Contest": e.contest["name"], "Fee": e.fee,
-            "Prizes": e.contest["totalPrizes"],
-            "Rake %": rake_pct(e.contest),
-            "Limit": e.contest["maxEntriesPerUser"],
+            "Lineup": i + 1,
+            "Contest": e.contest["name"],
+            "Fee": e.fee,
+            "Rake": rake_pct(e.contest),
+            "Field": e.contest.get("maxEntries"),
+            "Full": (100 * e.contest.get("entered", 0) / e.contest["maxEntries"]
+                     if e.contest.get("maxEntries") else None),
+            "Limit": e.contest.get("maxEntriesPerUser"),
             "Why this one": e.reason,
         } for i, e in enumerate(entries)])
-        edited = st.data_editor(
-            table, width="stretch", hide_index=True, key="entry_plan_editor",
-            disabled=[c for c in table.columns if c != "Entered"],
+        _edited = st.data_editor(
+            _table, width="stretch", hide_index=True, key="entry_plan_editor",
+            disabled=[c for c in _table.columns if c != "Entered"],
             column_config={
                 "Entered": st.column_config.CheckboxColumn("Entered", width="small"),
                 "Fee": st.column_config.NumberColumn("Fee", format="$%d"),
-                "Prizes": st.column_config.NumberColumn("Prizes", format="$%d"),
-                "Rake %": st.column_config.NumberColumn("Rake %", format="%.1f%%"),
+                "Rake": st.column_config.NumberColumn("Rake", format="%.1f%%"),
+                "Field": st.column_config.NumberColumn("Field", format="%d"),
+                "Full": st.column_config.NumberColumn("Full", format="%.0f%%"),
             })
         st.session_state.contests_done = {
             f"{i}|{entries[i].contest['id']}"
-            for i, flag in enumerate(edited["Entered"]) if flag}
-        done = edited[edited["Entered"]]
-        m1, m2, m3 = st.columns(3)
-        m1.metric("Entered so far", f"${done['Fee'].sum():,.0f}",
-                  f"{len(done)} of {len(entries)} contests")
-        m2.metric("Still to enter", f"${table['Fee'].sum() - done['Fee'].sum():,.0f}")
-        m3.metric("Plan total", f"${table['Fee'].sum():,.0f} of ${budget:,.0f}")
+            for i, flag in enumerate(_edited["Entered"]) if flag}
+        _done = _edited[_edited["Entered"]]
+        if len(_done):
+            st.caption(f"**${_done['Fee'].sum():,.0f} entered** across {len(_done)} of "
+                       f"{len(entries)} contests · ${_spent - _done['Fee'].sum():,.0f} still to go.")
+        if len(entries) < len(lineups):
+            st.caption(
+                f"**{len(entries)} contests for {len(lineups)} lineups.** The budget does not "
+                f"stretch to ten good seats; it buys {len(entries)}. Build fewer lineups, or "
+                f"raise the budget and the table above will grow.")
+    for n in entry_notes:
+        st.warning(n)
+
+    # ---- What just missed, and why ---------------------------------------
+    _ranked = select_mod.ranked(lobby["contests"])
+    _taken = {e.contest["id"] for e in entries}
+    _next = [s for s in _ranked if s.contest["id"] not in _taken][:6]
+    if _next:
+        with st.expander(f"Also worth playing if you raise the budget — {len(_next)} more"):
+            st.dataframe(
+                pd.DataFrame([{
+                    "Contest": s.contest["name"], "Fee": s.contest["entryFee"],
+                    "Rake": rake_pct(s.contest),
+                    "Field": s.contest.get("maxEntries"),
+                    "Why": "; ".join(s.reasons),
+                } for s in _next]),
+                width="stretch", hide_index=True,
+                column_config={
+                    "Fee": st.column_config.NumberColumn("Fee", format="$%d"),
+                    "Rake": st.column_config.NumberColumn("Rake", format="%.1f%%"),
+                    "Field": st.column_config.NumberColumn("Field", format="%d"),
+                })
+            st.caption("Ranked the same way as the table above. These were cut by the budget, "
+                       "not by merit — the cheapest of them is "
+                       f"${min(s.contest['entryFee'] for s in _next):,.0f}.")
     st.caption(
-        "Rake is what DraftKings keeps, measured against a full field. Across this "
-        "109-contest board \\$3–\\$5 contests keep 15.0% and \\$100+ keep 9.7% — buying up is the "
-        "one lever here that costs nothing. It makes the hole shallower; it does not make "
-        "it a profit.")
+        "Scored on rake, top-prize size, single-entry and overlay — all measured here. A contest "
+        "whose payout curve has not been seen is refused rather than assumed: on the Week 2 board "
+        "a double-up and a lottery both showed 10.0% rake, the best number on it. **None of this "
+        "is an edge.** Every contest keeps 12–15%, and a player with no edge loses that.")
+    st.divider()
+
+    st.caption(
+        "Rake is what DraftKings keeps, measured against a full field. Buying up is the one "
+        "contest lever measured here that costs nothing — it makes the hole shallower, it does "
+        "not make it a profit.")
     st.caption(f"Contest data hand-transcribed from lobby screenshots ({lobby['captured']}). "
                "Prize pools and fees are stable; entry counts move.")
 
