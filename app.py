@@ -191,7 +191,27 @@ def load_lobby(version: str):
                    key=lambda f: int(f.stem.split("-")[1].replace("week", "")))
     if not files:
         return {"contests": [], "note": "no lobby file on disk"}
-    return json.loads(files[-1].read_text())
+    board = json.loads(files[-1].read_text())
+
+    # Join the verified payout curves on. Without this the lobby carries no
+    # topPrizeMultiple, the contest scorer reports "top prize unknown" for every
+    # contest, and its second-largest weight (W_TOP = 0.55) does nothing at all.
+    #
+    # That is not academic. On the Week 3 board it left the three Red Zone
+    # contests -- same $50 fee, same 12.0% rake, same single-entry -- separated
+    # only by an overlay figure from a Friday-night capture, and chose the $100K
+    # (200x top prize) over the $200K (500x). For a tournament that is the wrong
+    # way round, and the number that would have said so was sitting in
+    # payouts.json unread.
+    curves = load_json(DATA / "payouts.json") or {}
+    for c in board.get("contests", []):
+        cur = curves.get(c["name"])
+        if not cur:
+            continue
+        for field in ("topPrizeMultiple", "cashRate", "minCashMultiple", "paidPlaces"):
+            if cur.get(field) is not None:
+                c.setdefault(field, cur[field])
+    return board
 
 
 @st.cache_data(ttl=21600, show_spinner="Checking the injury wire…")

@@ -95,8 +95,15 @@ def score(c: dict) -> Scored | None:
         # Unknown top prize is scored as merely acceptable, never as good. The
         # $20 100-Player looked excellent on every known column and topped out
         # at 14x.
+        # An unknown top prize scores as merely acceptable, never as good. But
+        # note what that means next to a KNOWN one: 0.35 here beats the 0.158
+        # a genuine 200x earns, so a contest whose curve has never been seen
+        # outranks one measured as mediocre. That is the wrong way round and it
+        # is why the $50K Red Zone sits above the $100K Red Zone on this board.
+        # Capturing the curve is the fix; lowering the default would instead
+        # push every unseen contest off the list, which loses more.
         s_top = 0.35
-        reasons.append("top prize unknown")
+        reasons.append("top prize unknown — capture the grid")
     else:
         s_top = max(0.0, min(1.0, (top - 50) / 950))
         reasons.append(f"{top:,.0f}x top prize")
