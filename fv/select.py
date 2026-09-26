@@ -197,6 +197,15 @@ def build(contests: list[dict], budget: float, lineups: int,
             spent += fee
             changed = True
 
+    # Best contest to the first lineup. The two passes append in the order they
+    # happen to run: pass one walks the ranking under a budget-feasibility rule
+    # and often takes a CHEAP contest first, then pass two spends what is left
+    # on the good ones. On the Week 3 board that put the worst contest on the
+    # list (the $10, score 0.560) against lineup 1 and the best (score 1.414)
+    # against lineup 2 -- an artifact of the algorithm, read by anyone looking
+    # at the screen as an ordering that means something.
+    placed.sort(key=lambda x: -x["score"])
+
     if len(placed) < lineups:
         notes.append(f"Only {len(placed)} of {lineups} lineups placed; "
                      f"${budget - spent:,.0f} of the budget is unspent because "
