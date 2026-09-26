@@ -17,7 +17,7 @@ from fv import blend as blend_mod
 from fv.slate import parse_kickoff, kickoff_windows, slate_options, main_slate, restrict, in_slate
 from fv.pool import load_salaries, keep_starting_quarterbacks, apply_ceilings, rosterable, load_json
 from fv.roster import order_roster, stack_role, is_stacked, fill_dk_template, DK_SLOTS
-from fv.optimize import build_portfolio, build_lineup
+from fv.optimize import build_portfolio, build_lineup, improve_portfolio, projection
 from fv.entry import plan, rake_pct
 from fv import entry as entry_mod
 from fv import shape
@@ -1134,3 +1134,59 @@ class PriorSeasonAliases(unittest.TestCase):
             if matches:
                 with self.subTest(player=matches[0]):
                     self.assertIn(slate_key, prior["players"])
+
+
+class ImprovePortfolio(unittest.TestCase):
+    """
+    build_portfolio is a sampler, not an optimizer: on the Week 3 board its best
+    lineup projected 161.5 against an exact optimum of 169.7, and ten times the
+    sampling bought 2.1 points. It also left $5,600 of cap unspent across ten
+    lineups. This is the pass that closes some of that, and it must not buy the
+    projection by breaking something measured.
+    """
+
+    def _setup(self):
+        data = Path(__file__).parent / "data"
+        rows = load_salaries((data / "DKSalaries.csv").read_text())
+        pool = [r for r in keep_starting_quarterbacks(rows) if rosterable(r)]
+        pool = apply_ceilings(pool, load_json(data / "player-variance.json"))
+        before = build_portfolio(pool, 10, seed=1, qb_exposure=33, rb_exposure=30,
+                                 other_exposure=40)
+        after = improve_portfolio(before, pool, 33, 30, 40)
+        return pool, before, after
+
+    def test_it_raises_the_projection(self):
+        _, before, after = self._setup()
+        self.assertGreater(sum(projection(l) for l in after),
+                           sum(projection(l) for l in before))
+
+    def test_it_spends_the_cap(self):
+        _, before, after = self._setup()
+        idle = lambda ls: sum(rules.SALARY_CAP - sum(p["salary"] for p in l) for l in ls)
+        self.assertLess(idle(after), idle(before))
+
+    def test_every_lineup_stays_legal(self):
+        _, _, after = self._setup()
+        for l in after:
+            self.assertLessEqual(sum(p["salary"] for p in l), rules.SALARY_CAP)
+            self.assertEqual(len(l), 9)
+            self.assertEqual(len({p["id"] for p in l}), 9, "a swap duplicated a player")
+            self.assertTrue(is_stacked(l), "a swap broke the stack")
+
+    def test_exposure_caps_survive(self):
+        _, _, after = self._setup()
+        counts = {}
+        for l in after:
+            for p in l:
+                counts[(p["id"], p["position"])] = counts.get((p["id"], p["position"]), 0) + 1
+        for (pid, pos), n in counts.items():
+            cap = {"QB": 3, "RB": 3}.get(pos, 4)
+            self.assertLessEqual(n, cap, f"{pos} exposure {n} exceeds {cap} after improving")
+
+    def test_the_ten_stay_distinct(self):
+        _, _, after = self._setup()
+        keys = [tuple(sorted(p["id"] for p in l)) for l in after]
+        self.assertEqual(len(set(keys)), len(keys), "improving collapsed two lineups together")
+
+    def test_an_empty_board_is_safe(self):
+        self.assertEqual(improve_portfolio([], [], 33, 30, 40), [])
