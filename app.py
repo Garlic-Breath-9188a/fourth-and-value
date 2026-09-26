@@ -383,11 +383,6 @@ with st.sidebar:
                                     "placed. A lineup holds three WRs plus usually the FLEX, so "
                                     "this is the position where an uncapped default does most "
                                     "damage.")
-    exclude_fades = st.checkbox(
-        "Exclude players the board flags as overpriced", value=False,
-        help="OFF by default because it was measured and it did not work: 2 of 84 flagged "
-             "players reached 20+ points, a 2% hit rate against an 8% base rate, and the "
-             "biggest disagreements did worst. Switched on, the builder will not roster them.")
     avoid_used_qbs = st.checkbox(
         "Skip quarterbacks already entered", value=True,
         help="A quarterback in a lineup you have already staked is not offered again "
@@ -483,13 +478,6 @@ def _flag(name: str) -> str:
 tab_board, tab_pool, tab_entry, tab_strategy, tab_about = st.tabs(
     ["Lineups", "Player pool", "Entry plan", "Strategy", "About"])
 
-# ---- Players the mispricing board flags as overpriced ----------------------
-# Computed here because the builder may be asked to exclude them, and the board
-# itself renders further down. OFF by default: the fade side was measured at 2
-# of 84 against an 8% base rate, so excluding them is a preference, not an edge.
-_fade_ids = {r["id"] for r in
-             mispricing_mod.board(pool, load_usage(_data_version()))["fades"]}
-
 # ---- Do not build another lineup around a quarterback already staked --------
 # Asked for directly. One quarterback per week is a concentration choice rather
 # than a measured edge -- tighter QB caps were measured to COST the tail
@@ -511,7 +499,7 @@ if avoid_used_qbs and not any(p["position"] == "QB" for p in build_ids):
 lineups = portfolio(tuple(p["id"] for p in build_ids), n_lineups, seed,
                     ceiling_weight, qb_exposure, rb_exposure, must_play, require_wr1,
                     tuple(sorted(st.session_state.entered)), int(nfl_week),
-                    other_exposure, tuple(sorted(_fade_ids)) if exclude_fades else ())
+                    other_exposure, ())
 lock_label = f"{slate.locks_at.strftime('%-m/%-d %-I:%M')}p"
 entries, entry_notes = plan(lobby["contests"], budget, len(lineups), lock_label)
 
@@ -682,7 +670,6 @@ with tab_board:
                 f"{M['overlap_with_projection']:.0%} of the same players. "
                 f"Held out on {M['holdout']}, {M['slates']} slates."
             )
-            left, right = st.columns(2)
             def _frame(rows, limit=12):
                 return pd.DataFrame([{
                     "Player": r["name"], "Pos": r["position"], "Team": r["team"],
@@ -694,12 +681,15 @@ with tab_board:
                     "Measured": "yes" if r["measured"] else "position unproven",
                 } for r in rows[:limit]])
 
-            with left:
-                st.markdown(f"**Underpriced — cheap, with a role** ({M['cheap_top']['points']:+.2f} pts)")
-                st.dataframe(_frame(mis["targets"]), width="stretch", hide_index=True)
-            with right:
-                st.markdown(f"**Overpriced — dear, without one** ({M['dear_bottom']['points']:+.2f} pts)")
-                st.dataframe(_frame(mis["fades"]), width="stretch", hide_index=True)
+            # The FADE half of this board is not shown. It was measured -- 2 of
+            # 84 flagged players reached 20+ points, a 2% hit rate against an 8%
+            # base rate, with the biggest disagreements doing worst -- and a
+            # refuted signal on a working screen is worse than no signal, because
+            # every glance at it costs a decision. It stays in the Strategy
+            # Ledger, which is where negative results belong.
+            st.markdown(f"**Underpriced — cheap, with a real role** "
+                        f"({M['cheap_top']['points']:+.2f} DK points above the price-implied line)")
+            st.dataframe(_frame(mis["targets"], limit=15), width="stretch", hide_index=True)
 
             st.caption(
                 f"\"vs price\" is expected DK points above or below what the salary implies, "
@@ -708,9 +698,8 @@ with tab_board:
                 f"Lists are the top and bottom fifth **within each position**: "
                 f"quarterbacks all sit at 100% snap share, so ranking across positions "
                 f"filled the whole target list with them. "
-                f"Supported at {', '.join(mis['target_support'])} on the target side and "
-                f"{', '.join(mis['fade_support'])} on the fade side; anything else is "
-                f"flagged unproven rather than dropped."
+                f"Supported at {', '.join(mis['target_support'])}; a player from any other "
+                f"position is flagged unproven rather than dropped."
             )
 
             with st.expander("What was tested, including what failed"):
@@ -736,9 +725,14 @@ ignores the projection.
 | dear half, top fifth | {M['dear_top']['sd']:+.3f} | {M['dear_top']['ci'][0]:.3f} to {M['dear_top']['ci'][1]:.3f} | spans zero |
 | dear half, bottom fifth | {M['dear_bottom']['sd']:+.3f} | {M['dear_bottom']['ci'][0]:.3f} to {M['dear_bottom']['ci'][1]:.3f} | {M['dear_bottom']['points']:+.2f} |
 
-Per position the target side holds at QB, RB and WR and spans zero at TE; the fade
-side holds only at RB and WR. Do not add the per-position figures up — they are one
-measurement on subsets.
+Per position this holds at QB, RB and WR and spans zero at TE. Do not add the
+per-position figures up — they are one measurement on subsets.
+
+The fade half of this measurement is not shown on the board. It was tested over
+three weeks and failed: 2 of 84 flagged players reached 20+ points, a 2% hit
+rate against an 8% base rate, and the biggest disagreements did worst. A refuted
+signal on a working screen costs a decision every time it is glanced at. It
+lives in the Strategy Ledger, which is where negative results belong.
 
 One SD is roughly {M['sd_to_points']:.1f} DK points. This is small, it is measured against
 price rather than against a field, and it does not make a lineup safe or a profit
@@ -897,16 +891,22 @@ with tab_pool:
         # ---- WR2/3 and RB2/3 where real money disagrees with us ------------
         _watch = kalshi_mod.watchlist(pool, _kalshi_props, blend_mod.key)
         WR = kalshi_mod.WATCHLIST_RECORD
-        st.markdown("**WR2/WR3 and RB2/RB3 where the market has money on it**")
-        st.error(
-            f"**This has been logged and graded for {WR['weeks']} weeks and it does not work.** "
-            f"{WR['popped']} of {WR['graded']} picks reached 20+ points — a "
-            f"{WR['hit_rate']:.0%} hit rate against a {WR['base_rate']:.0%} base rate for the same "
-            f"players. The biggest disagreements did worst: {WR['by_gap']['over 3 pts'][0]} of "
-            f"{WR['by_gap']['over 3 pts'][1]} where the market was 3+ points above us. "
-            f"Shown because it is logged every week and the record should be visible, not because "
-            f"it is a recommendation.", icon="⛔")
+        # Collapsed, not a panel. Logged every week because that is the only way
+        # the question gets answered, but it has a record now and the record is
+        # bad -- so it does not get to sit on the screen looking like advice.
+        _exp = st.expander(
+            f"Market watchlist — logged weekly, {WR['popped']} of {WR['graded']} picks have hit "
+            f"({WR['hit_rate']:.0%} against a {WR['base_rate']:.0%} base rate)")
+        with _exp:
+            st.caption(
+                f"WR2/WR3 and RB2/RB3 where the market has traded money and sits above our "
+                f"projection. Three weeks in it is worse than picking at random, and the biggest "
+                f"disagreements did worst — {WR['by_gap']['over 3 pts'][0]} of "
+                f"{WR['by_gap']['over 3 pts'][1]} where the market was 3+ points above us. "
+                f"Kept because it is banked every week and the answer needs about 130 picks; "
+                f"there are {WR['graded']}.")
         if _watch:
+          with _exp:
             st.dataframe(pd.DataFrame([{
                 "Slot": r["depth"], "Player": r["name"], "Team": r["team"],
                 "Status": _flag(r["name"]) or "—",
