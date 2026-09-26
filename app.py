@@ -500,6 +500,20 @@ with tab_board:
         # will reject.
         open_contests = ent.contests_with_room(
             playable(lobby["contests"], lock_label, "main"), st.session_state.entered)
+        # Dearest first. `contests_with_room` returns cheapest-first, which put
+        # the $10 contest at the top of all ten dropdowns -- and since a lineup
+        # with no assigned contest defaulted to index 0, six of ten cards read
+        # "$50K 1st and 10" whether or not that was sensible.
+        open_contests.sort(key=lambda c: (-c["entryFee"], -c.get("totalPrizes", 0)))
+
+        # For a lineup the plan did not fund, default to the BEST remaining
+        # contest by the same ranking the plan uses, not to whatever the sort
+        # happens to put first. Position in a dropdown is not a recommendation.
+        _rank = {s.contest["id"]: n
+                 for n, s in enumerate(select_mod.ranked(lobby["contests"]))}
+        _best_spare = min(range(len(open_contests)),
+                          key=lambda n: _rank.get(open_contests[n]["id"], 10 ** 6),
+                          default=0) if open_contests else 0
 
         def contest_label(c: dict) -> str:
             r = rake_pct(c)
@@ -524,7 +538,7 @@ with tab_board:
                         f'<span class="sal">{p["salary"] // 100 / 10:.1f}k</span></div>')
                 entry = entries[i - 1] if i - 1 < len(entries) else None
                 contest = (f'{entry.contest["name"]} · ${entry.fee:,.0f}'
-                           if entry else 'no contest — budget spent')
+                           if entry else 'not in the plan — pick one below')
                 mark = ('<span class="tick">✓</span>' if is_stacked(l)
                         else '<span class="notick">✗</span>')
                 col.markdown(
@@ -553,10 +567,10 @@ with tab_board:
                 elif not open_contests:
                     col.caption("No contest on this slate has a known payout structure.")
                 else:
-                    suggested = 0
+                    suggested = _best_spare
                     if entry:
                         suggested = next((n for n, c in enumerate(open_contests)
-                                          if c["id"] == entry.contest["id"]), 0)
+                                          if c["id"] == entry.contest["id"]), _best_spare)
                     pick = col.selectbox(
                         "Contest", range(len(open_contests)), index=suggested,
                         format_func=lambda n: contest_label(open_contests[n]),
