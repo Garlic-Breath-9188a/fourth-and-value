@@ -1,10 +1,296 @@
 {
-  "source": "nothing entered yet for Week 3",
-  "transcribed": "2026-09-25",
+  "source": "DK Contest Details/Week 3/ \u2014 four MY CONTESTS screenshots, 2026-09-26 00:43",
+  "transcribed": "2026-09-26",
   "slateLock": "2026-09-27T13:00:00-04:00",
-  "note": "Week 3 has not been entered. Week 2's record is preserved as entries-placed-week2.json and Week 1's as entries-placed-week1.json; the app reads the current slate's file.",
-  "contests": [],
-  "entries": [],
-  "staked": 0,
-  "stakedIncludingUnrecorded": 0
+  "note": "HAND-TRANSCRIBED from the DraftKings lineup drawer. Each roster reconciles to $50,000 minus the remaining salary shown. 'A. Mitchell' in the $200K Red Zone is ADONAI Mitchell, WR NYJ, questionable with a finger \u2014 matched on initial, surname AND salary, because Keaton Mitchell RB LAC is also $4,300 and a surname-plus-salary match picks the wrong one. Denzel Boston WR CLE appears in three of the four lineups.",
+  "contests": [
+    {
+      "id": "blindside-100k",
+      "name": "NFL $100K Blind Side [Single Entry]",
+      "entryFee": 27,
+      "totalPrizes": 100000,
+      "entered": 982,
+      "maxEntries": 4319,
+      "entriesPerUser": 1,
+      "liveIn": "Sun 1:00pm"
+    },
+    {
+      "id": "faircatch-175k",
+      "name": "NFL $175K Fair Catch [Single Entry]",
+      "entryFee": 12,
+      "totalPrizes": 175000,
+      "entered": 3853,
+      "maxEntries": 17156,
+      "entriesPerUser": 1,
+      "liveIn": "Sun 1:00pm"
+    },
+    {
+      "id": "redzone-200k",
+      "name": "NFL $200K Red Zone [$25K to 1st, Single Entry]",
+      "entryFee": 50,
+      "totalPrizes": 200000,
+      "entered": 974,
+      "maxEntries": 4545,
+      "entriesPerUser": 1,
+      "liveIn": "Sun 1:00pm"
+    },
+    {
+      "id": "firstand10-50k",
+      "name": "NFL $50K 1st and 10 [10 Entry Max]",
+      "entryFee": 10,
+      "totalPrizes": 50000,
+      "entered": 1496,
+      "maxEntries": 5882,
+      "entriesPerUser": 10,
+      "liveIn": "Sun 1:00pm"
+    }
+  ],
+  "entries": [
+    {
+      "entry": 1,
+      "contestId": "blindside-100k",
+      "remainingSalary": 0,
+      "roster": [
+        {
+          "slot": "QB",
+          "name": "Patrick Mahomes",
+          "team": "KC",
+          "salary": 6200
+        },
+        {
+          "slot": "RB",
+          "name": "De'Von Achane",
+          "team": "MIA",
+          "salary": 6500
+        },
+        {
+          "slot": "RB",
+          "name": "Jonathan Taylor",
+          "team": "IND",
+          "salary": 7600
+        },
+        {
+          "slot": "WR",
+          "name": "Denzel Boston",
+          "team": "CLE",
+          "salary": 4500
+        },
+        {
+          "slot": "WR",
+          "name": "Chris Olave",
+          "team": "NO",
+          "salary": 7200
+        },
+        {
+          "slot": "WR",
+          "name": "Rashee Rice",
+          "team": "KC",
+          "salary": 6400
+        },
+        {
+          "slot": "TE",
+          "name": "Travis Kelce",
+          "team": "KC",
+          "salary": 4500
+        },
+        {
+          "slot": "FLEX",
+          "name": "Malik Washington",
+          "team": "MIA",
+          "salary": 4200
+        },
+        {
+          "slot": "DST",
+          "name": "Bengals",
+          "team": "Bengals",
+          "salary": 2900
+        }
+      ]
+    },
+    {
+      "entry": 2,
+      "contestId": "faircatch-175k",
+      "remainingSalary": 100,
+      "roster": [
+        {
+          "slot": "QB",
+          "name": "Bryce Young",
+          "team": "CAR",
+          "salary": 5600
+        },
+        {
+          "slot": "RB",
+          "name": "James Cook III",
+          "team": "BUF",
+          "salary": 6900
+        },
+        {
+          "slot": "RB",
+          "name": "Christian McCaffrey",
+          "team": "SF",
+          "salary": 8300
+        },
+        {
+          "slot": "WR",
+          "name": "Denzel Boston",
+          "team": "CLE",
+          "salary": 4500
+        },
+        {
+          "slot": "WR",
+          "name": "CeeDee Lamb",
+          "team": "DAL",
+          "salary": 7800
+        },
+        {
+          "slot": "WR",
+          "name": "Tetairoa McMillan",
+          "team": "CAR",
+          "salary": 6000
+        },
+        {
+          "slot": "TE",
+          "name": "Darren Waller",
+          "team": "CAR",
+          "salary": 3400
+        },
+        {
+          "slot": "FLEX",
+          "name": "Antonio Williams",
+          "team": "WAS",
+          "salary": 4100
+        },
+        {
+          "slot": "DST",
+          "name": "Saints",
+          "team": "Saints",
+          "salary": 3300
+        }
+      ]
+    },
+    {
+      "entry": 3,
+      "contestId": "redzone-200k",
+      "remainingSalary": 0,
+      "roster": [
+        {
+          "slot": "QB",
+          "name": "Jared Goff",
+          "team": "DET",
+          "salary": 6300
+        },
+        {
+          "slot": "RB",
+          "name": "Jahmyr Gibbs",
+          "team": "DET",
+          "salary": 8800
+        },
+        {
+          "slot": "RB",
+          "name": "Derrick Henry",
+          "team": "BAL",
+          "salary": 7700
+        },
+        {
+          "slot": "WR",
+          "name": "Denzel Boston",
+          "team": "CLE",
+          "salary": 4500
+        },
+        {
+          "slot": "WR",
+          "name": "Joshua Palmer",
+          "team": "BUF",
+          "salary": 3500
+        },
+        {
+          "slot": "WR",
+          "name": "Amon-Ra St. Brown",
+          "team": "DET",
+          "salary": 7900
+        },
+        {
+          "slot": "TE",
+          "name": "Sam LaPorta",
+          "team": "DET",
+          "salary": 4300
+        },
+        {
+          "slot": "FLEX",
+          "name": "Adonai Mitchell",
+          "team": "NYJ",
+          "salary": 4300
+        },
+        {
+          "slot": "DST",
+          "name": "Patriots",
+          "team": "Patriots",
+          "salary": 2700
+        }
+      ]
+    },
+    {
+      "entry": 4,
+      "contestId": "firstand10-50k",
+      "remainingSalary": 0,
+      "roster": [
+        {
+          "slot": "QB",
+          "name": "Tyler Shough",
+          "team": "NO",
+          "salary": 5400
+        },
+        {
+          "slot": "RB",
+          "name": "Bucky Irving",
+          "team": "TB",
+          "salary": 6300
+        },
+        {
+          "slot": "RB",
+          "name": "Rhamondre Stevenson",
+          "team": "NE",
+          "salary": 5400
+        },
+        {
+          "slot": "WR",
+          "name": "Ja'Marr Chase",
+          "team": "CIN",
+          "salary": 8100
+        },
+        {
+          "slot": "WR",
+          "name": "Josh Downs",
+          "team": "IND",
+          "salary": 5700
+        },
+        {
+          "slot": "WR",
+          "name": "George Pickens",
+          "team": "DAL",
+          "salary": 6600
+        },
+        {
+          "slot": "TE",
+          "name": "Juwan Johnson",
+          "team": "NO",
+          "salary": 3700
+        },
+        {
+          "slot": "FLEX",
+          "name": "Tre Tucker",
+          "team": "LV",
+          "salary": 5000
+        },
+        {
+          "slot": "DST",
+          "name": "Seahawks",
+          "team": "Seahawks",
+          "salary": 3800
+        }
+      ]
+    }
+  ],
+  "staked": 99,
+  "stakedIncludingUnrecorded": 99
 }
