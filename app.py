@@ -799,6 +799,31 @@ with tab_pool:
         st.dataframe(_kdf.tail(10).iloc[::-1], width="stretch", hide_index=True,
                      column_config={"Salary": st.column_config.NumberColumn("Salary", format="$%d")})
 
+        # ---- WR2/3 and RB2/3 where real money disagrees with us ------------
+        _watch = kalshi_mod.watchlist(pool, _kalshi_props, blend_mod.key)
+        WR = kalshi_mod.WATCHLIST_RECORD
+        st.markdown("**WR2/WR3 and RB2/RB3 where the market has money on it**")
+        st.error(
+            f"**This has been logged and graded for {WR['weeks']} weeks and it does not work.** "
+            f"{WR['popped']} of {WR['graded']} picks reached 20+ points — a "
+            f"{WR['hit_rate']:.0%} hit rate against a {WR['base_rate']:.0%} base rate for the same "
+            f"players. The biggest disagreements did worst: {WR['by_gap']['over 3 pts'][0]} of "
+            f"{WR['by_gap']['over 3 pts'][1]} where the market was 3+ points above us. "
+            f"Shown because it is logged every week and the record should be visible, not because "
+            f"it is a recommendation.", icon="⛔")
+        if _watch:
+            st.dataframe(pd.DataFrame([{
+                "Slot": r["depth"], "Player": r["name"], "Team": r["team"],
+                "Salary": r["salary"], "We say": r["ours_noTD"], "Kalshi": r["kalshi"],
+                "Gap": r["gap"], "Traded": r["volume"],
+            } for r in _watch[:15]]), width="stretch", hide_index=True,
+                column_config={"Salary": st.column_config.NumberColumn("Salary", format="$%d"),
+                               "Traded": st.column_config.NumberColumn("Traded", format="%d")})
+            st.caption(
+                f"Second or third on his own team by salary, market traded at least "
+                f"{kalshi_mod.MIN_VOLUME:.0f}, and the market priced what he actually does. "
+                f"{len(_watch)} players pass. Both numbers exclude touchdowns.")
+
         with st.expander("Is it any good? The first forward validation"):
             st.markdown(f"""
 This could not be tested for most of the project's life: settled Kalshi markets

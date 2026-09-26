@@ -131,10 +131,14 @@ def player_rows(props: dict | None) -> dict[str, dict]:
             row = out.setdefault(name, {"name": name, "game": entry.get("game"),
                                         "stats": {}, "points": 0.0, "covered": [],
                                         "floorSpan": 0.0, "rungs": 0})
+            rungs = entry.get("rungs") or []
+            vol = sum(float(r.get("volume") or 0) for r in rungs)
             row["stats"][stat] = {"mean": mean, "points": mean * per_unit,
-                                  "floorSpan": floor_span,
-                                  "rungs": len(entry.get("rungs") or [])}
-            row["rungs"] += len(entry.get("rungs") or [])
+                                  "floorSpan": floor_span, "rungs": len(rungs),
+                                  "volume": vol,
+                                  "tradedRungs": sum(1 for r in rungs
+                                                     if float(r.get("volume") or 0) > 0)}
+            row["rungs"] += len(rungs)
 
     for row in out.values():
         s = row["stats"]
@@ -145,7 +149,32 @@ def player_rows(props: dict | None) -> dict[str, dict]:
         row["covered"] = sorted(use)
         row["missingScoring"] = sorted(SCORING_STATS - set(s))
         row["floorSpan"] = (max(s[k]["floorSpan"] for k in use) if use else 0.0)
+        # Volume is the difference between a price and a quote. The file's own
+        # warning says so: a wide spread with no volume is one market maker's
+        # guess, not anyone's opinion backed by money. 26 of 373 player-markets
+        # had no trades at all on the Week 3 capture.
+        row["volume"] = sum(s[k].get("volume", 0.0) for k in use)
+        row["tradedRungs"] = sum(s[k].get("tradedRungs", 0) for k in use)
     return out
+
+
+def depth_rank(pool: list[dict]) -> dict[str, int]:
+    """
+    Where each player sits on his own team's depth chart, by salary.
+
+    WR1 is the most expensive receiver on his team, WR2 the next, and so on.
+    That is what "WR2/WR3" means -- a role, not a price band. Ranking by salary
+    across the whole slate instead would call a cheap team's WR1 a WR3, which is
+    the opposite of the intent.
+    """
+    groups: dict[tuple, list[dict]] = {}
+    for p in pool:
+        groups.setdefault((p.get("team"), p.get("position")), []).append(p)
+    rank = {}
+    for members in groups.values():
+        for i, p in enumerate(sorted(members, key=lambda x: -float(x.get("salary") or 0)), 1):
+            rank[p["id"]] = i
+    return rank
 
 
 def join_to_pool(pool: list[dict], props: dict | None, key) -> list[dict]:
@@ -170,6 +199,19 @@ def join_to_pool(pool: list[dict], props: dict | None, key) -> list[dict]:
     return out
 
 
+#: The watchlist's live record. This is the number that matters and it is bad.
+#: Logged before kickoff each week, graded after; see
+#: app/scripts/kalshi_watchlist.py and app/evidence/kalshi-watchlist.csv.
+WATCHLIST_RECORD = {
+    "weeks": 3, "graded": 84, "popped": 2, "hit_rate": 0.024, "base_rate": 0.08,
+    "by_gap": {"over 3 pts": (0, 19), "2 to 3": (0, 16), "1 to 2": (1, 24), "under 1": (1, 25)},
+    "top5_per_week": (0, 10),
+    "note": ("Worse than picking at random, and monotone the WRONG way -- the bigger the "
+             "disagreement, the worse the outcome. 84 picks with 2 poppers cannot rule out the "
+             "8% base rate on its own, but there is no positive evidence here at all and every "
+             "cut points the same direction."),
+}
+
 #: What the first forward validation found, for display. Two weeks is not a
 #: measurement; it is the first two data points of one.
 MEASURED = {
@@ -184,3 +226,68 @@ MEASURED = {
              "by construction. Unadjusted it reads 6.17 and the gap looks three times larger "
              "than it is."),
 }
+
+
+#: A market with less volume than this is a quote, not a price. Set at the
+#: median traded volume across player-markets on the 2026-09-27 capture, so
+#: roughly half of all markets clear it. It is a judgement, not a measurement.
+MIN_VOLUME = 400.0
+
+#: Depth-chart slots that are the target: the second and third options on their
+#: own team, where a cheap price and a real role can coexist. WR1s are priced
+#: for what they do and WR4s do not play enough.
+TARGET_RANKS = (2, 3)
+
+
+def watchlist(pool: list[dict], props: dict | None, key,
+              positions=("WR", "RB"), ranks=TARGET_RANKS,
+              min_volume: float = MIN_VOLUME, td_share: float = 0.717) -> list[dict]:
+    """
+    WR2/WR3 and RB2/RB3 where real money disagrees with our projection.
+
+    Three filters, each for a stated reason:
+
+      depth rank   second or third on his own team. That is the slot where a
+                   tournament is won -- cheap enough to afford, involved enough
+                   to explode.
+      volume       the market must have traded. A wide spread with no volume is
+                   one market maker's guess.
+      coverage     the market must have priced what the player actually does --
+                   receiving for a receiver, rushing for a back. Kalshi priced
+                   Aaron Rodgers' RUSHING yards and nothing else, which read as
+                   the market valuing him at 0.7 points.
+
+    `gap` is Kalshi minus our projection with touchdowns stripped out of ours,
+    since the ladders do not price them. A positive gap means the market expects
+    more than we do. Sorted by that, largest first.
+    """
+    need = {"WR": {"rec_yards", "receptions"}, "TE": {"rec_yards", "receptions"},
+            "RB": {"rush_yards"}, "QB": {"pass_yards"}}
+    rank = depth_rank(pool)
+    rows = player_rows(props)
+    by_key = {key(n): r for n, r in rows.items()}
+
+    out = []
+    for p in pool:
+        pos = p.get("position")
+        if pos not in positions or rank.get(p["id"]) not in ranks:
+            continue
+        m = by_key.get(key(p["name"]))
+        if not m or not need.get(pos, set()).issubset(set(m["covered"])):
+            continue
+        if m["volume"] < min_volume:
+            continue
+        ours = float(p.get("projection") or 0) * td_share
+        out.append({
+            "id": p["id"], "name": p["name"], "position": pos, "team": p.get("team"),
+            "opponent": p.get("opponent"), "salary": float(p.get("salary") or 0),
+            "depth": f'{pos}{rank[p["id"]]}',
+            "ours_noTD": round(ours, 2),
+            "kalshi": round(m["points"], 2),
+            "gap": round(m["points"] - ours, 2),
+            "volume": round(m["volume"]),
+            "traded_rungs": m["tradedRungs"],
+            "priced": ",".join(m["covered"]),
+        })
+    out.sort(key=lambda r: -r["gap"])
+    return out

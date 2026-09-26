@@ -105,3 +105,55 @@ class JoinToPool(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Watchlist(unittest.TestCase):
+    """WR2/3 and RB2/3 where money has actually been bet."""
+
+    POOL = [
+        {"id": "1", "name": "Top WR", "position": "WR", "team": "AA", "salary": 9000, "projection": 20.0},
+        {"id": "2", "name": "Second WR", "position": "WR", "team": "AA", "salary": 5000, "projection": 8.0},
+        {"id": "3", "name": "Third WR", "position": "WR", "team": "AA", "salary": 4000, "projection": 6.0},
+        {"id": "4", "name": "Fourth WR", "position": "WR", "team": "AA", "salary": 3000, "projection": 3.0},
+    ]
+
+    def _props(self, name, volume):
+        return {"series": {
+            "Y": {"stat": "rec_yards", "dkPointsPerUnit": 0.1, "players": [
+                {"player": name, "rungs": [{"strike": 30, "mid": 0.8, "volume": volume},
+                                           {"strike": 60, "mid": 0.5, "volume": volume},
+                                           {"strike": 90, "mid": 0.2, "volume": volume}]}]},
+            "R": {"stat": "receptions", "dkPointsPerUnit": 1, "players": [
+                {"player": name, "rungs": [{"strike": 3, "mid": 0.8, "volume": volume},
+                                           {"strike": 5, "mid": 0.5, "volume": volume},
+                                           {"strike": 7, "mid": 0.2, "volume": volume}]}]}}}
+
+    def test_depth_rank_is_within_the_team(self):
+        r = kalshi.depth_rank(self.POOL)
+        self.assertEqual([r["1"], r["2"], r["3"], r["4"]], [1, 2, 3, 4])
+
+    def test_only_the_second_and_third_options_are_listed(self):
+        got = kalshi.watchlist(self.POOL, self._props("Second WR", 5000), lambda n: n)
+        self.assertEqual([r["name"] for r in got], ["Second WR"])
+        got = kalshi.watchlist(self.POOL, self._props("Top WR", 5000), lambda n: n)
+        self.assertEqual(got, [], "the WR1 is priced for what he does")
+        got = kalshi.watchlist(self.POOL, self._props("Fourth WR", 5000), lambda n: n)
+        self.assertEqual(got, [], "the WR4 does not play enough")
+
+    def test_an_untraded_market_is_a_quote_not_a_price(self):
+        self.assertEqual(kalshi.watchlist(self.POOL, self._props("Second WR", 0), lambda n: n), [])
+        self.assertTrue(kalshi.watchlist(self.POOL, self._props("Second WR", 5000), lambda n: n))
+
+    def test_a_partial_market_is_refused(self):
+        """Kalshi priced Aaron Rodgers' rushing and nothing else."""
+        props = {"series": {"R": {"stat": "rush_yards", "dkPointsPerUnit": 0.1, "players": [
+            {"player": "Second WR", "rungs": [{"strike": 5, "mid": 0.5, "volume": 9000},
+                                              {"strike": 10, "mid": 0.2, "volume": 9000}]}]}}}
+        self.assertEqual(kalshi.watchlist(self.POOL, props, lambda n: n), [],
+                         "a receiver needs a RECEIVING market, not a rushing one")
+
+    def test_the_record_is_recorded_and_is_bad(self):
+        """If this ever reads as a positive, the evidence must have changed."""
+        r = kalshi.WATCHLIST_RECORD
+        self.assertLess(r["hit_rate"], r["base_rate"],
+                        "the watchlist has underperformed the base rate; do not present it as an edge")
