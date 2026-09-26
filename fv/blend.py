@@ -49,6 +49,13 @@ def load_prior(path: Path) -> dict:
     except (OSError, ValueError):
         return {"season": None, "players": {}}
     d.setdefault("players", {})
+    # Expand aliases so a lookup on the DraftKings spelling finds the workbook
+    # record. Without this the blend reports "no prior season" for a player who
+    # has one, and falls back to a two-game average -- silently, and only for
+    # the handful of players whose names the two sources spell differently.
+    for slate_key, workbook_key in (d.get("aliases") or {}).items():
+        if workbook_key in d["players"] and slate_key not in d["players"]:
+            d["players"][slate_key] = d["players"][workbook_key]
     return d
 
 

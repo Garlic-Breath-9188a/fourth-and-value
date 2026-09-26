@@ -1100,3 +1100,37 @@ class OtherPositionExposure(unittest.TestCase):
                     if p["position"] == pos:
                         n = sum(1 for x in ls for y in x if y["id"] == p["id"])
                         self.assertLessEqual(n, cap, f"{pos} cap leaked when other_exposure rose")
+
+
+class PriorSeasonAliases(unittest.TestCase):
+    """
+    DraftKings and the workbook spell some names differently, and the blend
+    silently reported "no prior season" for those players -- falling back to a
+    two-game average, which is the exact failure the blend exists to prevent.
+    """
+
+    def test_the_aliases_resolve(self):
+        prior = blend_mod.load_prior(DATA / "prior-season-2025.json")
+        for slate_key in (prior.get("aliases") or {}):
+            with self.subTest(player=slate_key):
+                self.assertIn(slate_key, prior["players"],
+                              "alias did not expand into a usable record")
+                self.assertGreater(prior["players"][slate_key]["games"], 0)
+
+    def test_an_alias_never_overwrites_a_real_record(self):
+        prior = blend_mod.load_prior(DATA / "prior-season-2025.json")
+        raw = json.loads((DATA / "prior-season-2025.json").read_text())
+        for slate_key, workbook_key in (raw.get("aliases") or {}).items():
+            if slate_key in raw["players"]:
+                self.assertEqual(prior["players"][slate_key], raw["players"][slate_key],
+                                 "an alias must not shadow a player who has his own record")
+
+    def test_the_slate_players_they_are_for_now_blend(self):
+        prior = blend_mod.load_prior(DATA / "prior-season-2025.json")
+        rows = load_salaries((DATA / "DKSalaries.csv").read_text())
+        names = {r["name"] for r in rows}
+        for slate_key in (prior.get("aliases") or {}):
+            matches = [n for n in names if blend_mod.key(n) == slate_key]
+            if matches:
+                with self.subTest(player=matches[0]):
+                    self.assertIn(slate_key, prior["players"])
