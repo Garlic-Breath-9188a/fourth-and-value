@@ -437,6 +437,33 @@ elif not use_live:
     st.warning("**Injury cross-check is off.** Availability is whatever the salary file said "
                "when it was exported.", icon="⚠️")
 
+# ---- Injury designation, shared by every recommendation table --------------
+# A questionable player is deliberately KEPT in the pool: the doubt is what
+# suppresses his ownership, which is the point in a tournament. But a table that
+# recommends him without saying he is hurt hides the one thing worth checking
+# before rostering him. Adonai Mitchell sat at the top of the market watchlist,
+# questionable with a finger injury, and nothing on screen said so.
+#
+# Defined here rather than inside a tab because the mispricing board renders on
+# the Lineups tab and the market watchlist on the Player pool tab -- putting it
+# in either one leaves the other with a NameError.
+_status_by_name = {p["name"]: (p.get("status") or "Active") for p in pool}
+_body_by_name = {}
+if use_live and feed:
+    for _c in injuries.cross_check(pool, feed):
+        _body_by_name[_c["name"]] = _c.get("body_part") or ""
+        _status_by_name[_c["name"]] = _c["live_status"]
+
+
+def _flag(name: str) -> str:
+    """"Questionable (Finger)" for a designated player, empty for a fit one."""
+    st = _status_by_name.get(name, "Active")
+    if st == "Active":
+        return ""
+    part = _body_by_name.get(name)
+    return f"{st} ({part})" if part else st
+
+
 tab_board, tab_pool, tab_entry, tab_strategy, tab_about = st.tabs(
     ["Lineups", "Player pool", "Entry plan", "Strategy", "About"])
 
@@ -635,6 +662,7 @@ with tab_board:
             def _frame(rows, limit=12):
                 return pd.DataFrame([{
                     "Player": r["name"], "Pos": r["position"], "Team": r["team"],
+                    "Status": _flag(r["name"]) or "—",
                     "Salary": f"${r['salary']:,.0f}",
                     "Snap": f"{r['snap_pct']:.0f}%",
                     "Touches": r["touches"],
@@ -857,6 +885,7 @@ with tab_pool:
         if _watch:
             st.dataframe(pd.DataFrame([{
                 "Slot": r["depth"], "Player": r["name"], "Team": r["team"],
+                "Status": _flag(r["name"]) or "—",
                 "Salary": r["salary"], "We say": r["ours_noTD"], "Kalshi": r["kalshi"],
                 "Gap": r["gap"], "Traded": r["volume"],
             } for r in _watch[:15]]), width="stretch", hide_index=True,
