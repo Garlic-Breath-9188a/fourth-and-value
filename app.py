@@ -269,7 +269,7 @@ def load_placed_entries(version: str):
 
 @st.cache_data(show_spinner=True)
 def portfolio(ids, count, seed, ceiling_weight, qb_exposure, rb_exposure, must_play,
-              require_wr1, avoid_keys, week):
+              require_wr1, avoid_keys, week, other_exposure, exclude_ids):
     """
     `avoid_keys` holds the rosters already entered. They are built extra and
     then filtered out, rather than being forbidden during construction, so the
@@ -280,10 +280,13 @@ def portfolio(ids, count, seed, ceiling_weight, qb_exposure, rb_exposure, must_p
     and forgetting it is exactly the bug this signature replaces.
     """
     pool = prepared_pool([p for p in load_pool(_data_version()) if p["id"] in set(ids)], week)
+    if exclude_ids:
+        pool = [p for p in pool if p["id"] not in set(exclude_ids)]
     avoid = set(avoid_keys)
     want = count + len(avoid)
     built = build_portfolio(pool, want, seed=seed, ceiling_weight=ceiling_weight,
                             qb_exposure=qb_exposure, rb_exposure=rb_exposure,
+                            other_exposure=other_exposure,
                             must_play=set(must_play), require_wr1=require_wr1)
     fresh = [l for l in built if ent.roster_key(l) not in avoid]
     return fresh[:count]
@@ -372,6 +375,19 @@ with st.sidebar:
                                  "lineups unprompted on this slate, so every setting above ~60% "
                                  "gives the same portfolio. Tighter caps were measured and cost "
                                  "the tail — P(180+) 1.12% → 0.83% at 20%.")
+    other_exposure = st.slider("Max one WR/TE/DST may appear (%)", 10, 100,
+                               rules.OTHER_EXPOSURE_PCT, step=10,
+                               help="Receivers had no cap of their own and fell through to 75%, "
+                                    "which at ten lineups is seven. One receiver appeared in 7 of "
+                                    "10 lineups and then in three of four entries actually "
+                                    "placed. A lineup holds three WRs plus usually the FLEX, so "
+                                    "this is the position where an uncapped default does most "
+                                    "damage.")
+    exclude_fades = st.checkbox(
+        "Exclude players the board flags as overpriced", value=False,
+        help="OFF by default because it was measured and it did not work: 2 of 84 flagged "
+             "players reached 20+ points, a 2% hit rate against an 8% base rate, and the "
+             "biggest disagreements did worst. Switched on, the builder will not roster them.")
     avoid_used_qbs = st.checkbox(
         "Skip quarterbacks already entered", value=True,
         help="A quarterback in a lineup you have already staked is not offered again "
@@ -467,6 +483,13 @@ def _flag(name: str) -> str:
 tab_board, tab_pool, tab_entry, tab_strategy, tab_about = st.tabs(
     ["Lineups", "Player pool", "Entry plan", "Strategy", "About"])
 
+# ---- Players the mispricing board flags as overpriced ----------------------
+# Computed here because the builder may be asked to exclude them, and the board
+# itself renders further down. OFF by default: the fade side was measured at 2
+# of 84 against an 8% base rate, so excluding them is a preference, not an edge.
+_fade_ids = {r["id"] for r in
+             mispricing_mod.board(pool, load_usage(_data_version()))["fades"]}
+
 # ---- Do not build another lineup around a quarterback already staked --------
 # Asked for directly. One quarterback per week is a concentration choice rather
 # than a measured edge -- tighter QB caps were measured to COST the tail
@@ -487,7 +510,8 @@ if avoid_used_qbs and not any(p["position"] == "QB" for p in build_ids):
 
 lineups = portfolio(tuple(p["id"] for p in build_ids), n_lineups, seed,
                     ceiling_weight, qb_exposure, rb_exposure, must_play, require_wr1,
-                    tuple(sorted(st.session_state.entered)), int(nfl_week))
+                    tuple(sorted(st.session_state.entered)), int(nfl_week),
+                    other_exposure, tuple(sorted(_fade_ids)) if exclude_fades else ())
 lock_label = f"{slate.locks_at.strftime('%-m/%-d %-I:%M')}p"
 entries, entry_notes = plan(lobby["contests"], budget, len(lineups), lock_label)
 

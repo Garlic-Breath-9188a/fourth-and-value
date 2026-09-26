@@ -248,8 +248,11 @@ def board(rows: list[dict], usage: dict | None, min_salary: int = MIN_SALARY) ->
     for r in rows:
         pos = (r.get("position") or "").upper()
         salary = float(r.get("salary") or 0)
-        row = {"name": r.get("name"), "position": pos, "team": r.get("team"),
-               "salary": salary, "projection": r.get("projection")}
+        # `id` is carried so a caller can filter the pool by it. Matching a
+        # board row back to a pool row by NAME would pick the wrong Mitchell --
+        # Keaton at LAC and Adonai at NYJ are both priced $4,300.
+        row = {"id": r.get("id"), "name": r.get("name"), "position": pos,
+               "team": r.get("team"), "salary": salary, "projection": r.get("projection")}
 
         if pos not in PRICE_LINE:
             unranked.append({**row, "why": f"no fitted price line for {pos or 'this position'}"

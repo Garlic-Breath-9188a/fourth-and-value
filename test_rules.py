@@ -1050,3 +1050,53 @@ class PlacedEntriesReconcile(unittest.TestCase):
             used = counts.get(c["id"], 0)
             self.assertLessEqual(used, c.get("entriesPerUser", 1),
                                  f'{c["name"]} holds {used} of {c.get("entriesPerUser")} allowed')
+
+
+class OtherPositionExposure(unittest.TestCase):
+    """
+    Receivers had no cap of their own.
+
+    QB and RB each had a slider; everything else fell through to EXPOSURE_PCT at
+    75%, which at ten lineups is SEVEN. One receiver appeared in 7 of 10
+    generated lineups and then in three of the four entries actually placed. A
+    lineup holds three WRs plus usually the FLEX, so this is the position where
+    an uncapped default does the most damage.
+    """
+
+    def _pool(self):
+        data = Path(__file__).parent / "data"
+        rows = load_salaries((data / "DKSalaries.csv").read_text())
+        pool = [r for r in keep_starting_quarterbacks(rows) if rosterable(r)]
+        return apply_ceilings(pool, load_json(data / "player-variance.json"))
+
+    def test_the_other_cap_binds_on_receivers(self):
+        pool = self._pool()
+        counts = {}
+        for cap in (75, 40, 30):
+            ls = build_portfolio(pool, 10, seed=1, qb_exposure=33, rb_exposure=30,
+                                 other_exposure=cap)
+            worst = 0
+            for l in ls:
+                for p in l:
+                    if p["position"] in ("WR", "TE", "DST"):
+                        n = sum(1 for x in ls for y in x if y["id"] == p["id"])
+                        worst = max(worst, n)
+            counts[cap] = worst
+            self.assertLessEqual(worst, max(1, 10 * cap // 100),
+                                 f"cap {cap}% allows {worst} of 10")
+        self.assertLess(counts[30], counts[75], "a tighter cap must actually bind")
+
+    def test_the_default_is_inside_the_binding_range(self):
+        self.assertLess(rules.OTHER_EXPOSURE_PCT, 75)
+        self.assertGreaterEqual(rules.OTHER_EXPOSURE_PCT, 10)
+
+    def test_quarterbacks_and_backs_keep_their_own_caps(self):
+        pool = self._pool()
+        ls = build_portfolio(pool, 10, seed=1, qb_exposure=20, rb_exposure=20,
+                             other_exposure=100)
+        for pos, cap in (("QB", 2), ("RB", 2)):
+            for l in ls:
+                for p in l:
+                    if p["position"] == pos:
+                        n = sum(1 for x in ls for y in x if y["id"] == p["id"])
+                        self.assertLessEqual(n, cap, f"{pos} cap leaked when other_exposure rose")

@@ -50,6 +50,7 @@ that carries it: a second same-team receiver alone only reached 0.17%.
 
 QB_EXPOSURE_PCT = 33
 RB_EXPOSURE_PCT = 30
+OTHER_EXPOSURE_PCT = 40
 EXPOSURE_PCT = 75
 """
 How much of the portfolio one player may occupy.
@@ -58,8 +59,16 @@ Three numbers, not one, because they do different jobs:
 
   QB_EXPOSURE_PCT   the quarterback slider's default
   RB_EXPOSURE_PCT   the running back slider's default
-  EXPOSURE_PCT      the cap applied to every position WITHOUT a slider
-                    (WR, TE, DST). Changing it silently retunes those too.
+  OTHER_EXPOSURE_PCT  the default for WR, TE and DST -- every position that
+                      is not a quarterback or a running back
+  EXPOSURE_PCT        the hard fallback if a position is somehow not covered
+
+WR had no cap of its own and fell through to EXPOSURE_PCT at 75%, which at ten
+lineups is SEVEN. Denzel Boston appeared in 7 of 10 generated lineups and then
+in three of the four entries actually placed, which is how a week ends up riding
+on one receiver. A lineup carries three WRs and usually a fourth at FLEX, so
+receivers are the position where an uncapped default does the most damage --
+exactly the opposite of where the attention had gone.
 
 **A cap only does something while it binds.** On the Week 2 2026 slate no running
 back appeared in more than 6 of 10 lineups unprompted, so at a count of 10 every

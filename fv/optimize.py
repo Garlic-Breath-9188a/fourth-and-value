@@ -198,6 +198,7 @@ def build_portfolio(players: list[dict], count: int = 10, seed: int = 1,
                     must_play: set[str] | None = None,
                     qb_exposure: int = QB_EXPOSURE_PCT,
                     rb_exposure: int = EXPOSURE_PCT,
+                    other_exposure: int | None = None,
                     require_wr1: bool = False) -> list[list[dict]]:
     """
     A portfolio of distinct, diversified lineups.
@@ -220,7 +221,11 @@ def build_portfolio(players: list[dict], count: int = 10, seed: int = 1,
 
     caps = {"QB": max(1, count * qb_exposure // 100),
             "RB": max(1, count * rb_exposure // 100)}
-    default_cap = max(1, count * EXPOSURE_PCT // 100)
+    # WR, TE and DST. They used to fall through to EXPOSURE_PCT at 75%, which at
+    # ten lineups is seven -- and a lineup holds three receivers plus usually
+    # the FLEX, so that is where an uncapped default bites hardest.
+    other = other_exposure if other_exposure is not None else EXPOSURE_PCT
+    default_cap = max(1, count * other // 100)
     selected: list[list[dict]] = []
     uses: dict[str, int] = {}
     for l in pool:
