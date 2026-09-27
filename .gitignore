@@ -2,3 +2,7 @@ __pycache__/
 *.pyc
 .DS_Store
 
+
+# A partner's committed players. His picks are his data; the app reads this
+# locally and it is never published to a public repository.
+data/partner-players.json

@@ -24,6 +24,7 @@ from fv import blend as blend_mod
 from fv import select as select_mod
 from fv import mispricing as mispricing_mod
 from fv import kalshi as kalshi_mod
+from fv import partner as partner_mod
 
 DATA = Path(__file__).resolve().parent / "data"
 
@@ -162,6 +163,18 @@ def prepared_pool(rows: list[dict], week: int) -> list[dict]:
 def load_prior_season(version: str):
     """Last season's scoring, for blending against a thin in-season average."""
     return blend_mod.load_prior(DATA / "prior-season-2025.json")
+
+
+@st.cache_data(show_spinner=False)
+def load_partner(version: str):
+    """
+    A partner's committed players, when a partner file is present.
+
+    Absent is the normal case and the feature switches off. The file is
+    gitignored on purpose: a partner's picks are his data, so it exists locally
+    and is never published to this repository.
+    """
+    return partner_mod.load(DATA / "partner-players.json")
 
 
 @st.cache_data(show_spinner=False)
@@ -381,6 +394,17 @@ with st.sidebar:
                                  "lineups unprompted on this slate, so every setting above ~60% "
                                  "gives the same portfolio. Tighter caps were measured and cost "
                                  "the tail — P(180+) 1.12% → 0.83% at 20%.")
+    _partner = load_partner(_data_version())
+    avoid_partner = False
+    if _partner["players"]:
+        avoid_partner = st.checkbox(
+            f"Avoid my partner's {len(_partner['players'])} players", value=True,
+            help="When you split winnings the two of you are one portfolio. Overlap does not "
+                 "change what the pair expects to win, but it does cut the chance that EITHER "
+                 "of you hits — and a top-heavy tournament pays only for that. His lineups are "
+                 f"locked, so for your purposes he owns those players. Captured "
+                 f"{_partner.get('captured') or 'unknown'} from {_partner.get('source') or 'a tracker'}.")
+
     other_exposure = st.slider("Max one WR/TE/DST may appear (%)", 10, 100,
                                rules.OTHER_EXPOSURE_PCT, step=10,
                                help="Receivers had no cap of their own and fell through to 75%, "
@@ -483,6 +507,20 @@ def _flag(name: str) -> str:
 
 tab_board, tab_pool, tab_entry, tab_strategy, tab_about = st.tabs(
     ["Lineups", "Player pool", "Entry plan", "Strategy", "About"])
+
+# ---- Leave the partner's players alone -------------------------------------
+_partner_missing: list[str] = []
+if avoid_partner and _partner["players"]:
+    _before = len(pool)
+    pool, _partner_missing = partner_mod.exclude(pool, _partner)
+    st.caption(
+        f"**Avoiding your partner's {len(_partner['players'])} players** — pool {_before} → "
+        f"{len(pool)}. Split winnings make the two of you one portfolio, and shared players "
+        f"mean shared outcomes. Captured {_partner.get('captured')}, "
+        f"{_partner.get('lineups', '?')} of his lineups.")
+    if _partner_missing:
+        st.caption(f"Not on this slate, so nothing to avoid: {', '.join(_partner_missing[:8])}"
+                   + (f" and {len(_partner_missing) - 8} more" if len(_partner_missing) > 8 else ""))
 
 # ---- Do not build another lineup around a quarterback already staked --------
 # Asked for directly. One quarterback per week is a concentration choice rather
