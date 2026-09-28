@@ -1,0 +1,139 @@
+{
+ "season": 2026,
+ "week": 3,
+ "source": "https://github.com/nflverse/nfldata/raw/master/data/games.csv",
+ "leagueMeanTotal": 43.9,
+ "note": "Closing Vegas total per team. Worth ~3% on the ceiling and nothing on the mean -- see the module docstring.",
+ "games": [
+  {
+   "away": "BAL",
+   "home": "DAL",
+   "total": 53.5,
+   "spread": -3.0
+  },
+  {
+   "away": "LAC",
+   "home": "BUF",
+   "total": 50.5,
+   "spread": 7.0
+  },
+  {
+   "away": "NYJ",
+   "home": "DET",
+   "total": 49.5,
+   "spread": 7.0
+  },
+  {
+   "away": "ARI",
+   "home": "SF",
+   "total": 48.5,
+   "spread": 7.5
+  },
+  {
+   "away": "NE",
+   "home": "JAX",
+   "total": 46.5,
+   "spread": 3.0
+  },
+  {
+   "away": "KC",
+   "home": "MIA",
+   "total": 45.5,
+   "spread": -10.0
+  },
+  {
+   "away": "ATL",
+   "home": "GB",
+   "total": 43.5,
+   "spread": 4.5
+  },
+  {
+   "away": "LV",
+   "home": "NO",
+   "total": 43.5,
+   "spread": 3.5
+  },
+  {
+   "away": "LA",
+   "home": "DEN",
+   "total": 43.5,
+   "spread": 1.5
+  },
+  {
+   "away": "CIN",
+   "home": "PIT",
+   "total": 42.5,
+   "spread": -3.5
+  },
+  {
+   "away": "MIN",
+   "home": "TB",
+   "total": 42.5,
+   "spread": -1.5
+  },
+  {
+   "away": "CAR",
+   "home": "CLE",
+   "total": 41.5,
+   "spread": -2.5
+  },
+  {
+   "away": "HOU",
+   "home": "IND",
+   "total": 41.5,
+   "spread": -1.5
+  },
+  {
+   "away": "PHI",
+   "home": "CHI",
+   "total": 41.5,
+   "spread": -4.5
+  },
+  {
+   "away": "SEA",
+   "home": "WAS",
+   "total": 40.5,
+   "spread": -8.5
+  },
+  {
+   "away": "TEN",
+   "home": "NYG",
+   "total": 37.5,
+   "spread": 2.5
+  }
+ ],
+ "teams": {
+  "ATL": 43.5,
+  "GB": 43.5,
+  "LAC": 50.5,
+  "BUF": 50.5,
+  "CAR": 41.5,
+  "CLE": 41.5,
+  "NYJ": 49.5,
+  "DET": 49.5,
+  "HOU": 41.5,
+  "IND": 41.5,
+  "NE": 46.5,
+  "JAX": 46.5,
+  "KC": 45.5,
+  "MIA": 45.5,
+  "TEN": 37.5,
+  "NYG": 37.5,
+  "CIN": 42.5,
+  "PIT": 42.5,
+  "SEA": 40.5,
+  "WAS": 40.5,
+  "ARI": 48.5,
+  "SF": 48.5,
+  "MIN": 42.5,
+  "TB": 42.5,
+  "BAL": 53.5,
+  "DAL": 53.5,
+  "LV": 43.5,
+  "NO": 43.5,
+  "LA": 43.5,
+  "DEN": 43.5,
+  "PHI": 41.5,
+  "CHI": 41.5
+ }
+}

@@ -103,15 +103,41 @@ def keep_starting_quarterbacks(rows: list[dict]) -> list[dict]:
     return [r for r in rows if r["position"] != "QB" or r["id"] in starters]
 
 
-def apply_ceilings(rows: list[dict], variance: dict | None) -> list[dict]:
+# Closing Vegas total: fitted on 11,401 player-weeks, 2022-2025. The total does
+# NOT move expected points (+0.33/player, 1.5 sd -- null, and null in every
+# position separately). It moves the far tail: at equal projection the rate of a
+# 30+ point game runs 2.7% in low-total games against 5.2% in high-total ones
+# (x1.97, 2.8 sd). End to end that is a 1.03x swing on the 85th percentile, so
+# the adjustment here is deliberately small. See app/scripts/fetch_game_totals.py.
+LEAGUE_MEAN_TOTAL = 43.9
+CEILING_PER_POINT = 0.0026
+GAME_TOTAL_CLAMP = (0.96, 1.04)
+
+
+def game_total_multiplier(total: float | None) -> float:
+    """Ceiling adjustment for a player whose game closed at this total."""
+    if total is None:
+        return 1.0
+    m = 1.0 + CEILING_PER_POINT * (total - LEAGUE_MEAN_TOTAL)
+    return max(GAME_TOTAL_CLAMP[0], min(GAME_TOTAL_CLAMP[1], m))
+
+
+def apply_ceilings(rows: list[dict], variance: dict | None,
+                   game_totals: dict | None = None) -> list[dict]:
     """
     A ceiling from each player's own scoring spread, where one is known.
 
     A flat multiple ranks nobody differently within a position, so the ceiling
     weight cannot prefer a volatile player over a steady one. Players with no
     history keep the multiple and are LABELLED, never given an invented spread.
+
+    `game_totals` is the output of fetch_game_totals.py. When present, a
+    player's ceiling is nudged by his game's closing total -- at most 4% either
+    way, because that is the size of the measured effect. Absent, nothing
+    changes: a missing line must never read as an average one.
     """
     table = (variance or {}).get("players", {})
+    by_team = (game_totals or {}).get("teams", {})
     for r in rows:
         rec = table.get(_key(r["name"]))
         flat = r["projection"] * CEILING_MULTIPLE.get(r["position"], 2.0)
@@ -122,6 +148,12 @@ def apply_ceilings(rows: list[dict], variance: dict | None) -> list[dict]:
         else:
             r["ceiling"] = flat
             r["ceiling_source"] = "positional estimate — no scoring history"
+        total = by_team.get(r.get("team"))
+        r["game_total"] = total
+        mult = game_total_multiplier(total)
+        if mult != 1.0:
+            r["ceiling"] *= mult
+            r["ceiling_source"] += f", game total {total:.1f} (x{mult:.3f})"
     return rows
 
 

@@ -153,10 +153,19 @@ def prepared_pool(rows: list[dict], week: int) -> list[dict]:
     averages. On the Week 2 2026 slate the shipped lineups scored 151.5 on the
     blend against 162.8 for lineups actually built on it, sharing 3 of 9
     players.
+
+    Game totals ride along here because they adjust the ceiling and nothing
+    else. Measured on 11,401 player-weeks (2022-2025) the closing Vegas total
+    carries no information about expected points -- +0.33 per player, 1.5 sd,
+    and null in every position separately -- but at equal projection the rate of
+    a 30+ point game runs 2.7% in low-total games against 5.2% in high-total
+    ones. The adjustment is capped at 4% because that is the size of the effect
+    on the 85th percentile, which is the ceiling the builder uses.
     """
     blended = blend_mod.apply_blend([dict(r) for r in rows],
                                     load_prior_season(_data_version()), int(week))
-    return apply_ceilings(blended, load_json(DATA / "player-variance.json"))
+    return apply_ceilings(blended, load_json(DATA / "player-variance.json"),
+                          load_json(DATA / "game-totals.json"))
 
 
 @st.cache_data(show_spinner=False)
