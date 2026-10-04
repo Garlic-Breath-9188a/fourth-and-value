@@ -144,6 +144,11 @@ st.markdown("""
   .must { color:#ff4b4b; }
   .foot { display:flex; justify-content:space-between; font-size:.76rem;
           opacity:.7; padding-top:.4rem; }
+  /* An entered lineup is the same card in a different colour. Same markup,
+     same spacing -- only the bar changes, so the eye reads them as one list. */
+  .lu.ent .bar { background:#15325c; }
+  .lu.ent { border-color:rgba(77,163,255,.40); }
+  .gt { flex:none; opacity:.55; font-size:.7rem; width:2.2rem; text-align:right; }
 </style>""", unsafe_allow_html=True)
 
 
@@ -419,7 +424,8 @@ with st.sidebar:
             "would otherwise take at face value.")
 
     st.markdown("### Portfolio")
-    n_lineups = st.slider("Lineups", 1, 20, 10)
+    n_lineups = st.slider("Lineups", 1, 20, 5,
+                          help="Five by default. At the 10% exposure caps each player may appear only once, so every lineup uses a different set — and the fewer you ask for, the stronger each one is, because none are built from leftovers.")
     budget = st.number_input("Weekly budget ($)", 5, 500, 100, step=5)
     qb_exposure = st.slider("Max one QB may appear (%)", 10, 100, _rule("QB_EXPOSURE_PCT", 10), step=10,
                             help="Tighter caps were measured over 101 weeks and did not help — "
@@ -450,6 +456,14 @@ with st.sidebar:
                                     "placed. A lineup holds three WRs plus usually the FLEX, so "
                                     "this is the position where an uncapped default does most "
                                     "damage.")
+    unique_players = st.checkbox(
+        "Every lineup uses different players", value=True,
+        help="Keeps players out of the board once they appear in a lineup you have "
+             "marked entered. Without this, only the exact nine-man roster is "
+             "avoided, so the next build can hand you eight of the same names in a "
+             "different order. With the exposure caps at 10% the generated lineups "
+             "already share nobody with each other; this extends that to what you "
+             "have already submitted.")
     avoid_used_qbs = st.checkbox(
         "Skip quarterbacks already entered", value=True,
         help="A quarterback in a lineup you have already staked is not offered again "
@@ -516,6 +530,8 @@ conflicts = injuries.cross_check(pool, feed) if feed else []
 blocked = {c["id"] for c in conflicts if c["live_status"] in injuries.BLOCKING}
 if drop_backup_qb:
     blocked |= {p["id"] for p in pool if p.get("backup_qb")}
+if unique_players:
+    blocked |= ent.used_player_ids(st.session_state.entered)
 if drop_questionable and feed:
     blocked |= {p["id"] for p in pool
                 if (feed.get(injuries._norm(p["name"])) or {}).get("status") == "Questionable"}
@@ -689,6 +705,10 @@ with tab_board:
             cap = f" · {left} left" if c.get("maxEntriesPerUser", 1) > 1 else " · single"
             return f'${c["entryFee"]:,.0f} · {c["name"]}' + (f' · {r:.1f}% rake' if r is not None else "") + cap
 
+        # Entered rosters store only the fields needed to redraw them, so live
+        # numbers (ceiling, game total) are looked up from the current pool.
+        _by_id = {p["id"]: p for p in pool}
+
         per_row = 5
         for start in range(0, len(lineups), per_row):
             for col, (i, l) in zip(st.columns(per_row, gap="small"),
@@ -703,7 +723,8 @@ with tab_board:
                         f'<div class="row"><span class="slot">{slot}</span>'
                         f'<span class="nm {cls}">{dot}{p["name"]}</span>'
                         f'<span class="tm">{p["team"]}</span>'
-                        f'<span class="sal">{p["salary"] // 100 / 10:.1f}k</span></div>')
+                        f'<span class="sal">{p["salary"] // 100 / 10:.1f}k</span>'
+                        f'<span class="gt">{p.get("game_total") or "—"}</span></div>')
                 entry = entries[i - 1] if i - 1 < len(entries) else None
                 contest = (f'{entry.contest["name"]} · ${entry.fee:,.0f}'
                            if entry else 'not in the plan — pick one below')
@@ -714,7 +735,9 @@ with tab_board:
                     f'<div class="cst" title="{contest}">{contest}</div>'
                     f'<div class="stk">{mark} {qb["team"]} stack · bring-back from {qb["opponent"]}</div>'
                     f'{"".join(body)}'
-                    f'<div class="foot"><span></span>'
+                    f'<div class="foot">'
+                    f'<span>ceil {sum(p.get("ceiling", 0) for p in l):.0f} · '
+                    f'{len({p["game"] for p in l if p.get("game")})} games</span>'
                     f'<span>${sum(p["salary"] for p in l):,} · {projection(l):.1f} pts</span></div>'
                     f'</div></div>', unsafe_allow_html=True)
                 # ---- Mark entered, against a contest you choose -----------
@@ -748,6 +771,44 @@ with tab_board:
                         ent.record(st.session_state.entered, l, chosen, chosen["entryFee"])
                         st.rerun()
             st.write("")
+
+        # ---- What you have already entered, in the same cards ---------------
+        # Rendered here rather than only on the Entry plan tab because the
+        # question "have I already used this player" is asked while looking at
+        # the board, not while looking at a budget table. Identical markup and
+        # spacing; only the bar colour differs, so the two read as one list.
+        if st.session_state.entered:
+            st.markdown("#### Entered")
+            ent_items = list(st.session_state.entered.items())
+            for start in range(0, len(ent_items), per_row):
+                chunk = ent_items[start:start + per_row]
+                for col, (n, (key, rec)) in zip(st.columns(per_row, gap="small"),
+                                                enumerate(chunk, start + 1)):
+                    roster = rec["players"]
+                    body = []
+                    for slot, pl in order_roster(roster):
+                        live = _by_id.get(pl["id"], {})
+                        body.append(
+                            f'<div class="row"><span class="slot">{slot}</span>'
+                            f'<span class="nm">{pl["name"]}</span>'
+                            f'<span class="tm">{pl.get("team", "")}</span>'
+                            f'<span class="sal">{pl.get("salary", 0) // 100 / 10:.1f}k</span>'
+                            f'<span class="gt">{live.get("game_total") or "—"}</span></div>')
+                    ceil = sum(_by_id.get(pl["id"], {}).get("ceiling", 0) for pl in roster)
+                    col.markdown(
+                        f'<div class="lu ent"><div class="bar">ENTERED {n}</div><div class="body">'
+                        f'<div class="cst" title="{rec["contest"]}">{rec["contest"]} · '
+                        f'${rec["fee"]:,.0f}</div>'
+                        f'<div class="stk">marked entered this session</div>'
+                        f'{"".join(body)}'
+                        f'<div class="foot"><span>ceil {ceil:.0f}</span>'
+                        f'<span>${sum(pl.get("salary", 0) for pl in roster):,} · '
+                        f'{sum(pl.get("projection", 0) for pl in roster):.1f} pts</span></div>'
+                        f'</div></div>', unsafe_allow_html=True)
+                st.write("")
+            st.caption(f"{len(ent_items)} entered · "
+                       f"${ent.total_fees(st.session_state.entered):,.0f} staked. "
+                       "Unmark on the Entry plan tab.")
 
 
         # ---- Where DraftKings has mispriced the slate -------------------
