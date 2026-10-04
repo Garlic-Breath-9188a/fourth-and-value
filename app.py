@@ -532,6 +532,13 @@ if drop_backup_qb:
     blocked |= {p["id"] for p in pool if p.get("backup_qb")}
 if unique_players:
     blocked |= ent.used_player_ids(st.session_state.entered)
+    # Also what is recorded in entries-placed.json. session_state does NOT
+    # survive a reboot, and rebooting is how a code change reaches this app,
+    # so relying on the session alone silently put entered players back on the
+    # board -- McCaffrey reappeared minutes after being entered.
+    _placed_names = {r["name"] for e in load_placed_entries(_data_version())["entries"]
+                     for r in e["roster"]}
+    blocked |= {p["id"] for p in pool if p["name"] in _placed_names}
 if drop_questionable and feed:
     blocked |= {p["id"] for p in pool
                 if (feed.get(injuries._norm(p["name"])) or {}).get("status") == "Questionable"}
@@ -708,6 +715,7 @@ with tab_board:
         # Entered rosters store only the fields needed to redraw them, so live
         # numbers (ceiling, game total) are looked up from the current pool.
         _by_id = {p["id"]: p for p in pool}
+        _by_name = {p["name"]: p for p in pool}
 
         per_row = 5
         for start in range(0, len(lineups), per_row):
@@ -777,9 +785,20 @@ with tab_board:
         # question "have I already used this player" is asked while looking at
         # the board, not while looking at a budget table. Identical markup and
         # spacing; only the bar colour differs, so the two read as one list.
-        if st.session_state.entered:
+        # Both sources of "already entered": ticked here this session, and
+        # transcribed into entries-placed.json. Only the file survives a reboot,
+        # so those are listed first.
+        _placed_cards = []
+        for e in load_placed_entries(_data_version())["entries"]:
+            c = next((c for c in lobby["contests"] if c["id"] == e.get("contestId")), {})
+            _placed_cards.append((f'placed-{e["entry"]}', {
+                "players": [{"id": "", **r, "position": r["slot"], "projection": 0.0}
+                            for r in e["roster"]],
+                "contest": c.get("name", e.get("contestId", "-")),
+                "fee": float(c.get("entryFee", 0)), "_placed": True}))
+        ent_items = _placed_cards + list(st.session_state.entered.items())
+        if ent_items:
             st.markdown("#### Entered")
-            ent_items = list(st.session_state.entered.items())
             for start in range(0, len(ent_items), per_row):
                 chunk = ent_items[start:start + per_row]
                 for col, (n, (key, rec)) in zip(st.columns(per_row, gap="small"),
@@ -787,28 +806,30 @@ with tab_board:
                     roster = rec["players"]
                     body = []
                     for slot, pl in order_roster(roster):
-                        live = _by_id.get(pl["id"], {})
+                        live = _by_id.get(pl["id"]) or _by_name.get(pl["name"], {})
                         body.append(
                             f'<div class="row"><span class="slot">{slot}</span>'
                             f'<span class="nm">{pl["name"]}</span>'
                             f'<span class="tm">{pl.get("team", "")}</span>'
                             f'<span class="sal">{pl.get("salary", 0) // 100 / 10:.1f}k</span>'
                             f'<span class="gt">{live.get("game_total") or "—"}</span></div>')
-                    ceil = sum(_by_id.get(pl["id"], {}).get("ceiling", 0) for pl in roster)
+                    ceil = sum((_by_id.get(pl["id"]) or _by_name.get(pl["name"], {})).get("ceiling", 0)
+                               for pl in roster)
                     col.markdown(
                         f'<div class="lu ent"><div class="bar">ENTERED {n}</div><div class="body">'
                         f'<div class="cst" title="{rec["contest"]}">{rec["contest"]} · '
                         f'${rec["fee"]:,.0f}</div>'
-                        f'<div class="stk">marked entered this session</div>'
+                        f'<div class="stk">{"placed on DraftKings" if rec.get("_placed") else "marked entered here"}</div>'
                         f'{"".join(body)}'
                         f'<div class="foot"><span>ceil {ceil:.0f}</span>'
                         f'<span>${sum(pl.get("salary", 0) for pl in roster):,} · '
                         f'{sum(pl.get("projection", 0) for pl in roster):.1f} pts</span></div>'
                         f'</div></div>', unsafe_allow_html=True)
                 st.write("")
-            st.caption(f"{len(ent_items)} entered · "
-                       f"${ent.total_fees(st.session_state.entered):,.0f} staked. "
-                       "Unmark on the Entry plan tab.")
+            _staked = sum(r["fee"] for _, r in ent_items)
+            st.caption(f"{len(ent_items)} entered · ${_staked:,.0f} staked · "
+                       f"${budget - _staked:,.0f} of ${budget:,.0f} left. "
+                       "Their players are kept off the board above.")
 
 
         # ---- Where DraftKings has mispriced the slate -------------------

@@ -1,10 +1,150 @@
 {
- "source": "not yet entered",
+ "source": "DK Contest Details/Week 4/ \u2014 MY CONTESTS screenshots, 2026-10-04 10:57",
  "week": 4,
  "slateLock": "2026-10-04T13:00:00-04:00",
- "note": "Week 4 2026. Empty until lineups are actually placed. Last week's entries live in entries-placed-week3.json -- they must be archived at the slate roll, because the reconciliation test checks every recorded salary against the LIVE salary file and Week 3 prices do not exist in a Week 4 export.",
- "contests": [],
- "entries": [],
- "staked": 0,
- "stakedIncludingUnrecorded": 0
+ "note": "Entered directly on DraftKings, so the app never saw a 'Mark entered' click. Recorded here because session_state does not survive a reboot and the app was rebooted twice this morning to pick up code changes.",
+ "contests": [
+  {
+   "id": "w4-fc150",
+   "name": "NFL $150K Fair Catch [Single Entry]",
+   "entryFee": 12,
+   "totalPrizes": 150000,
+   "entered": 6656,
+   "maxEntries": 14705
+  },
+  {
+   "id": "w4-rz200",
+   "name": "NFL $200K Red Zone [$25K to 1st, Single Entry]",
+   "entryFee": 50,
+   "totalPrizes": 200000,
+   "entered": 1874,
+   "maxEntries": 4545
+  }
+ ],
+ "entries": [
+  {
+   "entry": 1,
+   "contestId": "w4-fc150",
+   "remainingSalary": 100,
+   "roster": [
+    {
+     "slot": "QB",
+     "name": "Josh Allen",
+     "team": "BUF",
+     "salary": 7700
+    },
+    {
+     "slot": "RB",
+     "name": "D'Andre Swift",
+     "team": "CHI",
+     "salary": 6400
+    },
+    {
+     "slot": "RB",
+     "name": "Kyren Williams",
+     "team": "LAR",
+     "salary": 5900
+    },
+    {
+     "slot": "WR",
+     "name": "Mack Hollins",
+     "team": "NE",
+     "salary": 4000
+    },
+    {
+     "slot": "WR",
+     "name": "DJ Moore",
+     "team": "BUF",
+     "salary": 5700
+    },
+    {
+     "slot": "WR",
+     "name": "Jaxon Smith-Njigba",
+     "team": "SEA",
+     "salary": 9100
+    },
+    {
+     "slot": "TE",
+     "name": "Kenyon Sadiq",
+     "team": "NYJ",
+     "salary": 4000
+    },
+    {
+     "slot": "FLEX",
+     "name": "Khalil Shakir",
+     "team": "BUF",
+     "salary": 4700
+    },
+    {
+     "slot": "DST",
+     "name": "Jets",
+     "team": "NYJ",
+     "salary": 2400
+    }
+   ]
+  },
+  {
+   "entry": 2,
+   "contestId": "w4-rz200",
+   "remainingSalary": 100,
+   "roster": [
+    {
+     "slot": "QB",
+     "name": "Matthew Stafford",
+     "team": "LAR",
+     "salary": 6200
+    },
+    {
+     "slot": "RB",
+     "name": "Christian McCaffrey",
+     "team": "SF",
+     "salary": 7700
+    },
+    {
+     "slot": "RB",
+     "name": "Kyren Williams",
+     "team": "LAR",
+     "salary": 5900
+    },
+    {
+     "slot": "WR",
+     "name": "Puka Nacua",
+     "team": "LAR",
+     "salary": 7500
+    },
+    {
+     "slot": "WR",
+     "name": "Jaxon Smith-Njigba",
+     "team": "SEA",
+     "salary": 9100
+    },
+    {
+     "slot": "WR",
+     "name": "Dontayvion Wicks",
+     "team": "PHI",
+     "salary": 4300
+    },
+    {
+     "slot": "TE",
+     "name": "Tyler Higbee",
+     "team": "LAR",
+     "salary": 3100
+    },
+    {
+     "slot": "FLEX",
+     "name": "Kendrick Bourne",
+     "team": "ARI",
+     "salary": 3500
+    },
+    {
+     "slot": "DST",
+     "name": "Jaguars",
+     "team": "JAX",
+     "salary": 2600
+    }
+   ]
+  }
+ ],
+ "staked": 62,
+ "stakedIncludingUnrecorded": 62
 }
