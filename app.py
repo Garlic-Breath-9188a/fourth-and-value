@@ -313,7 +313,8 @@ def portfolio(ids, count, seed, ceiling_weight, qb_exposure, rb_exposure, must_p
     built = build_portfolio(pool, want, seed=seed, ceiling_weight=ceiling_weight,
                             qb_exposure=qb_exposure, rb_exposure=rb_exposure,
                             other_exposure=other_exposure,
-                            must_play=set(must_play), require_wr1=require_wr1)
+                            must_play=set(must_play), require_wr1=require_wr1,
+                            attempts=rules.ATTEMPTS_DEFAULT)
     # The sampler stops at whatever it happened to draw. This walks each lineup
     # for a swap that raises the projection, singly and then in pairs. On the
     # Week 3 board it moved the mean 152.1 -> 155.3 and spent $5,600 of idle
@@ -452,6 +453,22 @@ with st.sidebar:
                                    "is lost by leaving it on; it is just not an edge.")
 
     st.markdown("### Injury wire")
+    drop_backup_qb = st.checkbox("Skip receivers whose starting QB is out", value=True,
+                           help="A receiver's projection was earned with his usual quarterback "
+                                "throwing. When that man is ruled out the number is stale by an "
+                                "amount nothing here can measure, so these are left out rather "
+                                "than guessed at. Week 3 2026: Antonio Williams was recommended "
+                                "at a 23.4 ceiling with no Washington quarterback on the slate "
+                                "at all; he scored 3.50. Week 4 flags 27 players behind Tyson "
+                                "Bagent and Jalon Daniels. Turning this off on the Week 4 board "
+                                "costs 2.6 ceiling points on the best lineup and puts a "
+                                "backup-QB receiver in 5 of 10 lineups.")
+    drop_questionable = st.checkbox("Skip questionable players", value=False,
+                           help="Removes anyone the wire lists Questionable. They usually play, "
+                                "so this is a preference for certainty rather than a measured "
+                                "edge — but it stops the board resting on a player who may be "
+                                "scratched after lock. On the Week 4 board it removes 12 players "
+                                "and the best lineup gets BETTER, 231.3 to 233.9.")
     use_live = st.checkbox("Cross-check the salary file", value=True,
                            help="Pulls current injury status from Sleeper and removes anyone "
                                 "the wire says cannot play, even if the salary file still "
@@ -467,6 +484,11 @@ with st.sidebar:
 feed = live_injuries() if use_live else {}
 conflicts = injuries.cross_check(pool, feed) if feed else []
 blocked = {c["id"] for c in conflicts if c["live_status"] in injuries.BLOCKING}
+if drop_backup_qb:
+    blocked |= {p["id"] for p in pool if p.get("backup_qb")}
+if drop_questionable and feed:
+    blocked |= {p["id"] for p in pool
+                if (feed.get(injuries._norm(p["name"])) or {}).get("status") == "Questionable"}
 if blocked:
     pool = [p for p in pool if p["id"] not in blocked]
 

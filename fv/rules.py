@@ -48,9 +48,9 @@ and nearly doubles P(180+) from 0.13% to 0.25%. The bring-back is the piece
 that carries it: a second same-team receiver alone only reached 0.17%.
 """
 
-QB_EXPOSURE_PCT = 33
-RB_EXPOSURE_PCT = 30
-OTHER_EXPOSURE_PCT = 40
+QB_EXPOSURE_PCT = 10
+RB_EXPOSURE_PCT = 10
+OTHER_EXPOSURE_PCT = 10
 EXPOSURE_PCT = 75
 """
 How much of the portfolio one player may occupy.
@@ -78,10 +78,39 @@ looked broken because it genuinely changed nothing. 30% keeps the default in the
 live part of the range.
 
 Note that tighter caps were MEASURED and they cost the tail: P(180+) fell from
-1.12% to 0.83% at a 20% quarterback cap over 101 weeks. 30% is inside the region
-where that was measured, so this default is a deliberate user preference for a
-spread portfolio, not an improvement. It is set here rather than argued about in
-the UI so the trade-off stays written down.
+1.12% to 0.83% at a 20% quarterback cap over 101 weeks.
+
+## The current defaults are 10%, and that is a preference with a known price
+
+At ten lineups a 10% cap means **each player may appear exactly once**, so the
+ten lineups share nobody. This is a deliberate choice by the user, made twice,
+and it is not an improvement -- it is the most expensive setting on the board.
+Measured on the Week 4 2026 slate against a clean pool of 450:
+
+    caps 33 / 30 / 40     best ceiling 233.9   mean 211.6
+    caps 20 / 20 / 20     best ceiling 228.8   mean 205.8
+    caps 10 / 10 / 10     best ceiling 227.4   mean 172.6
+
+The best lineup barely moves. The MEAN collapses by about 36 points, because
+once the strongest players are spent on the first lineup the rest are built
+from what is left, and the tenth is built from leftovers. You are trading nine
+mediocre lineups for one good one and maximum coverage of the slate.
+
+It also costs sampling. At 20,000 attempts a 10% cap returned only NINE
+lineups -- the builder could not find a tenth that satisfied every constraint
+without reusing someone. `ATTEMPTS_DEFAULT` is raised to compensate; if a board
+ever comes back short, that is why.
+"""
+
+ATTEMPTS_DEFAULT = 80000
+"""
+How many random lineups the builder draws before picking the best ten.
+
+20,000 was enough while players could repeat across lineups. At the 10% caps
+above it is not: the search returned nine lineups rather than ten, silently.
+80,000 reliably returns ten. The builder is a sampler, not an exact optimizer --
+an exact dynamic-programming optimum beat 20,000 samples 169.7 to 161.5 on the
+Week 2 slate -- so more attempts buy a little, with diminishing returns.
 """
 
 CEILING_WEIGHT_DEFAULT = 1.0
