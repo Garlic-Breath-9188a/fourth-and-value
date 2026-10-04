@@ -14,6 +14,29 @@ import pandas as pd
 import streamlit as st
 
 from fv import rules, context, injuries, sources, entered as ent
+
+
+def _rule(name: str, fallback):
+    """
+    Read a constant from fv.rules, surviving a stale import.
+
+    Streamlit re-runs app.py on every interaction but does NOT re-import the
+    modules it already holds in sys.modules. Deploying a change that adds a
+    constant to fv/rules.py and uses it from app.py therefore produces an
+    AttributeError on refresh -- the new app.py calling into the old module --
+    and Streamlit Cloud redacts the message, so what the user sees is an
+    unexplained crash. This has happened three times: fv.optimize in Week 3
+    (ImportError on improve_portfolio) and fv.rules in Week 4.
+
+    Rebooting fixes it. Falling back here means nobody has to know that.
+    """
+    if not hasattr(rules, name):
+        _STALE.add(name)
+        return fallback
+    return getattr(rules, name)
+
+
+_STALE: set[str] = set()
 from fv.pool import (load_salaries, keep_starting_quarterbacks, apply_ceilings,
                      flag_missing_quarterback,
                      rosterable, load_json)
@@ -314,7 +337,7 @@ def portfolio(ids, count, seed, ceiling_weight, qb_exposure, rb_exposure, must_p
                             qb_exposure=qb_exposure, rb_exposure=rb_exposure,
                             other_exposure=other_exposure,
                             must_play=set(must_play), require_wr1=require_wr1,
-                            attempts=rules.ATTEMPTS_DEFAULT)
+                            attempts=_rule("ATTEMPTS_DEFAULT", 80000))
     # The sampler stops at whatever it happened to draw. This walks each lineup
     # for a swap that raises the projection, singly and then in pairs. On the
     # Week 3 board it moved the mean 152.1 -> 155.3 and spent $5,600 of idle
@@ -398,10 +421,10 @@ with st.sidebar:
     st.markdown("### Portfolio")
     n_lineups = st.slider("Lineups", 1, 20, 10)
     budget = st.number_input("Weekly budget ($)", 5, 500, 100, step=5)
-    qb_exposure = st.slider("Max one QB may appear (%)", 10, 100, rules.QB_EXPOSURE_PCT, step=10,
+    qb_exposure = st.slider("Max one QB may appear (%)", 10, 100, _rule("QB_EXPOSURE_PCT", 10), step=10,
                             help="Tighter caps were measured over 101 weeks and did not help — "
                                  "the chance of a big week fell from 1.12% to 0.83% at 20%.")
-    rb_exposure = st.slider("Max one RB may appear (%)", 10, 100, rules.RB_EXPOSURE_PCT, step=10,
+    rb_exposure = st.slider("Max one RB may appear (%)", 10, 100, _rule("RB_EXPOSURE_PCT", 10), step=10,
                             help="Running backs are the most concentrated position in a "
                                  "portfolio because few are worth playing. A cap only does "
                                  "something while it BINDS: no back reached more than 6 of 10 "
@@ -420,7 +443,7 @@ with st.sidebar:
                  f"{_partner.get('captured') or 'unknown'} from {_partner.get('source') or 'a tracker'}.")
 
     other_exposure = st.slider("Max one WR/TE/DST may appear (%)", 10, 100,
-                               rules.OTHER_EXPOSURE_PCT, step=10,
+                               _rule("OTHER_EXPOSURE_PCT", 10), step=10,
                                help="Receivers had no cap of their own and fell through to 75%, "
                                     "which at ten lineups is seven. One receiver appeared in 7 of "
                                     "10 lineups and then in three of four entries actually "
@@ -480,6 +503,13 @@ with st.sidebar:
     forced = st.multiselect("Include somewhere", list(names), max_selections=8,
                             help="Each appears in at least one lineup — not all of them.")
     must_play = tuple(names[n] for n in forced)
+
+if _STALE:
+    st.warning(
+        f"**Reboot this app.** It is running new page code against a stale copy of "
+        f"`fv/rules.py` — {', '.join(sorted(_STALE))} came from a fallback, not from the "
+        f"file. Streamlit re-runs the page on refresh but keeps modules it has already "
+        f"imported, so a refresh will not clear this. Manage app → ⋮ → Reboot.")
 
 feed = live_injuries() if use_live else {}
 conflicts = injuries.cross_check(pool, feed) if feed else []
