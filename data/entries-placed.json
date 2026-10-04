@@ -2,7 +2,7 @@
  "source": "DK Contest Details/Week 4/ \u2014 MY CONTESTS screenshots, 2026-10-04 10:57",
  "week": 4,
  "slateLock": "2026-10-04T13:00:00-04:00",
- "note": "Entered directly on DraftKings, so the app never saw a 'Mark entered' click. Recorded here because session_state does not survive a reboot and the app was rebooted twice this morning to pick up code changes.",
+ "note": "Entered directly on DraftKings, so the app never saw a 'Mark entered' click. Recorded here because session_state does not survive a reboot and the app was rebooted twice this morning to pick up code changes. A third entry was placed in the $75K Blind Side ($27); its contest is recorded so the budget reconciles, but the ROSTER has not been captured, so it is absent from entries[] and its players are NOT blocked from the board.",
  "contests": [
   {
    "id": "w4-fc150",
@@ -19,6 +19,14 @@
    "totalPrizes": 200000,
    "entered": 1874,
    "maxEntries": 4545
+  },
+  {
+   "id": "w4-bs75",
+   "name": "NFL $75K Blind Side [Single Entry]",
+   "entryFee": 27,
+   "totalPrizes": 75000,
+   "entered": 1380,
+   "maxEntries": 3239
   }
  ],
  "entries": [
@@ -145,6 +153,6 @@
    ]
   }
  ],
- "staked": 62,
- "stakedIncludingUnrecorded": 62
+ "staked": 89,
+ "stakedIncludingUnrecorded": 89
 }
