@@ -123,8 +123,14 @@ st.markdown("""
   .bar { background:#1f2430; color:#ffffff; font-weight:700; font-size:.8rem;
          letter-spacing:.05em; padding:.34rem .6rem; }
   .body { padding:.4rem .6rem .55rem .6rem; }
-  .cst { font-size:.73rem; opacity:.85; text-align:right; padding:.05rem 0 .12rem 0;
-         overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  /* The entry fee is the field used to tell contests apart at a glance, so it
+     is a fixed chip that cannot be clipped; only the name ellipsises. One
+     nowrap line let a long contest name push the fee off the end. */
+  .cst { display:flex; align-items:baseline; gap:.3rem; font-size:.73rem;
+         opacity:.85; padding:.05rem 0 .12rem 0; }
+  .fee { flex:none; font-weight:700; opacity:1; font-variant-numeric:tabular-nums; }
+  .cnm { flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis;
+         white-space:nowrap; text-align:right; }
   .stk { font-size:.72rem; opacity:.7; margin:0 0 .35rem 0; }
   .tick { color:#3ecf6e; font-weight:700; }
   .notick { color:#c9713a; }
@@ -734,13 +740,19 @@ with tab_board:
                         f'<span class="sal">{p["salary"] // 100 / 10:.1f}k</span>'
                         f'<span class="gt">{p.get("game_total") or "—"}</span></div>')
                 entry = entries[i - 1] if i - 1 < len(entries) else None
-                contest = (f'{entry.contest["name"]} · ${entry.fee:,.0f}'
-                           if entry else 'not in the plan — pick one below')
+                if entry:
+                    fee_chip = f'<span class="fee">${entry.fee:,.0f}</span>'
+                    cname = entry.contest["name"]
+                    ctitle = f'{cname} · ${entry.fee:,.0f}'
+                else:
+                    fee_chip = ""
+                    cname = ctitle = "not in the plan — pick one below"
                 mark = ('<span class="tick">✓</span>' if is_stacked(l)
                         else '<span class="notick">✗</span>')
                 col.markdown(
                     f'<div class="lu"><div class="bar">LINEUP {i}</div><div class="body">'
-                    f'<div class="cst" title="{contest}">{contest}</div>'
+                    f'<div class="cst" title="{ctitle}">{fee_chip}'
+                    f'<span class="cnm">{cname}</span></div>'
                     f'<div class="stk">{mark} {qb["team"]} stack · bring-back from {qb["opponent"]}</div>'
                     f'{"".join(body)}'
                     f'<div class="foot">'
@@ -817,8 +829,9 @@ with tab_board:
                                for pl in roster)
                     col.markdown(
                         f'<div class="lu ent"><div class="bar">ENTERED {n}</div><div class="body">'
-                        f'<div class="cst" title="{rec["contest"]}">{rec["contest"]} · '
-                        f'${rec["fee"]:,.0f}</div>'
+                        f'<div class="cst">'
+                        f'<span class="fee">${rec["fee"]:,.0f}</span>'
+                        f'<span class="cnm">{rec["contest"]}</span></div>'
                         f'<div class="stk">{"placed on DraftKings" if rec.get("_placed") else "marked entered here"}</div>'
                         f'{"".join(body)}'
                         f'<div class="foot"><span>ceil {ceil:.0f}</span>'
