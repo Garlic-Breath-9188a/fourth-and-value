@@ -15,6 +15,7 @@ import streamlit as st
 
 from fv import rules, context, injuries, sources, entered as ent
 from fv.pool import (load_salaries, keep_starting_quarterbacks, apply_ceilings,
+                     flag_missing_quarterback,
                      rosterable, load_json)
 from fv.slate import slate_options, main_slate, restrict
 from fv.optimize import build_portfolio, improve_portfolio, projection
@@ -135,7 +136,10 @@ def load_pool(version: str):
     """
     rows = load_salaries((DATA / "DKSalaries.csv").read_text())
     rows = keep_starting_quarterbacks(rows)
-    return [r for r in rows if rosterable(r)]
+    rows = [r for r in rows if rosterable(r)]
+    # Must run after the rosterable filter: the quarterback being looked for
+    # may still be in the list on his way out.
+    return flag_missing_quarterback(rows)
 
 
 def prepared_pool(rows: list[dict], week: int) -> list[dict]:

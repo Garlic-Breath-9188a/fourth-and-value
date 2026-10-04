@@ -1,16 +1,16 @@
 {
   "_comment": "When each shipped data file was actually captured from its source. Recorded explicitly because a file's modification time resets whenever it is copied, which made the app report the day it was deployed as the day the slate was pulled. UPDATE THESE WHEN YOU REFRESH A FILE -- the header showed Week 1 dates against a Week 2 slate because this was forgotten once.",
   "slate": {
-    "captured": "2026-09-25",
-    "week": 3,
-    "source": "DraftKings salary export, Week 3 2026",
-    "note": "671 players, 13 games, all Sunday 9/27 1:00-4:25pm \u2014 one clean main slate with no primetime to filter. Statuses at the pull: 557 active, 62 IR, 15 out, 37 questionable."
+    "captured": "2026-10-03",
+    "week": 4,
+    "source": "DraftKings salary export, Week 4 2026 ($400K Spy and $75K Red Zone exports are byte-identical)",
+    "note": "629 players, 12 games, Sunday 10/4 1:00-4:25pm. The London game (IND@WAS 9:30am) is NOT on this slate. Statuses at the pull: 526 active, 67 ir, 23 out, 13 q."
   },
   "contests": {
-    "captured": "2026-09-25",
-    "week": 3,
-    "source": "DraftKings lobby, hand-transcribed from 3 screenshots, Classic at $50 and under",
-    "note": "14 contests. The three Red Zone single-entries are the lowest-rake on the board at 12.0% but have no payout grid, so they are unknown and unplayable until one is captured."
+    "captured": "2026-10-02",
+    "week": 4,
+    "source": "DraftKings lobby screenshot plus 7 contest-detail captures",
+    "note": "24 Classic contests. Payout grids captured for 7; the other 17 are lobby rows only and are unplayable until a grid exists. 17 of 24 are within a $100 week; the four $100 Spy/Hot Route seats, the $88 Octopus and the two $75 contests are not."
   },
   "variance": {
     "captured": "2026-09-02",
@@ -23,15 +23,21 @@
     "note": "578 players. Flat 2025 average, blended against the in-season average at n/(n+3) so a single Week 1 game cannot carry a projection."
   },
   "kalshi": {
-    "captured": "2026-09-25",
-    "week": 3,
+    "captured": "2026-10-03",
+    "week": 4,
     "source": "Kalshi public read API, player prop ladders",
-    "note": "150 of 671 DK players matched exactly. Not used by the projection -- forward validation only, because no historical Kalshi data exists to backtest against. Passing-TD and anytime-TD markets returned nothing at this capture."
+    "note": "180 of 629 DK players matched exactly. Not used by the projection -- forward validation only. Passing-TD and anytime-TD markets returned nothing at this capture, as in Week 3."
   },
   "usage": {
-    "captured": "2026-09-25",
-    "week": 3,
+    "captured": "2026-10-03",
+    "week": 4,
     "source": "nflverse snap_counts + stats_player_week, 2026",
-    "note": "431 players. Last game's snap share and touches. 373 players' latest game is week 2; 25 are week 3 (Thursday night, not on this slate); 33 are still week 1 and are therefore two weeks stale \u2014 `games` and `week` are published per player so that is visible rather than hidden."
+    "note": "460 players, 401 with touches joined. Snap data now covers weeks 1-4."
+  },
+  "gameTotals": {
+    "captured": "2026-10-03",
+    "week": 4,
+    "source": "nflverse nfldata closing Vegas lines",
+    "note": "16 games. Adjusts the CEILING only, capped at +/-4%. Measured worth: nothing on expected points (+0.33/player, 1.5 sd over 11,401 player-weeks), about 3% on the 85th percentile. Week 4 spread runs 38.5 (PIT@CLE, GB@TB, MIA@MIN) to 51.5 (JAX@CIN, DET@CAR)."
   }
 }

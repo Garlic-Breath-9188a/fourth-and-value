@@ -80,6 +80,11 @@ def load_salaries(text: str) -> list[dict]:
     return rows
 
 
+# Positions whose points come through a quarterback. A running back still has
+# a floor with a backup under centre; a receiver does not.
+THROWN_TO = ("WR", "TE")
+
+
 def keep_starting_quarterbacks(rows: list[dict]) -> list[dict]:
     """
     Drop backup quarterbacks.
@@ -91,16 +96,75 @@ def keep_starting_quarterbacks(rows: list[dict]) -> list[dict]:
 
     A heuristic about the market, not a depth chart. DraftKings does not
     reprice late scratches.
+
+    The starter is the dearest quarterback his team still has AVAILABLE. Taking
+    the dearest outright promotes nobody when that man is ruled out, which in
+    Week 4 2026 left Chicago and Tampa Bay with no quarterback at all -- Caleb
+    Williams (hamstring) and Baker Mayfield (thumb) were both Out, and 25
+    receivers stayed in the pool behind them. Whoever actually takes the snaps
+    belongs on the board; `nominal_starter` records that it is not the man the
+    price implies.
     """
-    best: dict[str, dict] = {}
+    by_team: dict[str, list[dict]] = {}
     for r in rows:
-        if r["position"] != "QB":
-            continue
-        held = best.get(r["team"])
-        if not held or (r["salary"], r["projection"]) > (held["salary"], held["projection"]):
-            best[r["team"]] = r
-    starters = {r["id"] for r in best.values()}
+        if r["position"] == "QB":
+            by_team.setdefault(r["team"], []).append(r)
+
+    starters, backups = set(), {}
+    for team, qbs in by_team.items():
+        rank = lambda q: (q["salary"], q["projection"])
+        dearest = max(qbs, key=rank)
+        available = [q for q in qbs if rosterable(q)]
+        if not available:
+            continue                      # nobody to promote; team drops out entirely
+        pick = max(available, key=rank)
+        starters.add(pick["id"])
+        if pick["id"] != dearest["id"]:
+            backups[team] = (pick, dearest)
+
+    for r in rows:
+        if r["team"] in backups and r["position"] in ("QB",) + THROWN_TO:
+            pick, dearest = backups[r["team"]]
+            r["backup_qb"] = pick["name"]
+            r["projection_warning"] = (
+                f"{pick['name']} starts for {r['team']}, not {dearest['name']} "
+                f"({dearest['status'] or 'unavailable'}) — projections here were "
+                f"earned with {dearest['name']} throwing"
+            )
     return [r for r in rows if r["position"] != "QB" or r["id"] in starters]
+
+
+def flag_missing_quarterback(rows: list[dict]) -> list[dict]:
+    """
+    Mark pass catchers whose team has no rosterable quarterback left.
+
+    Week 3 2026: `keep_starting_quarterbacks` took Jayden Daniels as
+    Washington's starter on salary, `rosterable` then dropped him as Out, and
+    Marcus Mariota had already been filtered as a backup -- so **no Washington
+    quarterback survived while every Washington receiver did**, carrying
+    projections built on a full season of Daniels throwing to them. Antonio
+    Williams was recommended at a 23.4 ceiling with nobody to throw him the
+    ball. He scored 3.50.
+
+    This marks rather than deletes. The projection is not wrong by a knowable
+    amount -- a backup still throws, and how much worse he is is exactly what
+    we cannot measure from this data -- so the honest move is to make the
+    condition visible and let the caller decide. `build_portfolio` excludes
+    them by default.
+
+    Call AFTER the rosterable filter, or the quarterback it is looking for may
+    still be in the list on his way out.
+    """
+    have_qb = {r["team"] for r in rows if r["position"] == "QB"}
+    for r in rows:
+        orphaned = r["position"] in THROWN_TO and r["team"] not in have_qb
+        r["no_starting_qb"] = orphaned
+        if orphaned:
+            r["projection_warning"] = (
+                f"no rosterable {r['team']} quarterback on this slate — "
+                f"projection assumes a starter who is not playing"
+            )
+    return rows
 
 
 # Closing Vegas total: fitted on 11,401 player-weeks, 2022-2025. The total does
