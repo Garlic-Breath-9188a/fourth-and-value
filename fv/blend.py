@@ -75,8 +75,31 @@ def current_weight(n: int, k: int = SHRINKAGE_K) -> float:
     return 0.0 if n <= 0 else n / (n + k)
 
 
-def blend_value(current_mean, current_games: int, prior_mean, k: int = SHRINKAGE_K):
-    """None only when neither side exists, so 'no information' differs from zero."""
+def blend_value(current_mean, current_games: int, prior_mean,
+                k: int = SHRINKAGE_K, prior_games: int | None = None):
+    """
+    None only when neither side exists, so 'no information' differs from zero.
+
+    The prior's share is scaled by its OWN sample. This blend exists because
+    one current-season game cannot carry a projection; it had the identical
+    flaw on the other side, giving the prior season a flat 1 - n/(n+k) whether
+    it rested on 1 game or 17. Week 4 2026 had 39 pool players whose 2025 was
+    1-2 games: Ronnie Bell projected 5.2 off a single 2025 game while averaging
+    0.0 across three games this season, and the optimizer reaches for exactly
+    those $3,000 names when it needs salary relief. He scored 0.00.
+
+    Measured over 24,933 player-weeks, 2019-2025:
+
+        all player-weeks            MAE 5.335 -> 5.319   -0.016 (CI -0.024 to -0.007)
+        prior season of 1-2 games   MAE 4.457 -> 4.316   -0.142 (CI -0.255 to -0.028)
+
+    Small overall because only about 5% of player-weeks have a thin prior, and
+    concentrated where it was predicted to be. For scale the blend itself is
+    worth -0.541 and the shipped matchup adjustment -0.0122.
+
+    `prior_games=None` keeps the old behaviour, so a caller that does not know
+    the prior's sample size is not silently given a different answer.
+    """
     has_cur = current_mean is not None and current_games > 0
     has_prior = prior_mean is not None
     if not has_cur and not has_prior:
@@ -86,7 +109,10 @@ def blend_value(current_mean, current_games: int, prior_mean, k: int = SHRINKAGE
     if not has_cur:
         return prior_mean
     w = current_weight(current_games, k)
-    return w * current_mean + (1 - w) * prior_mean
+    prior_share = 1 - w
+    if prior_games is not None:
+        prior_share *= prior_games / (prior_games + k)
+    return (1 - prior_share) * current_mean + prior_share * prior_mean
 
 
 def apply_blend(rows: list[dict], prior: dict, week: int, k: int = SHRINKAGE_K) -> list[dict]:
@@ -109,10 +135,14 @@ def apply_blend(rows: list[dict], prior: dict, week: int, k: int = SHRINKAGE_K) 
         if not hit or not hit.get("games"):
             r["projection_source"] = f"DK average only (no {season} data)"
             continue
-        value = blend_value(r.get("projection"), n, hit.get("mean"), k)
+        pg = int(hit.get("games") or 0)
+        value = blend_value(r.get("projection"), n, hit.get("mean"), k, prior_games=pg)
         if value is not None:
             r["projection"] = value
+        share = (1 - w) * (pg / (pg + k))
         r["projection_source"] = (
-            f"{w * 100:.0f}% this season ({n}g) + {(1 - w) * 100:.0f}% {season} ({hit['games']}g)"
+            f"{(1 - share) * 100:.0f}% this season ({n}g) + "
+            f"{share * 100:.0f}% {season} ({pg}g)"
+            + ("  — thin prior, down-weighted" if pg <= 2 else "")
         )
     return rows

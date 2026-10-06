@@ -2,7 +2,7 @@
  "source": "DK Contest Details/Week 4/ \u2014 MY CONTESTS screenshots, 2026-10-04 10:57 and 12:12",
  "week": 4,
  "slateLock": "2026-10-04T13:00:00-04:00",
- "note": "All four entered directly on DraftKings. Recorded here because session_state does not survive a reboot. GRADED: $101 staked, $60 returned from the $75K Blind Side (350th of 3,239, cashed). The $200K Red Zone missed the money by 166 places. The $150K Fair Catch result was not captured.",
+ "note": "All four entered directly on DraftKings. Recorded here because session_state does not survive a reboot. GRADED: $101 staked, $60 returned from the $75K Blind Side (350th of 3,239, cashed). The $200K Red Zone missed the money by 166 places. The $150K Fair Catch finished 14,550th of 14,705 with 66.82 \u2014 the worst entry of the season.",
  "contests": [
   {
    "id": "w4-fc150",
@@ -41,7 +41,7 @@
   {
    "entry": 1,
    "contestId": "w4-fc150",
-   "remainingSalary": 100,
+   "remainingSalary": 0,
    "roster": [
     {
      "slot": "QB",
@@ -51,21 +51,21 @@
     },
     {
      "slot": "RB",
+     "name": "Derrick Henry",
+     "team": "BAL",
+     "salary": 8400
+    },
+    {
+     "slot": "RB",
      "name": "D'Andre Swift",
      "team": "CHI",
      "salary": 6400
     },
     {
-     "slot": "RB",
-     "name": "Kyren Williams",
-     "team": "LAR",
-     "salary": 5900
-    },
-    {
      "slot": "WR",
-     "name": "Mack Hollins",
-     "team": "NE",
-     "salary": 4000
+     "name": "Ja'Marr Chase",
+     "team": "CIN",
+     "salary": 8100
     },
     {
      "slot": "WR",
@@ -75,9 +75,9 @@
     },
     {
      "slot": "WR",
-     "name": "Jaxon Smith-Njigba",
-     "team": "SEA",
-     "salary": 9100
+     "name": "Mack Hollins",
+     "team": "NE",
+     "salary": 4000
     },
     {
      "slot": "TE",
@@ -87,9 +87,9 @@
     },
     {
      "slot": "FLEX",
-     "name": "Khalil Shakir",
+     "name": "Joshua Palmer",
      "team": "BUF",
-     "salary": 4700
+     "salary": 3300
     },
     {
      "slot": "DST",
@@ -99,8 +99,13 @@
     }
    ],
    "result": {
-    "note": "not captured"
-   }
+    "points": 66.82,
+    "place": 14550,
+    "entries": 14705,
+    "paid": 2956,
+    "won": 0.0
+   },
+   "note": "Roster CORRECTED 2026-10-06. The 10:57 screenshot showed an earlier version; it was edited before lock \u2014 Kyren Williams to Derrick Henry, Smith-Njigba to Ja'Marr Chase, Shakir to Joshua Palmer."
   },
   {
    "entry": 2,
