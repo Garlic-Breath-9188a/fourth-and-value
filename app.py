@@ -38,7 +38,7 @@ def _rule(name: str, fallback):
 
 _STALE: set[str] = set()
 from fv.pool import (load_salaries, keep_starting_quarterbacks, apply_ceilings,
-                     flag_missing_quarterback,
+                     flag_missing_quarterback, locks_before_kickoff,
                      rosterable, load_json)
 from fv.slate import slate_options, main_slate, restrict
 from fv.optimize import build_portfolio, improve_portfolio, projection
@@ -506,12 +506,16 @@ with st.sidebar:
                                 "Bagent and Jalon Daniels. Turning this off on the Week 4 board "
                                 "costs 2.6 ceiling points on the best lineup and puts a "
                                 "backup-QB receiver in 5 of 10 lineups.")
-    drop_questionable = st.checkbox("Skip questionable players", value=False,
-                           help="Removes anyone the wire lists Questionable. They usually play, "
-                                "so this is a preference for certainty rather than a measured "
-                                "edge — but it stops the board resting on a player who may be "
-                                "scratched after lock. On the Week 4 board it removes 12 players "
-                                "and the best lineup gets BETTER, 231.3 to 233.9.")
+    drop_questionable = st.checkbox(
+        "Skip questionable players in later games", value=True,
+        help="A Questionable designation means two different things depending on "
+             "kickoff. Measured over 1,221 designations, 2022-2025: 38% do not play "
+             "at all, but the ones who DO play cost only 0.99 points against their "
+             "own form. Inactives post 90 minutes before kickoff, so for a 1:00 game "
+             "the question is answered before a 1:00 lock and the player is nearly "
+             "free to roster — Zay Flowers was dropped on this basis in Week 3 and "
+             "scored 15.40. For a 4:05 or 4:25 game the news lands AFTER lock and the "
+             "full 38% risk is live. This removes only the second kind.")
     use_live = st.checkbox("Cross-check the salary file", value=True,
                            help="Pulls current injury status from Sleeper and removes anyone "
                                 "the wire says cannot play, even if the salary file still "
@@ -531,6 +535,10 @@ if _STALE:
         f"file. Streamlit re-runs the page on refresh but keeps modules it has already "
         f"imported, so a refresh will not clear this. Manage app → ⋮ → Reboot.")
 
+# The contest locks at the first game of the slate, so that is the cutoff for
+# whether a player's inactive news is knowable before submitting.
+_kicks = sorted({p["kickoff"] for p in pool if p.get("kickoff")})
+_lock_time = _kicks[0] if _kicks else "01:00PM"
 feed = live_injuries() if use_live else {}
 conflicts = injuries.cross_check(pool, feed) if feed else []
 blocked = {c["id"] for c in conflicts if c["live_status"] in injuries.BLOCKING}
@@ -546,8 +554,12 @@ if unique_players:
                      for r in e["roster"]}
     blocked |= {p["id"] for p in pool if p["name"] in _placed_names}
 if drop_questionable and feed:
+    # Only where the contest locks before the inactives are published. A
+    # Questionable player in the first game of the slate is a resolved question
+    # by the time you submit; one in a 4:25 game is not.
     blocked |= {p["id"] for p in pool
-                if (feed.get(injuries._norm(p["name"])) or {}).get("status") == "Questionable"}
+                if (feed.get(injuries._norm(p["name"])) or {}).get("status") == "Questionable"
+                and locks_before_kickoff(p.get("kickoff"), _lock_time)}
 if blocked:
     pool = [p for p in pool if p["id"] not in blocked]
 
