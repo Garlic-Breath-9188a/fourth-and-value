@@ -80,7 +80,7 @@ live part of the range.
 Note that tighter caps were MEASURED and they cost the tail: P(180+) fell from
 1.12% to 0.83% at a 20% quarterback cap over 101 weeks.
 
-## The current defaults are 10%, and that is a preference with a known price
+## The current defaults are 10%, and that is now MEASURED, not a preference
 
 At ten lineups a 10% cap means **each player may appear exactly once**, so the
 ten lineups share nobody. This is a deliberate choice by the user, made twice,
@@ -99,7 +99,38 @@ mediocre lineups for one good one and maximum coverage of the slate.
 It also costs sampling. At 20,000 attempts a 10% cap returned only NINE
 lineups -- the builder could not find a tenth that satisfied every constraint
 without reusing someone. `ATTEMPTS_DEFAULT` is raised to compensate; if a board
-ever comes back short, that is why.
+ever comes back short, that is why. At FIVE lineups it is comfortably feasible,
+which is the other reason the lineup count defaults there.
+
+## And on the metric that was actually asked for, it WINS
+
+The table above measures the mean, which is what a spread portfolio optimises.
+The question being asked is different -- 'increase the top lineup score' -- and
+on best-of-N the caps earn their place. 54 week-trials, 2022-2025, paired by
+slate and seed, scored on actual points:
+
+    5 lineups, each player once     best 149.31   mean 113.85
+    5 lineups, up to 2 each         best 142.62   mean 114.29
+    5 lineups, up to 3 each         best 136.27   mean 113.71
+    10 lineups, up to 3 each        best 151.33   mean 114.27
+
+    vs each-player-once:  up to 2   -6.69  CI -12.72 to -0.67
+                          up to 3  -13.04  CI -20.20 to  -5.88
+                          10 loose  +2.02  CI  -3.30 to  +7.33
+
+Forcing every lineup to use different players raises the BEST lineup by about
+7 points over allowing two uses and 13 over allowing three, with a clean
+dose-response across the three levels. Ten looser lineups are statistically
+indistinguishable from five unique ones, so the count is not what matters --
+the overlap is.
+
+The mean still falls, exactly as the first table says. Both are true: this is a
+deliberate trade of nine ordinary lineups for one good one, and when the goal
+is the top score that trade is correct. 54 week-trials is a smaller sample than
+the other measurements here and the intervals are wide; the dose-response is
+what makes it believable.
+
+Evidence: `app/scripts/test-exposure-vs-best.py`.
 """
 
 ATTEMPTS_DEFAULT = 80000
