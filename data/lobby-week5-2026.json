@@ -2,7 +2,7 @@
  "captured": "2026-10-09T21:52:00-04:00",
  "week": 5,
  "source": "DK Contest Details/Week 5/ \u2014 lobby plus 10 contest-detail captures, 2026-10-09 21:48-21:52",
- "note": "17 Classic contests on the Sunday 10/11 main slate, lock 1:00pm ET. The two $14M World Championship satellites in the lobby are omitted: they pay seats, not cash. Payout grids now cover 11 of 17 \u2014 four were captured this week ($75K Fair Catch, $50K Red Zone, $40K 1st and 10, $25K Blind Side) and the rest carry over, since the grids are identical week to week for a given contest name, verified against Week 4 on the Millionaire and $200K Red Zone.",
+ "note": "17 Classic contests on the Sunday 10/11 main slate, lock 1:00pm ET. The two $14M World Championship satellites in the lobby are omitted: they pay seats, not cash. Payout grids now cover 14 of 17 \u2014 four were captured this week ($75K Fair Catch, $50K Red Zone, $40K 1st and 10, $25K Blind Side) and the rest carry over, since the grids are identical week to week for a given contest name, verified against Week 4 on the Millionaire and $200K Red Zone.",
  "contests": [
   {
    "id": "w5-mil275",
@@ -114,7 +114,7 @@
    "window": "main",
    "lockTime": "10/11 1:00p",
    "affordable": true,
-   "structureSource": "lobby row only \u2014 no payout grid"
+   "structureSource": "payout grid captured"
   },
   {
    "id": "w5-fc50",
@@ -128,7 +128,7 @@
    "window": "main",
    "lockTime": "10/11 1:00p",
    "affordable": true,
-   "structureSource": "lobby row only \u2014 no payout grid"
+   "structureSource": "payout grid captured"
   },
   {
    "id": "w5-rz50",
@@ -184,7 +184,7 @@
    "window": "main",
    "lockTime": "10/11 1:00p",
    "affordable": true,
-   "structureSource": "lobby row only \u2014 no payout grid"
+   "structureSource": "payout grid captured"
   },
   {
    "id": "w5-bs25",
@@ -212,7 +212,7 @@
    "window": "main",
    "lockTime": "10/11 1:00p",
    "affordable": true,
-   "structureSource": "lobby row only \u2014 no payout grid"
+   "structureSource": "payout grid captured"
   },
   {
    "id": "w5-mhm5",
