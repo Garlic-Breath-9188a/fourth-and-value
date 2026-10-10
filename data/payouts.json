@@ -1764,5 +1764,426 @@
   "prizePool": 2750000.0,
   "rake": 0.1497,
   "shape": "gpp"
+ },
+ "NFL $75K Fair Catch [Single Entry]": {
+  "entryFee": 12,
+  "maxEntries": 7352,
+  "tiers": [
+   {
+    "from": 1,
+    "to": 1,
+    "prize": 7500
+   },
+   {
+    "from": 2,
+    "to": 2,
+    "prize": 3000
+   },
+   {
+    "from": 3,
+    "to": 3,
+    "prize": 2000
+   },
+   {
+    "from": 4,
+    "to": 4,
+    "prize": 1500
+   },
+   {
+    "from": 5,
+    "to": 5,
+    "prize": 1250
+   },
+   {
+    "from": 6,
+    "to": 7,
+    "prize": 1000
+   },
+   {
+    "from": 8,
+    "to": 10,
+    "prize": 750
+   },
+   {
+    "from": 11,
+    "to": 13,
+    "prize": 600
+   },
+   {
+    "from": 14,
+    "to": 16,
+    "prize": 500
+   },
+   {
+    "from": 17,
+    "to": 20,
+    "prize": 400
+   },
+   {
+    "from": 21,
+    "to": 25,
+    "prize": 300
+   },
+   {
+    "from": 26,
+    "to": 30,
+    "prize": 250
+   },
+   {
+    "from": 31,
+    "to": 35,
+    "prize": 200
+   },
+   {
+    "from": 36,
+    "to": 45,
+    "prize": 150
+   },
+   {
+    "from": 46,
+    "to": 55,
+    "prize": 100
+   },
+   {
+    "from": 56,
+    "to": 70,
+    "prize": 75
+   },
+   {
+    "from": 71,
+    "to": 110,
+    "prize": 60
+   },
+   {
+    "from": 111,
+    "to": 185,
+    "prize": 50
+   },
+   {
+    "from": 186,
+    "to": 325,
+    "prize": 40
+   },
+   {
+    "from": 326,
+    "to": 625,
+    "prize": 30
+   },
+   {
+    "from": 626,
+    "to": 1524,
+    "prize": 25
+   }
+  ],
+  "cashRate": 0.2073,
+  "minCashMultiple": 2.08,
+  "topPrizeMultiple": 625.0,
+  "paidPlaces": 1524,
+  "prizePool": 75000.0,
+  "rake": 0.1499,
+  "shape": "gpp",
+  "captured": "2026-10-09"
+ },
+ "NFL $50K Red Zone [Single Entry]": {
+  "entryFee": 50,
+  "maxEntries": 1136,
+  "tiers": [
+   {
+    "from": 1,
+    "to": 1,
+    "prize": 5000
+   },
+   {
+    "from": 2,
+    "to": 2,
+    "prize": 2500
+   },
+   {
+    "from": 3,
+    "to": 3,
+    "prize": 1500
+   },
+   {
+    "from": 4,
+    "to": 4,
+    "prize": 1000
+   },
+   {
+    "from": 5,
+    "to": 5,
+    "prize": 750
+   },
+   {
+    "from": 6,
+    "to": 7,
+    "prize": 600
+   },
+   {
+    "from": 8,
+    "to": 10,
+    "prize": 500
+   },
+   {
+    "from": 11,
+    "to": 15,
+    "prize": 450
+   },
+   {
+    "from": 16,
+    "to": 20,
+    "prize": 400
+   },
+   {
+    "from": 21,
+    "to": 25,
+    "prize": 350
+   },
+   {
+    "from": 26,
+    "to": 30,
+    "prize": 300
+   },
+   {
+    "from": 31,
+    "to": 40,
+    "prize": 250
+   },
+   {
+    "from": 41,
+    "to": 65,
+    "prize": 200
+   },
+   {
+    "from": 66,
+    "to": 110,
+    "prize": 150
+   },
+   {
+    "from": 111,
+    "to": 258,
+    "prize": 100
+   }
+  ],
+  "cashRate": 0.2271,
+  "minCashMultiple": 2.0,
+  "topPrizeMultiple": 100.0,
+  "paidPlaces": 258,
+  "prizePool": 50000.0,
+  "rake": 0.1197,
+  "shape": "gpp",
+  "captured": "2026-10-09"
+ },
+ "NFL $40K 1st and 10 [10 Entry Max]": {
+  "entryFee": 10,
+  "maxEntries": 4705,
+  "tiers": [
+   {
+    "from": 1,
+    "to": 1,
+    "prize": 4000
+   },
+   {
+    "from": 2,
+    "to": 2,
+    "prize": 2000
+   },
+   {
+    "from": 3,
+    "to": 3,
+    "prize": 1500
+   },
+   {
+    "from": 4,
+    "to": 4,
+    "prize": 1000
+   },
+   {
+    "from": 5,
+    "to": 5,
+    "prize": 750
+   },
+   {
+    "from": 6,
+    "to": 6,
+    "prize": 600
+   },
+   {
+    "from": 7,
+    "to": 8,
+    "prize": 500
+   },
+   {
+    "from": 9,
+    "to": 10,
+    "prize": 400
+   },
+   {
+    "from": 11,
+    "to": 12,
+    "prize": 300
+   },
+   {
+    "from": 13,
+    "to": 14,
+    "prize": 250
+   },
+   {
+    "from": 15,
+    "to": 19,
+    "prize": 200
+   },
+   {
+    "from": 20,
+    "to": 24,
+    "prize": 150
+   },
+   {
+    "from": 25,
+    "to": 29,
+    "prize": 100
+   },
+   {
+    "from": 30,
+    "to": 39,
+    "prize": 75
+   },
+   {
+    "from": 40,
+    "to": 49,
+    "prize": 60
+   },
+   {
+    "from": 50,
+    "to": 74,
+    "prize": 50
+   },
+   {
+    "from": 75,
+    "to": 124,
+    "prize": 40
+   },
+   {
+    "from": 125,
+    "to": 225,
+    "prize": 30
+   },
+   {
+    "from": 226,
+    "to": 415,
+    "prize": 25
+   },
+   {
+    "from": 416,
+    "to": 1046,
+    "prize": 20
+   }
+  ],
+  "cashRate": 0.2223,
+  "minCashMultiple": 2.0,
+  "topPrizeMultiple": 400.0,
+  "paidPlaces": 1046,
+  "prizePool": 40000.0,
+  "rake": 0.1498,
+  "shape": "gpp",
+  "captured": "2026-10-09"
+ },
+ "NFL $25K Blind Side [Single Entry]": {
+  "entryFee": 27,
+  "maxEntries": 1079,
+  "tiers": [
+   {
+    "from": 1,
+    "to": 1,
+    "prize": 2500
+   },
+   {
+    "from": 2,
+    "to": 2,
+    "prize": 1500
+   },
+   {
+    "from": 3,
+    "to": 3,
+    "prize": 1000
+   },
+   {
+    "from": 4,
+    "to": 4,
+    "prize": 600
+   },
+   {
+    "from": 5,
+    "to": 5,
+    "prize": 500
+   },
+   {
+    "from": 6,
+    "to": 6,
+    "prize": 400
+   },
+   {
+    "from": 7,
+    "to": 8,
+    "prize": 300
+   },
+   {
+    "from": 9,
+    "to": 10,
+    "prize": 250
+   },
+   {
+    "from": 11,
+    "to": 12,
+    "prize": 225
+   },
+   {
+    "from": 13,
+    "to": 15,
+    "prize": 200
+   },
+   {
+    "from": 16,
+    "to": 20,
+    "prize": 175
+   },
+   {
+    "from": 21,
+    "to": 25,
+    "prize": 150
+   },
+   {
+    "from": 26,
+    "to": 35,
+    "prize": 125
+   },
+   {
+    "from": 36,
+    "to": 58,
+    "prize": 100
+   },
+   {
+    "from": 59,
+    "to": 93,
+    "prize": 75
+   },
+   {
+    "from": 94,
+    "to": 150,
+    "prize": 60
+   },
+   {
+    "from": 151,
+    "to": 245,
+    "prize": 54
+   }
+  ],
+  "cashRate": 0.2271,
+  "minCashMultiple": 2.0,
+  "topPrizeMultiple": 92.6,
+  "paidPlaces": 245,
+  "prizePool": 25000.0,
+  "rake": 0.1419,
+  "shape": "gpp",
+  "captured": "2026-10-09"
  }
 }
