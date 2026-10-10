@@ -16,6 +16,43 @@ import streamlit as st
 from fv import rules, context, injuries, sources, entered as ent
 
 
+def _pool_fn(name: str, fallback):
+    """
+    Resolve a function from fv.pool at CALL time, not import time.
+
+    Streamlit Cloud redeploys app.py but keeps modules it already imported in
+    sys.modules. A `from fv.pool import new_function` therefore raises
+    ImportError on the first refresh after any deploy that adds one -- and
+    Streamlit redacts the message, so the user sees an unexplained crash on a
+    codebase that is actually correct. This has now happened four times:
+    fv.optimize in Week 3, fv.rules in Week 4, fv.pool twice.
+
+    _rule() already did this for constants, but an ImportError fires while the
+    module is loading, before any fallback inside it can run. The import has to
+    stop being a top-level import.
+    """
+    import fv.pool as _p
+    fn = getattr(_p, name, None)
+    if fn is None:
+        _STALE.add(name)
+        return fallback
+    return fn
+
+
+def _fallback_locks_before_kickoff(kickoff, lock="01:00PM"):
+    """Mirror of fv.pool.locks_before_kickoff, for a stale module."""
+    if not kickoff:
+        return False
+    def mins(s):
+        h = int(s[:2]) % 12
+        if s[-2:] == "PM": h += 12
+        return h * 60 + int(s[3:5])
+    try:
+        return mins(kickoff) > mins(lock)
+    except (ValueError, IndexError):
+        return False
+
+
 def _rule(name: str, fallback):
     """
     Read a constant from fv.rules, surviving a stale import.
@@ -38,7 +75,6 @@ def _rule(name: str, fallback):
 
 _STALE: set[str] = set()
 from fv.pool import (load_salaries, keep_starting_quarterbacks, apply_ceilings,
-                     flag_missing_quarterback, locks_before_kickoff,
                      rosterable, load_json)
 from fv.slate import slate_options, main_slate, restrict
 from fv.optimize import build_portfolio, improve_portfolio, projection
@@ -173,7 +209,7 @@ def load_pool(version: str):
     rows = [r for r in rows if rosterable(r)]
     # Must run after the rosterable filter: the quarterback being looked for
     # may still be in the list on his way out.
-    return flag_missing_quarterback(rows)
+    return _pool_fn("flag_missing_quarterback", lambda r: r)(rows)
 
 
 def prepared_pool(rows: list[dict], week: int) -> list[dict]:
@@ -559,7 +595,8 @@ if drop_questionable and feed:
     # by the time you submit; one in a 4:25 game is not.
     blocked |= {p["id"] for p in pool
                 if (feed.get(injuries._norm(p["name"])) or {}).get("status") == "Questionable"
-                and locks_before_kickoff(p.get("kickoff"), _lock_time)}
+                and _pool_fn("locks_before_kickoff",
+                             _fallback_locks_before_kickoff)(p.get("kickoff"), _lock_time)}
 if blocked:
     pool = [p for p in pool if p["id"] not in blocked]
 
