@@ -85,6 +85,30 @@ def load_salaries(text: str) -> list[dict]:
 THROWN_TO = ("WR", "TE")
 
 
+def slate_kickoffs(rows: list[dict]) -> list:
+    """
+    Every distinct kickoff on the slate, as datetimes, earliest first.
+
+    Used to refuse a stale slate. Week 5 2026: no new salary file had been
+    uploaded, so the app silently kept serving the Week 4 export and put
+    players from DAL@HOU -- a game that had already been played -- into
+    optimized lineups. A board built on finished games is not a wrong answer
+    the user can spot from the lineups; it looks exactly like a right one.
+    """
+    import re
+    from datetime import datetime
+    out = set()
+    for r in rows:
+        m = re.search(r"(\d{2}/\d{2}/\d{4})\s+(\d{2}:\d{2}[AP]M)", r.get("game_info") or "")
+        if not m:
+            continue
+        try:
+            out.add(datetime.strptime(f"{m.group(1)} {m.group(2)}", "%m/%d/%Y %I:%M%p"))
+        except ValueError:
+            continue
+    return sorted(out)
+
+
 def _kickoff(info: str) -> str | None:
     """
     Kickoff time as it appears in the salary export, e.g. "01:00PM".

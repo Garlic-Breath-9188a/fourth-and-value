@@ -571,6 +571,30 @@ if _STALE:
         f"file. Streamlit re-runs the page on refresh but keeps modules it has already "
         f"imported, so a refresh will not clear this. Manage app → ⋮ → Reboot.")
 
+# ---- Refuse a slate whose games have already been played --------------------
+# Week 5 2026: no new salary export had been uploaded, so the app kept serving
+# the Week 4 file and put DAL@HOU players -- a game already played -- into
+# optimized lineups. Nothing on screen looked wrong. A stale slate has to be
+# loud, because it is indistinguishable from a live one in the output.
+_kicks_dt = _pool_fn("slate_kickoffs", lambda r: [])(pool)
+if _kicks_dt:
+    import datetime as _dt
+    _last = _kicks_dt[-1]
+    _first = _kicks_dt[0]
+    if _last < _dt.datetime.now():
+        st.error(
+            f"**This slate has already been played.** The loaded salary file runs "
+            f"{_first:%a %-d %b %-I:%M%p} to {_last:%a %-d %b %-I:%M%p}, and the last "
+            f"game kicked off {( _dt.datetime.now() - _last).days} day(s) ago. Every "
+            f"lineup below would be built from finished games.\n\n"
+            f"Drop this week's **Classic** DKSalaries.csv into the week folder and run "
+            f"`./refresh-week.sh <week>`.", icon="🛑")
+        st.stop()
+    elif _first < _dt.datetime.now():
+        st.warning(
+            f"**Part of this slate has already started** ({_first:%a %-d %b %-I:%M%p}). "
+            f"Players in games already under way cannot be entered.", icon="⚠️")
+
 # The contest locks at the first game of the slate, so that is the cutoff for
 # whether a player's inactive news is knowable before submitting.
 _kicks = sorted({p["kickoff"] for p in pool if p.get("kickoff")})
