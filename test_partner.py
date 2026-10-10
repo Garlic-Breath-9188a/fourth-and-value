@@ -49,9 +49,23 @@ class Exclude(unittest.TestCase):
         self.assertEqual(len(out), 2)
 
     def test_the_live_file_if_present_mostly_matches_the_slate(self):
+        """
+        A partner list only means anything against the slate it was written for.
+
+        Felix's Week 3 list was still on disk in Week 5, and 19 of its 35 names
+        were not on the slate at all -- the Bills, Ravens, Chiefs and Cowboys
+        were not playing. Excluding those players would have cost nothing and
+        achieved nothing, but the test failed with no explanation of why.
+        It now skips a list from another week and says so.
+        """
+        import json
         f = DATA / "partner-players.json"
         if not f.exists():
             self.skipTest("no partner file locally")
+        want = json.loads((DATA / "manifest.json").read_text()).get("slate", {}).get("week")
+        have = json.loads(f.read_text()).get("week")
+        if want is not None and have is not None and want != have:
+            self.skipTest(f"partner list is week {have}, slate is week {want} — stale, not wrong")
         from fv.pool import load_salaries
         pool = load_salaries((DATA / "DKSalaries.csv").read_text())
         d = partner.load(f)

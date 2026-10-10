@@ -677,6 +677,17 @@ tab_board, tab_pool, tab_entry, tab_strategy, tab_about = st.tabs(
 
 # ---- Leave the partner's players alone -------------------------------------
 _partner_missing: list[str] = []
+# A partner list written for another week excludes players who are not on this
+# slate and misses the ones who are. Week 5 2026 still had Felix's Week 3 list,
+# 19 of whose 35 names were not playing.
+_partner_week = _partner.get("week")
+_slate_week = _manifest("slate").get("week")
+if (avoid_partner and _partner["players"] and _partner_week is not None
+        and _slate_week is not None and _partner_week != _slate_week):
+    st.warning(f"**The partner list is from week {_partner_week}, this slate is week "
+               f"{_slate_week}.** It is being ignored — excluding last week's names would "
+               f"remove players at random. Re-extract it to use this feature.", icon="⚠️")
+    avoid_partner = False
 if avoid_partner and _partner["players"]:
     _before = len(pool)
     pool, _partner_missing = partner_mod.exclude(pool, _partner)
