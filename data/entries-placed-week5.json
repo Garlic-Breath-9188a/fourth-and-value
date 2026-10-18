@@ -1,9 +1,242 @@
 {
- "source": "not yet entered",
+ "source": "DK Contest Details/Week 5/ \u2014 MY CONTESTS GameCenter screenshots, 2026-10-18 12:33-12:37, transcribed after the fact (Week 5 was played 10/11 but never recorded at the time)",
  "week": 5,
- "note": "Week 5. Empty until lineups are placed; last week is in entries-placed-week4.json. They must be archived AND reset at the slate roll, because the reconciliation test checks recorded salaries against the live export and last week's prices do not exist in it.",
- "contests": [],
- "entries": [],
- "staked": 0,
- "stakedIncludingUnrecorded": 0
+ "slateLock": "2026-10-11T13:00:00-04:00",
+ "note": "All three contests graded directly from completed GameCenter screens.",
+ "contests": [
+  {
+   "id": "w5x-bs25",
+   "name": "NFL $25K Blind Side [Single Entry]",
+   "entryFee": 27,
+   "totalPrizes": 25000,
+   "entered": 1079,
+   "maxEntries": 1079
+  },
+  {
+   "id": "w5x-rz75",
+   "name": "NFL $75K Red Zone [Single Entry]",
+   "entryFee": 50,
+   "totalPrizes": 75000,
+   "entered": 1704,
+   "maxEntries": 1704
+  },
+  {
+   "id": "w5x-fc50",
+   "name": "NFL $50K Fair Catch [Single Entry]",
+   "entryFee": 12,
+   "totalPrizes": 50000,
+   "entered": 4901,
+   "maxEntries": 4901
+  }
+ ],
+ "entries": [
+  {
+   "entry": 1,
+   "contestId": "w5x-bs25",
+   "remainingSalary": 0,
+   "roster": [
+    {
+     "slot": "QB",
+     "name": "Brock Purdy",
+     "team": "SF",
+     "salary": 6500
+    },
+    {
+     "slot": "RB",
+     "name": "Chase Brown",
+     "team": "CIN",
+     "salary": 6900
+    },
+    {
+     "slot": "RB",
+     "name": "David Montgomery",
+     "team": "HOU",
+     "salary": 5800
+    },
+    {
+     "slot": "WR",
+     "name": "Amon-Ra St. Brown",
+     "team": "DET",
+     "salary": 7900
+    },
+    {
+     "slot": "WR",
+     "name": "Mike Evans",
+     "team": "SF",
+     "salary": 6500
+    },
+    {
+     "slot": "WR",
+     "name": "Michael Wilson",
+     "team": "ARI",
+     "salary": 6200
+    },
+    {
+     "slot": "TE",
+     "name": "George Kittle",
+     "team": "SF",
+     "salary": 5200
+    },
+    {
+     "slot": "FLEX",
+     "name": "Foster Moreau",
+     "team": "HOU",
+     "salary": 2500
+    },
+    {
+     "slot": "DST",
+     "name": "Raiders",
+     "team": "LV",
+     "salary": 2500
+    }
+   ],
+   "result": {
+    "points": 84.94,
+    "place": 1060,
+    "entries": 1079,
+    "paid": 245,
+    "won": 0.0
+   }
+  },
+  {
+   "entry": 2,
+   "contestId": "w5x-rz75",
+   "remainingSalary": 0,
+   "roster": [
+    {
+     "slot": "QB",
+     "name": "Brock Purdy",
+     "team": "SF",
+     "salary": 6500
+    },
+    {
+     "slot": "RB",
+     "name": "Chase Brown",
+     "team": "CIN",
+     "salary": 6900
+    },
+    {
+     "slot": "RB",
+     "name": "David Montgomery",
+     "team": "HOU",
+     "salary": 5800
+    },
+    {
+     "slot": "WR",
+     "name": "Amon-Ra St. Brown",
+     "team": "DET",
+     "salary": 7900
+    },
+    {
+     "slot": "WR",
+     "name": "Mike Evans",
+     "team": "SF",
+     "salary": 6500
+    },
+    {
+     "slot": "WR",
+     "name": "Michael Wilson",
+     "team": "ARI",
+     "salary": 6200
+    },
+    {
+     "slot": "TE",
+     "name": "George Kittle",
+     "team": "SF",
+     "salary": 5200
+    },
+    {
+     "slot": "FLEX",
+     "name": "Foster Moreau",
+     "team": "HOU",
+     "salary": 2500
+    },
+    {
+     "slot": "DST",
+     "name": "Raiders",
+     "team": "LV",
+     "salary": 2500
+    }
+   ],
+   "result": {
+    "points": 84.94,
+    "place": 1676,
+    "entries": 1704,
+    "paid": 390,
+    "won": 0.0
+   }
+  },
+  {
+   "entry": 3,
+   "contestId": "w5x-fc50",
+   "remainingSalary": 0,
+   "roster": [
+    {
+     "slot": "QB",
+     "name": "Jared Goff",
+     "team": "DET",
+     "salary": 6600
+    },
+    {
+     "slot": "RB",
+     "name": "Chase Brown",
+     "team": "CIN",
+     "salary": 6900
+    },
+    {
+     "slot": "RB",
+     "name": "David Montgomery",
+     "team": "HOU",
+     "salary": 5800
+    },
+    {
+     "slot": "WR",
+     "name": "Amon-Ra St. Brown",
+     "team": "DET",
+     "salary": 7900
+    },
+    {
+     "slot": "WR",
+     "name": "Michael Wilson",
+     "team": "ARI",
+     "salary": 6200
+    },
+    {
+     "slot": "WR",
+     "name": "Jameson Williams",
+     "team": "DET",
+     "salary": 5900
+    },
+    {
+     "slot": "TE",
+     "name": "Sam LaPorta",
+     "team": "DET",
+     "salary": 4900
+    },
+    {
+     "slot": "FLEX",
+     "name": "Cole Kmet",
+     "team": "CHI",
+     "salary": 2600
+    },
+    {
+     "slot": "DST",
+     "name": "Broncos",
+     "team": "DEN",
+     "salary": 3200
+    }
+   ],
+   "result": {
+    "points": 110.52,
+    "place": 4088,
+    "entries": 4901,
+    "paid": 1046,
+    "won": 0.0
+   }
+  }
+ ],
+ "staked": 89,
+ "stakedIncludingUnrecorded": 89,
+ "returned": 0.0,
+ "graded": "2026-10-18"
 }
