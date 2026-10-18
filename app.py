@@ -564,6 +564,19 @@ with st.sidebar:
                             help="Each appears in at least one lineup — not all of them.")
     must_play = tuple(names[n] for n in forced)
 
+    st.markdown("### Do not play")
+    avoided = st.multiselect("Never include", list(names),
+                             help="Removed from every lineup before the board is built — the "
+                                  "opposite of Must-play. Use this for a name you distrust "
+                                  "(a thin sample, an unreliable role) rather than editing the "
+                                  "generated card by hand afterward.")
+    do_not_play = tuple(names[n] for n in avoided)
+    _both = set(forced) & set(avoided)
+    if _both:
+        st.warning(f"{', '.join(sorted(_both))} is in both lists — Do not play wins, "
+                   f"since avoiding a name is the safety-relevant choice.")
+        must_play = tuple(names[n] for n in forced if n not in _both)
+
 if _STALE:
     st.warning(
         f"**Reboot this app.** It is running new page code against a stale copy of "
@@ -602,6 +615,8 @@ _lock_time = _kicks[0] if _kicks else "01:00PM"
 feed = live_injuries() if use_live else {}
 conflicts = injuries.cross_check(pool, feed) if feed else []
 blocked = {c["id"] for c in conflicts if c["live_status"] in injuries.BLOCKING}
+if do_not_play:
+    blocked |= set(do_not_play)
 if drop_backup_qb:
     blocked |= {p["id"] for p in pool if p.get("backup_qb")}
 if unique_players:
