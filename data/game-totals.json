@@ -1,131 +1,123 @@
 {
  "season": 2026,
- "week": 5,
+ "week": 6,
  "source": "https://github.com/nflverse/nfldata/raw/master/data/games.csv",
  "leagueMeanTotal": 43.9,
  "note": "Closing Vegas total per team. Worth ~3% on the ceiling and nothing on the mean -- see the module docstring.",
  "games": [
   {
-   "away": "DET",
-   "home": "ARI",
-   "total": 54.5,
+   "away": "BUF",
+   "home": "LV",
+   "total": 53.5,
    "spread": -5.5
   },
   {
-   "away": "BUF",
-   "home": "LAR",
-   "total": 54.5,
-   "spread": 3.0
+   "away": "DAL",
+   "home": "GB",
+   "total": 53.5,
+   "spread": 1.5
   },
   {
-   "away": "TB",
-   "home": "DAL",
-   "total": 49.5,
-   "spread": 9.5
+   "away": "WAS",
+   "home": "SF",
+   "total": 52.5,
+   "spread": 7.5
   },
   {
    "away": "CHI",
-   "home": "GB",
-   "total": 45.5,
+   "home": "ATL",
+   "total": 51.5,
    "spread": -1.5
   },
   {
-   "away": "LV",
+   "away": "ARI",
+   "home": "LAR",
+   "total": 51.5,
+   "spread": 12.5
+  },
+  {
+   "away": "NO",
+   "home": "NYG",
+   "total": 46.5,
+   "spread": -1.5
+  },
+  {
+   "away": "TEN",
+   "home": "IND",
+   "total": 43.5,
+   "spread": 6.5
+  },
+  {
+   "away": "NYJ",
    "home": "NE",
-   "total": 45.5,
-   "spread": 3.5
-  },
-  {
-   "away": "SF",
-   "home": "SEA",
-   "total": 45.5,
-   "spread": 3.0
-  },
-  {
-   "away": "CIN",
-   "home": "MIA",
    "total": 43.5,
-   "spread": -7.0
+   "spread": 7.5
   },
   {
-   "away": "IND",
-   "home": "PIT",
-   "total": 43.5,
-   "spread": 3.0
-  },
-  {
-   "away": "BAL",
-   "home": "ATL",
-   "total": 43.5,
-   "spread": 3.5
-  },
-  {
-   "away": "PHI",
+   "away": "HOU",
    "home": "JAX",
+   "total": 42.5,
+   "spread": 2.5
+  },
+  {
+   "away": "LAC",
+   "home": "KC",
    "total": 41.5,
    "spread": 7.5
   },
   {
-   "away": "MIN",
-   "home": "NO",
-   "total": 41.5,
+   "away": "SEA",
+   "home": "DEN",
+   "total": 40.5,
    "spread": -2.5
   },
   {
-   "away": "NYG",
-   "home": "WAS",
-   "total": 41.5,
-   "spread": 3.5
-  },
-  {
-   "away": "DEN",
-   "home": "LAC",
-   "total": 41.5,
-   "spread": -3.5
-  },
-  {
-   "away": "CLE",
-   "home": "NYJ",
+   "away": "BAL",
+   "home": "CLE",
    "total": 39.5,
-   "spread": 2.5
+   "spread": -3.0
   },
   {
-   "away": "HOU",
-   "home": "TEN",
+   "away": "CAR",
+   "home": "PHI",
+   "total": 39.5,
+   "spread": -3.0
+  },
+  {
+   "away": "PIT",
+   "home": "TB",
    "total": 38.5,
-   "spread": -7.0
+   "spread": -2.5
   }
  ],
  "teams": {
-  "TB": 49.5,
-  "DAL": 49.5,
-  "PHI": 41.5,
-  "JAX": 41.5,
-  "CHI": 45.5,
-  "GB": 45.5,
-  "CIN": 43.5,
-  "MIA": 43.5,
-  "LV": 45.5,
-  "NE": 45.5,
-  "MIN": 41.5,
-  "NO": 41.5,
+  "SEA": 40.5,
+  "DEN": 40.5,
+  "HOU": 42.5,
+  "JAX": 42.5,
+  "CHI": 51.5,
+  "ATL": 51.5,
+  "BAL": 39.5,
   "CLE": 39.5,
-  "NYJ": 39.5,
+  "TEN": 43.5,
   "IND": 43.5,
-  "PIT": 43.5,
-  "HOU": 38.5,
-  "TEN": 38.5,
-  "NYG": 41.5,
-  "WAS": 41.5,
-  "DEN": 41.5,
+  "NYJ": 43.5,
+  "NE": 43.5,
+  "NO": 46.5,
+  "NYG": 46.5,
+  "CAR": 39.5,
+  "PHI": 39.5,
+  "PIT": 38.5,
+  "TB": 38.5,
+  "ARI": 51.5,
+  "LAR": 51.5,
   "LAC": 41.5,
-  "DET": 54.5,
-  "ARI": 54.5,
-  "SF": 45.5,
-  "SEA": 45.5,
-  "BAL": 43.5,
-  "ATL": 43.5,
-  "BUF": 54.5,
-  "LAR": 54.5
+  "KC": 41.5,
+  "BUF": 53.5,
+  "LV": 53.5,
+  "DAL": 53.5,
+  "GB": 53.5,
+  "WAS": 52.5,
+  "SF": 52.5
  }
 }

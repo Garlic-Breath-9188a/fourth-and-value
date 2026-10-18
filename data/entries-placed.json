@@ -1,7 +1,7 @@
 {
  "source": "not yet entered",
- "week": 5,
- "note": "Week 5. Empty until lineups are placed; last week is in entries-placed-week4.json. They must be archived AND reset at the slate roll, because the reconciliation test checks recorded salaries against the live export and last week's prices do not exist in it.",
+ "week": 6,
+ "note": "Week 6. Empty until lineups are placed; last week is in entries-placed-week5.json. They must be archived AND reset at the slate roll, because the reconciliation test checks recorded salaries against the live export and last week's prices do not exist in it.",
  "contests": [],
  "entries": [],
  "staked": 0,
