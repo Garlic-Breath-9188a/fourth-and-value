@@ -1,9 +1,164 @@
 {
- "source": "not yet entered",
+ "source": "DK Contest Details/Week 6/ — MY CONTESTS GameCenter screenshots, 2026-10-22 18:58-19:02, transcribed after the fact (Week 6 was played 10/18 but never recorded at the time)",
  "week": 6,
- "note": "Week 6. Empty until lineups are placed; last week is in entries-placed-week5.json. They must be archived AND reset at the slate roll, because the reconciliation test checks recorded salaries against the live export and last week's prices do not exist in it.",
- "contests": [],
- "entries": [],
- "staked": 0,
- "stakedIncludingUnrecorded": 0
+ "slateLock": "2026-10-18T13:00:00-04:00",
+ "note": "All five contests graded directly from completed GameCenter screens. The $75K Red Zone entry is the lineup Craig asked about mid-week (K. Williams = Kyren Williams, not Kenneth Walker III; E. Higgins = Elijah Higgins at TE after the T. Quitoriano swap) — confirmed correct, salary totals exactly to the $50,000 cap.",
+ "contests": [
+  {
+   "id": "w6x-mill",
+   "name": "NFL $2.75M Fantasy Football Millionaire [$1M to 1st]",
+   "entryFee": 20,
+   "totalPrizes": 2750000,
+   "entered": 158904,
+   "maxEntries": 161700
+  },
+  {
+   "id": "w6x-huddle100",
+   "name": "NFL $100K Huddle [Single Entry]",
+   "entryFee": 5,
+   "totalPrizes": 100000,
+   "entered": 23781,
+   "maxEntries": 23781
+  },
+  {
+   "id": "w6x-rz75",
+   "name": "NFL $75K Red Zone [Single Entry]",
+   "entryFee": 50,
+   "totalPrizes": 75000,
+   "entered": 1704,
+   "maxEntries": 1704
+  },
+  {
+   "id": "w6x-fc75",
+   "name": "NFL $75K Fair Catch [Single Entry]",
+   "entryFee": 12,
+   "totalPrizes": 75000,
+   "entered": 7352,
+   "maxEntries": 7352
+  },
+  {
+   "id": "w6x-fc7",
+   "name": "NFL $7K Fair Catch [Single Entry]",
+   "entryFee": 12,
+   "totalPrizes": 7000,
+   "entered": 686,
+   "maxEntries": 686
+  }
+ ],
+ "entries": [
+  {
+   "entry": 1,
+   "contestId": "w6x-mill",
+   "roster": [
+    {"slot": "QB", "name": "Patrick Mahomes", "team": "KC", "salary": 6500},
+    {"slot": "RB", "name": "Ashton Jeanty", "team": "LV", "salary": 6500},
+    {"slot": "RB", "name": "Derrick Henry", "team": "BAL", "salary": 8200},
+    {"slot": "WR", "name": "Tre Tucker", "team": "LV", "salary": 4700},
+    {"slot": "WR", "name": "Xavier Worthy", "team": "KC", "salary": 4600},
+    {"slot": "WR", "name": "Jalen Coker", "team": "CAR", "salary": 5900},
+    {"slot": "TE", "name": "Travis Kelce", "team": "KC", "salary": 5500},
+    {"slot": "FLEX", "name": "Emeka Egbuka", "team": "TB", "salary": 5200},
+    {"slot": "DST", "name": "Giants", "team": "NYG", "salary": 2800}
+   ],
+   "result": {
+    "points": 118.08,
+    "place": 96508,
+    "entries": 158904,
+    "paid": null,
+    "won": 0.0
+   }
+  },
+  {
+   "entry": 1,
+   "contestId": "w6x-huddle100",
+   "roster": [
+    {"slot": "QB", "name": "Kirk Cousins", "team": "LV", "salary": 5400},
+    {"slot": "RB", "name": "Kenneth Walker III", "team": "KC", "salary": 8500},
+    {"slot": "RB", "name": "Rhamondre Stevenson", "team": "NE", "salary": 6000},
+    {"slot": "WR", "name": "Tre Tucker", "team": "LV", "salary": 4700},
+    {"slot": "WR", "name": "Tetairoa McMillan", "team": "CAR", "salary": 7300},
+    {"slot": "WR", "name": "Carnell Tate", "team": "TEN", "salary": 5000},
+    {"slot": "TE", "name": "Brock Bowers", "team": "LV", "salary": 7500},
+    {"slot": "FLEX", "name": "Ted Hurst III", "team": "TB", "salary": 3000},
+    {"slot": "DST", "name": "Panthers", "team": "CAR", "salary": 2500}
+   ],
+   "result": {
+    "points": 139.32,
+    "place": 6115,
+    "entries": 23781,
+    "paid": 5805,
+    "won": 0.0
+   }
+  },
+  {
+   "entry": 1,
+   "contestId": "w6x-rz75",
+   "roster": [
+    {"slot": "QB", "name": "Matthew Stafford", "team": "LAR", "salary": 6400},
+    {"slot": "RB", "name": "Kyren Williams", "team": "LAR", "salary": 6800},
+    {"slot": "RB", "name": "Bijan Robinson", "team": "ATL", "salary": 8700},
+    {"slot": "WR", "name": "Puka Nacua", "team": "LAR", "salary": 8100},
+    {"slot": "WR", "name": "Davante Adams", "team": "LAR", "salary": 6600},
+    {"slot": "WR", "name": "Denzel Boston", "team": "CLE", "salary": 5500},
+    {"slot": "TE", "name": "Elijah Higgins", "team": "ARI", "salary": 2700},
+    {"slot": "FLEX", "name": "Elic Ayomanor", "team": "TEN", "salary": 3000},
+    {"slot": "DST", "name": "Jets", "team": "NYJ", "salary": 2200}
+   ],
+   "result": {
+    "points": 68.38,
+    "place": 1701,
+    "entries": 1704,
+    "paid": 390,
+    "won": 0.0
+   }
+  },
+  {
+   "entry": 1,
+   "contestId": "w6x-fc75",
+   "roster": [
+    {"slot": "QB", "name": "Josh Allen", "team": "BUF", "salary": 7500},
+    {"slot": "RB", "name": "Jonathan Taylor", "team": "IND", "salary": 8000},
+    {"slot": "RB", "name": "D'Andre Swift", "team": "CHI", "salary": 6700},
+    {"slot": "WR", "name": "Khalil Shakir", "team": "BUF", "salary": 5300},
+    {"slot": "WR", "name": "Keon Coleman", "team": "BUF", "salary": 4900},
+    {"slot": "WR", "name": "DeVonta Smith", "team": "PHI", "salary": 6900},
+    {"slot": "TE", "name": "Dalton Kincaid", "team": "BUF", "salary": 5100},
+    {"slot": "FLEX", "name": "Cody White", "team": "LV", "salary": 3200},
+    {"slot": "DST", "name": "Titans", "team": "TEN", "salary": 2300}
+   ],
+   "result": {
+    "points": 145.00,
+    "place": 1457,
+    "entries": 7352,
+    "paid": 1524,
+    "won": 25.0
+   }
+  },
+  {
+   "entry": 1,
+   "contestId": "w6x-fc7",
+   "roster": [
+    {"slot": "QB", "name": "Caleb Williams", "team": "CHI", "salary": 6200},
+    {"slot": "RB", "name": "James Cook III", "team": "BUF", "salary": 7400},
+    {"slot": "RB", "name": "Bucky Irving", "team": "TB", "salary": 6200},
+    {"slot": "WR", "name": "Drake London", "team": "ATL", "salary": 7000},
+    {"slot": "WR", "name": "Garrett Wilson", "team": "NYJ", "salary": 6800},
+    {"slot": "WR", "name": "Luther Burden III", "team": "CHI", "salary": 5400},
+    {"slot": "TE", "name": "Darren Waller", "team": "CAR", "salary": 3600},
+    {"slot": "FLEX", "name": "Rome Odunze", "team": "CHI", "salary": 4900},
+    {"slot": "DST", "name": "Panthers", "team": "CAR", "salary": 2500}
+   ],
+   "result": {
+    "points": 99.70,
+    "place": 613,
+    "entries": 686,
+    "paid": 139,
+    "won": 0.0
+   }
+  }
+ ],
+ "staked": 99,
+ "stakedIncludingUnrecorded": 99,
+ "returned": 25.0,
+ "graded": "2026-10-22"
 }
