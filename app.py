@@ -372,7 +372,7 @@ def load_placed_entries(version: str):
 
 @st.cache_data(show_spinner=True)
 def portfolio(ids, count, seed, ceiling_weight, qb_exposure, rb_exposure, must_play,
-              require_wr1, avoid_keys, week, other_exposure, exclude_ids):
+              require_wr1, avoid_keys, week, other_exposure, exclude_ids, leverage_weight=0.0):
     """
     `avoid_keys` holds the rosters already entered. They are built extra and
     then filtered out, rather than being forbidden during construction, so the
@@ -385,19 +385,22 @@ def portfolio(ids, count, seed, ceiling_weight, qb_exposure, rb_exposure, must_p
     pool = prepared_pool([p for p in load_pool(_data_version()) if p["id"] in set(ids)], week)
     if exclude_ids:
         pool = [p for p in pool if p["id"] not in set(exclude_ids)]
+    pool = ownership_mod.attach(pool, load_usage(_data_version()), load_ownership_model())
     avoid = set(avoid_keys)
     want = count + len(avoid)
     built = build_portfolio(pool, want, seed=seed, ceiling_weight=ceiling_weight,
                             qb_exposure=qb_exposure, rb_exposure=rb_exposure,
                             other_exposure=other_exposure,
                             must_play=set(must_play), require_wr1=require_wr1,
-                            attempts=_rule("ATTEMPTS_DEFAULT", 80000))
+                            attempts=_rule("ATTEMPTS_DEFAULT", 80000),
+                            leverage_weight=leverage_weight)
     # The sampler stops at whatever it happened to draw. This walks each lineup
     # for a swap that raises the projection, singly and then in pairs. On the
     # Week 3 board it moved the mean 152.1 -> 155.3 and spent $5,600 of idle
     # salary cap down to $600, in about a second, without breaking the stack,
     # the exposure caps or the distinctness of the ten.
-    built = improve_portfolio(built, pool, qb_exposure, rb_exposure, other_exposure)
+    built = improve_portfolio(built, pool, qb_exposure, rb_exposure, other_exposure,
+                              leverage_weight=leverage_weight)
     fresh = [l for l in built if ent.roster_key(l) not in avoid]
     return fresh[:count]
 
@@ -524,6 +527,19 @@ with st.sidebar:
                                     "score, favouring boom-or-bust players. Every player here has "
                                     "a ceiling from his own scoring spread, so this genuinely "
                                     "reorders the board. Whether it helps is unmeasured.")
+    leverage_weight = st.slider(
+        "Leverage (prefer less-owned players)", 0.0, 1.0,
+        _rule("LEVERAGE_WEIGHT_DEFAULT", 0.3), 0.05,
+        help="0 ignores the Own % column entirely. Above 0, a heavily-owned player's chance "
+             "of being drawn into a lineup is discounted, so an equally-good, less-owned "
+             "player gets picked more often -- without ever excluding the chalk play or "
+             "costing real projection to avoid it. This helps you WIN BIGGER if you score "
+             "well, by not sharing the top of the standings with thousands of identical "
+             "rosters -- it does not raise the points your lineup is expected to score. "
+             "The ownership estimate it runs on is itself approximate (see the Own % column "
+             "caption below the board), and leverage built from it has not been tested "
+             "against real contest results yet, only confirmed to lower average ownership "
+             "without lowering average projection on this live pool.")
     seed = st.number_input("Seed", 1, 9999, 1,
                            help="Lineups are drawn at random from the good ones. The seed fixes "
                                 "that randomness: same seed gives the same ten lineups every "
@@ -744,7 +760,7 @@ if avoid_used_qbs and not any(p["position"] == "QB" for p in build_ids):
 lineups = portfolio(tuple(p["id"] for p in build_ids), n_lineups, seed,
                     ceiling_weight, qb_exposure, rb_exposure, must_play, require_wr1,
                     tuple(sorted(st.session_state.entered)), int(nfl_week),
-                    other_exposure, ())
+                    other_exposure, (), leverage_weight)
 lock_label = f"{slate.locks_at.strftime('%-m/%-d %-I:%M')}p"
 entries, entry_notes = plan(lobby["contests"], budget, len(lineups), lock_label)
 
@@ -864,7 +880,8 @@ with tab_board:
                     f'{"".join(body)}'
                     f'<div class="foot">'
                     f'<span>ceil {sum(p.get("ceiling", 0) for p in l):.0f} · '
-                    f'{len({p["game"] for p in l if p.get("game")})} games</span>'
+                    f'{len({p["game"] for p in l if p.get("game")})} games · '
+                    f'avg {sum(p.get("ownership", 0) for p in l) / len(l):.0f}% own</span>'
                     f'<span>${sum(p["salary"] for p in l):,} · {projection(l):.1f} pts</span></div>'
                     f'</div></div>', unsafe_allow_html=True)
                 # ---- Mark entered, against a contest you choose -----------
@@ -1293,7 +1310,9 @@ slates. This is 0.46 over two. Reproduce with
                "has on hand. Checked against real DRAFT % from 12 Week 6 contests (41 "
                "players): MAE 7.93, r 0.46 — still ahead of the points-per-dollar guess (8.81, "
                "0.41) but short of the paper number. Treat it as a rough read on who is chalky "
-               "and who is not, not a precise percentage. It is not used to build lineups.")
+               "and who is not, not a precise percentage. The Leverage slider in the sidebar "
+               "uses this number to discount a heavily-owned player's chance of being picked; "
+               "at 0 it is ignored entirely, same as before this column existed.")
     with st.expander("What this build cannot see, and what it would be worth"):
         for label, why in context.NOT_AVAILABLE:
             st.markdown(f"**{label}** — {why}")

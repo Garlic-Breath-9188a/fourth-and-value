@@ -44,16 +44,25 @@ def _maxima(flex_allowed) -> dict[str, int]:
     }
 
 
-def _weight(p: dict, ceiling_weight: float) -> float:
+def _weight(p: dict, ceiling_weight: float, leverage_weight: float = 0.0) -> float:
     """
     Sampling weight: points per $1,000, sharpened so the better values dominate
     without ever being certain. The floor matters -- a defence can carry a
     negative average, and a negative base raised to a fractional power is not a
     real number, so the base is clamped before the exponent rather than after.
+
+    `leverage_weight` discounts the weight of a heavily-owned player, so two
+    players worth the same get sampled unequally often. At 0 (the default)
+    this is exactly the old formula -- multiplying by 1.0 changes nothing. At
+    1, a player 40% of the field will roster is sampled at 60% of his
+    unadjusted rate; a player at 2% ownership is barely touched. This is a
+    dial, not a measured default -- see fv/ownership.py for what the
+    ownership estimate itself is and is not.
     """
     value = p["projection"] + ceiling_weight * 0.07 * (p["ceiling"] - p["projection"])
     per_thousand = max(0.05, value / max(1.0, p["salary"] / 1000))
-    return per_thousand ** 3.2
+    leverage_factor = 1 - leverage_weight * (p.get("ownership") or 0) / 100
+    return (per_thousand ** 3.2) * max(0.05, leverage_factor)
 
 
 class Index:
@@ -66,8 +75,8 @@ class Index:
     unchanged; only the bookkeeping moved.
     """
 
-    def __init__(self, players: list[dict], ceiling_weight: float):
-        self.weight = {p["id"]: _weight(p, ceiling_weight) for p in players}
+    def __init__(self, players: list[dict], ceiling_weight: float, leverage_weight: float = 0.0):
+        self.weight = {p["id"]: _weight(p, ceiling_weight, leverage_weight) for p in players}
         self.by_pos: dict[str, list[dict]] = {}
         self.catchers: dict[str, list[dict]] = {}
         for p in players:
@@ -97,7 +106,8 @@ def _sample(pool, rng, index: "Index") -> dict | None:
 def build_lineup(players: list[dict], rng, ceiling_weight: float = 0.25,
                  mates: int = STACK_MATES, bring_back: int = STACK_BRING_BACK,
                  flex_allowed=FLEX_POSITIONS, require: set[str] | None = None,
-                 index: "Index | None" = None, require_wr1: bool = False) -> list[dict] | None:
+                 index: "Index | None" = None, require_wr1: bool = False,
+                 leverage_weight: float = 0.0) -> list[dict] | None:
     """
     One stacked lineup, or None when this attempt could not be completed.
 
@@ -107,7 +117,7 @@ def build_lineup(players: list[dict], rng, ceiling_weight: float = 0.25,
     Conflating the two put a must-play quarterback in all ten lineups.
     """
     require = require or set()
-    index = index or Index(players, ceiling_weight)
+    index = index or Index(players, ceiling_weight, leverage_weight)
     MAX = _maxima(flex_allowed)
     chosen: list[dict] = []
     ids: set[str] = set()
@@ -199,16 +209,24 @@ def build_portfolio(players: list[dict], count: int = 10, seed: int = 1,
                     qb_exposure: int = QB_EXPOSURE_PCT,
                     rb_exposure: int = EXPOSURE_PCT,
                     other_exposure: int | None = None,
-                    require_wr1: bool = False) -> list[list[dict]]:
+                    require_wr1: bool = False,
+                    leverage_weight: float = 0.0) -> list[list[dict]]:
     """
     A portfolio of distinct, diversified lineups.
 
     Exposure is capped per position, with the quarterback tighter than the rest
     -- a slate offers a dozen viable quarterbacks and a hundred receivers, so a
     single percentage cap never binds where concentration hurts most.
+
+    `leverage_weight` > 0 discounts the sampling weight of heavily-owned
+    players (see `_weight`), so the candidates this function has to choose
+    from skew toward differentiated rosters without ever excluding a chalky
+    player outright. Final selection below is still ranked by raw projection,
+    so this never trades real points for lower ownership -- it only changes
+    which equally-good-or-better lineups get proposed in the first place.
     """
     rng = _random.Random(seed)
-    index = Index(players, ceiling_weight)
+    index = Index(players, ceiling_weight, leverage_weight)
     seen: dict[tuple, list[dict]] = {}
     for _ in range(attempts):
         l = build_lineup(players, rng, ceiling_weight, index=index, require_wr1=require_wr1)
@@ -241,14 +259,15 @@ def build_portfolio(players: list[dict], count: int = 10, seed: int = 1,
 
     if must_play:
         selected = ensure_included(selected, players, must_play, rng, ceiling_weight,
-                                   index, require_wr1)
+                                   index, require_wr1, leverage_weight)
     return selected
 
 
 def ensure_included(lineups: list[list[dict]], players: list[dict], required,
                     rng, ceiling_weight: float = 0.25,
                     index: "Index | None" = None,
-                    require_wr1: bool = False) -> list[list[dict]]:
+                    require_wr1: bool = False,
+                    leverage_weight: float = 0.0) -> list[list[dict]]:
     """
     Put each must-play player in AT LEAST ONE lineup -- not in all of them.
 
@@ -260,7 +279,7 @@ def ensure_included(lineups: list[list[dict]], players: list[dict], required,
     A player who cannot be placed is left unplaced and reported, rather than
     silently dropped or forced in by relaxing a roster rule.
     """
-    index = index or Index(players, ceiling_weight)
+    index = index or Index(players, ceiling_weight, leverage_weight)
     out = list(lineups)
     for pid in required:
         if any(pid in {p["id"] for p in l} for l in out):
@@ -288,9 +307,18 @@ def improve_portfolio(lineups: list[list[dict]], players: list[dict],
                       qb_exposure: int = QB_EXPOSURE_PCT,
                       rb_exposure: int = EXPOSURE_PCT,
                       other_exposure: int | None = None,
-                      rounds: int = 6) -> list[list[dict]]:
+                      rounds: int = 6,
+                      leverage_weight: float = 0.0) -> list[list[dict]]:
     """
     Spend the cap and raise the projection, without breaking anything measured.
+
+    A swap is judged on raw projection when `leverage_weight` is 0 (the
+    default, and the only value this function was measured at). Above 0, a
+    swap is judged on the same leverage-discounted score `build_portfolio`
+    samples with, so this step cannot quietly buy back the ownership this
+    build just paid for by trading every differentiated player for a
+    marginally-higher-projected, more-owned one. At 0 the discount is
+    multiplication by 1.0 -- bit-identical to the measured behaviour below.
 
     `build_portfolio` is a random sampler, not an optimizer: it draws candidates
     and keeps the best ten it happened to see. On the Week 3 board its best
@@ -323,12 +351,15 @@ def improve_portfolio(lineups: list[list[dict]], players: list[dict],
             "RB": max(1, count * rb_exposure // 100)}
     default_cap = max(1, count * other // 100)
 
+    def score(p: dict) -> float:
+        return p["projection"] * (1 - leverage_weight * (p.get("ownership") or 0) / 100)
+
     lineups = [list(l) for l in lineups]
     by_pos: dict[str, list[dict]] = {}
     for p in players:
         by_pos.setdefault(p["position"], []).append(p)
     for v in by_pos.values():
-        v.sort(key=lambda p: -p["projection"])
+        v.sort(key=lambda p: -score(p))
 
     def uses() -> dict:
         u: dict[str, int] = {}
@@ -377,7 +408,7 @@ def improve_portfolio(lineups: list[list[dict]], players: list[dict],
                 pool_a = by_pos.get(out_a["position"], [])
                 # single swap
                 for cand in pool_a:
-                    if cand["projection"] <= out_a["projection"]:
+                    if score(cand) <= score(out_a):
                         break                      # sorted: nothing better below
                     trial = list(lineup); trial[a] = cand
                     if legal(trial, i, u):
@@ -389,19 +420,19 @@ def improve_portfolio(lineups: list[list[dict]], players: list[dict],
                     if b == a:
                         continue
                     out_b = lineup[b]
-                    base = out_a["projection"] + out_b["projection"]
+                    base = score(out_a) + score(out_b)
                     for ca in by_pos.get(out_a["position"], [])[:40]:
                         for cb in by_pos.get(out_b["position"], [])[:40]:
                             if ca["id"] == cb["id"]:
                                 continue
-                            if ca["projection"] + cb["projection"] <= base:
+                            if score(ca) + score(cb) <= base:
                                 continue
                             trial = list(lineup); trial[a] = ca; trial[b] = cb
                             if legal(trial, i, u):
                                 lineups[i] = trial; lineup = trial
                                 moved = True; u = uses()
                                 out_a, out_b = ca, cb
-                                base = ca["projection"] + cb["projection"]
+                                base = score(ca) + score(cb)
         if not moved:
             break
     return lineups

@@ -162,6 +162,21 @@ pays for the tail, which is the argument for it; the measurement simply has not
 resolved it.
 """
 
+LEVERAGE_WEIGHT_DEFAULT = 0.3
+"""
+How hard the builder discounts a heavily-owned player's sampling weight in
+favour of an equally-good, less-owned one (see fv/optimize.py _weight).
+
+0 ignores ownership entirely -- the old behaviour. 1 is the most aggressive
+setting this dial supports. Set to 0.3, a middle value, as a user preference
+for this season, not a measured improvement: the ownership estimate itself is
+checked against real DRAFT % in fv/ownership.py (MAE 7.93, r 0.46 on 41 Week 6
+players), and leverage BUILT FROM it has never been backtested against actual
+contest finishes -- only confirmed, on this live pool, to lower the portfolio's
+average ownership without lowering its average projection. Whether it actually
+wins more money is the open question this season has to answer by playing it.
+"""
+
 MAX_SHARED_PLAYERS = 7
 """Two lineups sharing 8 of 9 players are not two lineups."""
 
