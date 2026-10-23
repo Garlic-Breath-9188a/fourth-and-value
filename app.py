@@ -86,6 +86,7 @@ from fv import mispricing as mispricing_mod
 from fv import kalshi as kalshi_mod
 from fv import partner as partner_mod
 from fv import ownership as ownership_mod
+from fv import matchup as matchup_mod
 
 DATA = Path(__file__).resolve().parent / "data"
 
@@ -277,6 +278,17 @@ def load_usage(version: str):
 def load_ownership_model():
     """Fitted coefficients for `fv.ownership` — see that module for what this is and is not."""
     return ownership_mod.load_model()
+
+
+@st.cache_data(show_spinner=False)
+def load_matchup(version: str):
+    """
+    This season's own defence-vs-position, built by
+    `app/scripts/fetch-matchup-2026.py` from real completed games — NOT the
+    bought, September-dated `dvp-2026.json` snapshot. Absent is a supported
+    state: before this season has games, there is nothing to compute yet.
+    """
+    return load_json(DATA / "matchup-2026.json")
 
 
 @st.cache_data(show_spinner=False)
@@ -662,6 +674,7 @@ if drop_questionable and feed:
 if blocked:
     pool = [p for p in pool if p["id"] not in blocked]
 pool = ownership_mod.attach(pool, load_usage(_data_version()), load_ownership_model())
+pool = matchup_mod.attach(pool, load_matchup(_data_version()))
 
 st.title("Fourth & Value")
 st.caption(f"{slate.label} · {slate.game_count} games · {len(pool)} players")
@@ -776,6 +789,7 @@ with tab_board:
     _pool_n = len(pool)
     _inj_n = len(feed) if (use_live and feed) else 0
     _usage = load_usage(_data_version())
+    _mu_data = load_matchup(_data_version())
     _kal = _manifest("kalshi")
     _kal_n = (_kal.get("note", "").split(" ")[0] if _kal.get("note", "")[:1].isdigit() else "?")
     _bits = [
@@ -789,6 +803,9 @@ with tab_board:
          not _usage),
         ("Kalshi", _captured("kalshi"), f"{_kal_n} matched",
          _captured("kalshi") < _captured("slate")),
+        ("Matchup", _captured("matchup"),
+         f"thru wk {_mu_data.get('throughWeek')}" if _mu_data else "off",
+         not _mu_data or _captured("matchup") < _captured("slate")),
         ("Contests", _captured("contests"), f"{len(lobby['contests'])} listed",
          _board_stale),
     ]
@@ -1312,6 +1329,8 @@ slates. This is 0.46 over two. Reproduce with
         "Ceiling": round(p["ceiling"], 1),
         "Pts/$1k": round(p["projection"] / (p["salary"] / 1000), 2),
         "Own %": round(p.get("ownership", 0), 1),
+        "Matchup rank": p.get("matchup_rank"),
+        "vs Avg": p.get("matchup_vs_avg"),
         "Lineups": used.get(p["id"], 0),
         "Context": context.summary(p),
         "Net (SD)": context.net_sd(p),
@@ -1324,7 +1343,18 @@ slates. This is 0.46 over two. Reproduce with
     c2.caption(f"{len(df)} players. Backup quarterbacks and anyone Out, Doubtful or on "
                f"injured reserve are already removed.")
     st.dataframe(df, width="stretch", hide_index=True, height=560,
-                 column_config={"Own %": st.column_config.NumberColumn("Own %", format="%.1f%%")})
+                 column_config={
+                     "Own %": st.column_config.NumberColumn("Own %", format="%.1f%%"),
+                     "Matchup rank": st.column_config.NumberColumn(
+                         "Matchup rank", format="%d/32",
+                         help="1 = this opponent has allowed the most DK points to this "
+                              "position this season (the softest matchup); 32 = the fewest. "
+                              "From this season's actual games, not a preseason guess."),
+                     "vs Avg": st.column_config.NumberColumn(
+                         "vs Avg", format="%+.1f",
+                         help="DK points this opponent allows to the position, above or "
+                              "below the league average, this season."),
+                 })
     st.caption("**Context** lists only what this build can actually establish, with the "
                "measured effect in standard deviations of the salary residual — one SD is "
                "about 6.9 DK points. These are shown, not applied: measured at the lineup "
@@ -1343,6 +1373,18 @@ slates. This is 0.46 over two. Reproduce with
                "and who is not, not a precise percentage. The Leverage slider in the sidebar "
                "uses this number to discount a heavily-owned player's chance of being picked; "
                "at 0 it is ignored entirely, same as before this column existed.")
+    _mu = load_matchup(_data_version())
+    if _mu:
+        st.caption(
+            f"**Matchup rank** is this opponent's defence against this position, from "
+            f"{_mu.get('season')} games actually played through week {_mu.get('throughWeek')} — "
+            f"not the bought `dvp-2026.json` snapshot, which was captured once in September "
+            f"from last season and has not moved since. No shrinkage: a team with two games "
+            f"is ranked off two games. DST has no table (no fitted line for it elsewhere "
+            f"either). A measured, shrunk version of this same idea was tested at the lineup "
+            f"level and found real but small (+/-4%, spans zero over 10 lineups) — this column "
+            f"is the plain current number for a person to judge directly, not that measurement, "
+            f"and it is not applied to any projection here.")
     with st.expander("What this build cannot see, and what it would be worth"):
         for label, why in context.NOT_AVAILABLE:
             st.markdown(f"**{label}** — {why}")

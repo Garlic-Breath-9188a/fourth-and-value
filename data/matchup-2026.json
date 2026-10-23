@@ -1,0 +1,798 @@
+{
+ "source": "nflverse stats_player_week, this season's completed games only",
+ "captured": "2026-10-23",
+ "season": 2026,
+ "throughWeek": 7,
+ "basis": "Every REG game played through week 7 of 2026, no shrinkage.",
+ "note": "Descriptive, not fitted -- a team with few games is reported from few games, and `games` is published per team so that is visible rather than smoothed over. See lib/matchupModel.ts for the measured, shrunk version of this idea and what it is worth (+/-4%, spans zero at the lineup level).",
+ "positions": {
+  "QB": {
+   "leagueMean": 18.35,
+   "teams": {
+    "DET": {
+     "rank": 1,
+     "fantasyPointsAllowed": 30.2,
+     "versusAverage": 11.8,
+     "games": 5
+    },
+    "BUF": {
+     "rank": 2,
+     "fantasyPointsAllowed": 24.3,
+     "versusAverage": 6.0,
+     "games": 6
+    },
+    "WAS": {
+     "rank": 3,
+     "fantasyPointsAllowed": 24.1,
+     "versusAverage": 5.7,
+     "games": 6
+    },
+    "ARI": {
+     "rank": 4,
+     "fantasyPointsAllowed": 22.1,
+     "versusAverage": 3.8,
+     "games": 6
+    },
+    "NYG": {
+     "rank": 5,
+     "fantasyPointsAllowed": 22.1,
+     "versusAverage": 3.7,
+     "games": 6
+    },
+    "LV": {
+     "rank": 6,
+     "fantasyPointsAllowed": 22.0,
+     "versusAverage": 3.7,
+     "games": 6
+    },
+    "DAL": {
+     "rank": 7,
+     "fantasyPointsAllowed": 21.9,
+     "versusAverage": 3.6,
+     "games": 6
+    },
+    "CHI": {
+     "rank": 8,
+     "fantasyPointsAllowed": 21.3,
+     "versusAverage": 3.0,
+     "games": 7
+    },
+    "HOU": {
+     "rank": 9,
+     "fantasyPointsAllowed": 20.7,
+     "versusAverage": 2.3,
+     "games": 6
+    },
+    "PHI": {
+     "rank": 10,
+     "fantasyPointsAllowed": 20.4,
+     "versusAverage": 2.1,
+     "games": 6
+    },
+    "IND": {
+     "rank": 11,
+     "fantasyPointsAllowed": 19.9,
+     "versusAverage": 1.6,
+     "games": 6
+    },
+    "ATL": {
+     "rank": 12,
+     "fantasyPointsAllowed": 19.7,
+     "versusAverage": 1.3,
+     "games": 6
+    },
+    "CAR": {
+     "rank": 13,
+     "fantasyPointsAllowed": 19.6,
+     "versusAverage": 1.2,
+     "games": 5
+    },
+    "MIA": {
+     "rank": 14,
+     "fantasyPointsAllowed": 19.4,
+     "versusAverage": 1.1,
+     "games": 5
+    },
+    "CIN": {
+     "rank": 15,
+     "fantasyPointsAllowed": 18.7,
+     "versusAverage": 0.3,
+     "games": 5
+    },
+    "NO": {
+     "rank": 16,
+     "fantasyPointsAllowed": 18.5,
+     "versusAverage": 0.2,
+     "games": 6
+    },
+    "LAR": {
+     "rank": 17,
+     "fantasyPointsAllowed": 17.9,
+     "versusAverage": -0.4,
+     "games": 6
+    },
+    "JAX": {
+     "rank": 18,
+     "fantasyPointsAllowed": 17.8,
+     "versusAverage": -0.5,
+     "games": 6
+    },
+    "CLE": {
+     "rank": 19,
+     "fantasyPointsAllowed": 17.0,
+     "versusAverage": -1.4,
+     "games": 6
+    },
+    "DEN": {
+     "rank": 20,
+     "fantasyPointsAllowed": 16.8,
+     "versusAverage": -1.6,
+     "games": 6
+    },
+    "NE": {
+     "rank": 21,
+     "fantasyPointsAllowed": 16.3,
+     "versusAverage": -2.1,
+     "games": 7
+    },
+    "TB": {
+     "rank": 22,
+     "fantasyPointsAllowed": 15.8,
+     "versusAverage": -2.5,
+     "games": 6
+    },
+    "TEN": {
+     "rank": 23,
+     "fantasyPointsAllowed": 15.5,
+     "versusAverage": -2.8,
+     "games": 6
+    },
+    "LAC": {
+     "rank": 24,
+     "fantasyPointsAllowed": 15.5,
+     "versusAverage": -2.9,
+     "games": 6
+    },
+    "SF": {
+     "rank": 25,
+     "fantasyPointsAllowed": 15.4,
+     "versusAverage": -2.9,
+     "games": 6
+    },
+    "BAL": {
+     "rank": 26,
+     "fantasyPointsAllowed": 15.4,
+     "versusAverage": -3.0,
+     "games": 6
+    },
+    "NYJ": {
+     "rank": 27,
+     "fantasyPointsAllowed": 15.3,
+     "versusAverage": -3.1,
+     "games": 6
+    },
+    "GB": {
+     "rank": 28,
+     "fantasyPointsAllowed": 13.8,
+     "versusAverage": -4.6,
+     "games": 6
+    },
+    "KC": {
+     "rank": 29,
+     "fantasyPointsAllowed": 13.6,
+     "versusAverage": -4.7,
+     "games": 5
+    },
+    "PIT": {
+     "rank": 30,
+     "fantasyPointsAllowed": 13.2,
+     "versusAverage": -5.1,
+     "games": 6
+    },
+    "SEA": {
+     "rank": 31,
+     "fantasyPointsAllowed": 12.5,
+     "versusAverage": -5.9,
+     "games": 6
+    },
+    "MIN": {
+     "rank": 32,
+     "fantasyPointsAllowed": 10.6,
+     "versusAverage": -7.8,
+     "games": 5
+    }
+   }
+  },
+  "RB": {
+   "leagueMean": 22.13,
+   "teams": {
+    "NO": {
+     "rank": 1,
+     "fantasyPointsAllowed": 31.9,
+     "versusAverage": 9.8,
+     "games": 6
+    },
+    "MIA": {
+     "rank": 2,
+     "fantasyPointsAllowed": 29.1,
+     "versusAverage": 6.9,
+     "games": 5
+    },
+    "BUF": {
+     "rank": 3,
+     "fantasyPointsAllowed": 28.3,
+     "versusAverage": 6.2,
+     "games": 6
+    },
+    "GB": {
+     "rank": 4,
+     "fantasyPointsAllowed": 27.3,
+     "versusAverage": 5.2,
+     "games": 6
+    },
+    "CAR": {
+     "rank": 5,
+     "fantasyPointsAllowed": 26.9,
+     "versusAverage": 4.7,
+     "games": 5
+    },
+    "IND": {
+     "rank": 6,
+     "fantasyPointsAllowed": 25.4,
+     "versusAverage": 3.3,
+     "games": 6
+    },
+    "DEN": {
+     "rank": 7,
+     "fantasyPointsAllowed": 25.1,
+     "versusAverage": 3.0,
+     "games": 6
+    },
+    "LAC": {
+     "rank": 8,
+     "fantasyPointsAllowed": 24.7,
+     "versusAverage": 2.6,
+     "games": 6
+    },
+    "LV": {
+     "rank": 9,
+     "fantasyPointsAllowed": 24.6,
+     "versusAverage": 2.4,
+     "games": 6
+    },
+    "DAL": {
+     "rank": 10,
+     "fantasyPointsAllowed": 23.8,
+     "versusAverage": 1.7,
+     "games": 6
+    },
+    "SF": {
+     "rank": 11,
+     "fantasyPointsAllowed": 23.7,
+     "versusAverage": 1.6,
+     "games": 6
+    },
+    "ATL": {
+     "rank": 12,
+     "fantasyPointsAllowed": 23.6,
+     "versusAverage": 1.5,
+     "games": 6
+    },
+    "NYJ": {
+     "rank": 13,
+     "fantasyPointsAllowed": 22.9,
+     "versusAverage": 0.8,
+     "games": 6
+    },
+    "SEA": {
+     "rank": 14,
+     "fantasyPointsAllowed": 22.1,
+     "versusAverage": -0.0,
+     "games": 6
+    },
+    "NYG": {
+     "rank": 15,
+     "fantasyPointsAllowed": 22.1,
+     "versusAverage": -0.1,
+     "games": 6
+    },
+    "ARI": {
+     "rank": 16,
+     "fantasyPointsAllowed": 21.6,
+     "versusAverage": -0.6,
+     "games": 6
+    },
+    "PHI": {
+     "rank": 17,
+     "fantasyPointsAllowed": 21.0,
+     "versusAverage": -1.2,
+     "games": 6
+    },
+    "TEN": {
+     "rank": 18,
+     "fantasyPointsAllowed": 20.6,
+     "versusAverage": -1.5,
+     "games": 6
+    },
+    "PIT": {
+     "rank": 19,
+     "fantasyPointsAllowed": 20.6,
+     "versusAverage": -1.5,
+     "games": 6
+    },
+    "NE": {
+     "rank": 20,
+     "fantasyPointsAllowed": 20.6,
+     "versusAverage": -1.5,
+     "games": 7
+    },
+    "LAR": {
+     "rank": 21,
+     "fantasyPointsAllowed": 20.3,
+     "versusAverage": -1.8,
+     "games": 6
+    },
+    "WAS": {
+     "rank": 22,
+     "fantasyPointsAllowed": 19.9,
+     "versusAverage": -2.2,
+     "games": 6
+    },
+    "DET": {
+     "rank": 23,
+     "fantasyPointsAllowed": 19.9,
+     "versusAverage": -2.3,
+     "games": 5
+    },
+    "CIN": {
+     "rank": 24,
+     "fantasyPointsAllowed": 19.4,
+     "versusAverage": -2.7,
+     "games": 5
+    },
+    "HOU": {
+     "rank": 25,
+     "fantasyPointsAllowed": 19.3,
+     "versusAverage": -2.8,
+     "games": 6
+    },
+    "CHI": {
+     "rank": 26,
+     "fantasyPointsAllowed": 19.2,
+     "versusAverage": -3.0,
+     "games": 7
+    },
+    "KC": {
+     "rank": 27,
+     "fantasyPointsAllowed": 19.0,
+     "versusAverage": -3.1,
+     "games": 5
+    },
+    "BAL": {
+     "rank": 28,
+     "fantasyPointsAllowed": 18.7,
+     "versusAverage": -3.4,
+     "games": 6
+    },
+    "JAX": {
+     "rank": 29,
+     "fantasyPointsAllowed": 17.5,
+     "versusAverage": -4.6,
+     "games": 6
+    },
+    "TB": {
+     "rank": 30,
+     "fantasyPointsAllowed": 17.2,
+     "versusAverage": -4.9,
+     "games": 6
+    },
+    "CLE": {
+     "rank": 31,
+     "fantasyPointsAllowed": 16.8,
+     "versusAverage": -5.3,
+     "games": 6
+    },
+    "MIN": {
+     "rank": 32,
+     "fantasyPointsAllowed": 15.1,
+     "versusAverage": -7.1,
+     "games": 5
+    }
+   }
+  },
+  "WR": {
+   "leagueMean": 33.15,
+   "teams": {
+    "BUF": {
+     "rank": 1,
+     "fantasyPointsAllowed": 43.3,
+     "versusAverage": 10.2,
+     "games": 6
+    },
+    "DET": {
+     "rank": 2,
+     "fantasyPointsAllowed": 42.6,
+     "versusAverage": 9.4,
+     "games": 5
+    },
+    "JAX": {
+     "rank": 3,
+     "fantasyPointsAllowed": 39.7,
+     "versusAverage": 6.6,
+     "games": 6
+    },
+    "PHI": {
+     "rank": 4,
+     "fantasyPointsAllowed": 39.3,
+     "versusAverage": 6.1,
+     "games": 6
+    },
+    "HOU": {
+     "rank": 5,
+     "fantasyPointsAllowed": 39.1,
+     "versusAverage": 6.0,
+     "games": 6
+    },
+    "ATL": {
+     "rank": 6,
+     "fantasyPointsAllowed": 38.5,
+     "versusAverage": 5.3,
+     "games": 6
+    },
+    "WAS": {
+     "rank": 7,
+     "fantasyPointsAllowed": 37.4,
+     "versusAverage": 4.3,
+     "games": 6
+    },
+    "DAL": {
+     "rank": 8,
+     "fantasyPointsAllowed": 37.4,
+     "versusAverage": 4.2,
+     "games": 6
+    },
+    "TEN": {
+     "rank": 9,
+     "fantasyPointsAllowed": 36.9,
+     "versusAverage": 3.7,
+     "games": 6
+    },
+    "ARI": {
+     "rank": 10,
+     "fantasyPointsAllowed": 35.9,
+     "versusAverage": 2.8,
+     "games": 6
+    },
+    "BAL": {
+     "rank": 11,
+     "fantasyPointsAllowed": 35.8,
+     "versusAverage": 2.6,
+     "games": 6
+    },
+    "CLE": {
+     "rank": 12,
+     "fantasyPointsAllowed": 34.4,
+     "versusAverage": 1.3,
+     "games": 6
+    },
+    "NE": {
+     "rank": 13,
+     "fantasyPointsAllowed": 34.0,
+     "versusAverage": 0.8,
+     "games": 7
+    },
+    "LV": {
+     "rank": 14,
+     "fantasyPointsAllowed": 33.8,
+     "versusAverage": 0.6,
+     "games": 6
+    },
+    "TB": {
+     "rank": 15,
+     "fantasyPointsAllowed": 33.7,
+     "versusAverage": 0.6,
+     "games": 6
+    },
+    "GB": {
+     "rank": 16,
+     "fantasyPointsAllowed": 33.6,
+     "versusAverage": 0.5,
+     "games": 6
+    },
+    "NO": {
+     "rank": 17,
+     "fantasyPointsAllowed": 32.6,
+     "versusAverage": -0.5,
+     "games": 6
+    },
+    "NYG": {
+     "rank": 18,
+     "fantasyPointsAllowed": 31.9,
+     "versusAverage": -1.3,
+     "games": 6
+    },
+    "CHI": {
+     "rank": 19,
+     "fantasyPointsAllowed": 31.5,
+     "versusAverage": -1.6,
+     "games": 7
+    },
+    "IND": {
+     "rank": 20,
+     "fantasyPointsAllowed": 31.3,
+     "versusAverage": -1.8,
+     "games": 6
+    },
+    "LAC": {
+     "rank": 21,
+     "fantasyPointsAllowed": 30.9,
+     "versusAverage": -2.3,
+     "games": 6
+    },
+    "NYJ": {
+     "rank": 22,
+     "fantasyPointsAllowed": 30.7,
+     "versusAverage": -2.5,
+     "games": 6
+    },
+    "SF": {
+     "rank": 23,
+     "fantasyPointsAllowed": 30.6,
+     "versusAverage": -2.5,
+     "games": 6
+    },
+    "CAR": {
+     "rank": 24,
+     "fantasyPointsAllowed": 30.4,
+     "versusAverage": -2.8,
+     "games": 5
+    },
+    "DEN": {
+     "rank": 25,
+     "fantasyPointsAllowed": 30.0,
+     "versusAverage": -3.2,
+     "games": 6
+    },
+    "CIN": {
+     "rank": 26,
+     "fantasyPointsAllowed": 29.3,
+     "versusAverage": -3.9,
+     "games": 5
+    },
+    "PIT": {
+     "rank": 27,
+     "fantasyPointsAllowed": 29.0,
+     "versusAverage": -4.2,
+     "games": 6
+    },
+    "MIN": {
+     "rank": 28,
+     "fantasyPointsAllowed": 27.7,
+     "versusAverage": -5.4,
+     "games": 5
+    },
+    "LAR": {
+     "rank": 29,
+     "fantasyPointsAllowed": 26.9,
+     "versusAverage": -6.2,
+     "games": 6
+    },
+    "SEA": {
+     "rank": 30,
+     "fantasyPointsAllowed": 24.1,
+     "versusAverage": -9.1,
+     "games": 6
+    },
+    "MIA": {
+     "rank": 31,
+     "fantasyPointsAllowed": 23.2,
+     "versusAverage": -10.0,
+     "games": 5
+    },
+    "KC": {
+     "rank": 32,
+     "fantasyPointsAllowed": 21.4,
+     "versusAverage": -11.8,
+     "games": 5
+    }
+   }
+  },
+  "TE": {
+   "leagueMean": 14.07,
+   "teams": {
+    "DET": {
+     "rank": 1,
+     "fantasyPointsAllowed": 32.5,
+     "versusAverage": 18.4,
+     "games": 5
+    },
+    "WAS": {
+     "rank": 2,
+     "fantasyPointsAllowed": 21.5,
+     "versusAverage": 7.4,
+     "games": 6
+    },
+    "MIA": {
+     "rank": 3,
+     "fantasyPointsAllowed": 20.4,
+     "versusAverage": 6.3,
+     "games": 5
+    },
+    "KC": {
+     "rank": 4,
+     "fantasyPointsAllowed": 20.0,
+     "versusAverage": 5.9,
+     "games": 5
+    },
+    "ARI": {
+     "rank": 5,
+     "fantasyPointsAllowed": 19.3,
+     "versusAverage": 5.2,
+     "games": 6
+    },
+    "NO": {
+     "rank": 6,
+     "fantasyPointsAllowed": 18.4,
+     "versusAverage": 4.3,
+     "games": 6
+    },
+    "LV": {
+     "rank": 7,
+     "fantasyPointsAllowed": 17.9,
+     "versusAverage": 3.8,
+     "games": 6
+    },
+    "CIN": {
+     "rank": 8,
+     "fantasyPointsAllowed": 17.2,
+     "versusAverage": 3.2,
+     "games": 5
+    },
+    "CAR": {
+     "rank": 9,
+     "fantasyPointsAllowed": 16.0,
+     "versusAverage": 1.9,
+     "games": 5
+    },
+    "ATL": {
+     "rank": 10,
+     "fantasyPointsAllowed": 15.8,
+     "versusAverage": 1.7,
+     "games": 6
+    },
+    "TB": {
+     "rank": 11,
+     "fantasyPointsAllowed": 15.7,
+     "versusAverage": 1.6,
+     "games": 6
+    },
+    "BUF": {
+     "rank": 12,
+     "fantasyPointsAllowed": 15.2,
+     "versusAverage": 1.2,
+     "games": 6
+    },
+    "CLE": {
+     "rank": 13,
+     "fantasyPointsAllowed": 14.9,
+     "versusAverage": 0.9,
+     "games": 6
+    },
+    "IND": {
+     "rank": 14,
+     "fantasyPointsAllowed": 13.8,
+     "versusAverage": -0.3,
+     "games": 6
+    },
+    "DEN": {
+     "rank": 15,
+     "fantasyPointsAllowed": 13.3,
+     "versusAverage": -0.8,
+     "games": 6
+    },
+    "CHI": {
+     "rank": 16,
+     "fantasyPointsAllowed": 13.1,
+     "versusAverage": -1.0,
+     "games": 7
+    },
+    "NE": {
+     "rank": 17,
+     "fantasyPointsAllowed": 13.0,
+     "versusAverage": -1.1,
+     "games": 7
+    },
+    "DAL": {
+     "rank": 18,
+     "fantasyPointsAllowed": 12.8,
+     "versusAverage": -1.3,
+     "games": 6
+    },
+    "NYG": {
+     "rank": 19,
+     "fantasyPointsAllowed": 12.3,
+     "versusAverage": -1.8,
+     "games": 6
+    },
+    "JAX": {
+     "rank": 20,
+     "fantasyPointsAllowed": 11.8,
+     "versusAverage": -2.3,
+     "games": 6
+    },
+    "PIT": {
+     "rank": 21,
+     "fantasyPointsAllowed": 11.7,
+     "versusAverage": -2.3,
+     "games": 6
+    },
+    "PHI": {
+     "rank": 22,
+     "fantasyPointsAllowed": 11.7,
+     "versusAverage": -2.4,
+     "games": 6
+    },
+    "LAC": {
+     "rank": 23,
+     "fantasyPointsAllowed": 11.2,
+     "versusAverage": -2.8,
+     "games": 6
+    },
+    "HOU": {
+     "rank": 24,
+     "fantasyPointsAllowed": 11.1,
+     "versusAverage": -3.0,
+     "games": 6
+    },
+    "BAL": {
+     "rank": 25,
+     "fantasyPointsAllowed": 10.6,
+     "versusAverage": -3.5,
+     "games": 6
+    },
+    "TEN": {
+     "rank": 26,
+     "fantasyPointsAllowed": 10.5,
+     "versusAverage": -3.6,
+     "games": 6
+    },
+    "NYJ": {
+     "rank": 27,
+     "fantasyPointsAllowed": 9.8,
+     "versusAverage": -4.2,
+     "games": 6
+    },
+    "GB": {
+     "rank": 28,
+     "fantasyPointsAllowed": 9.8,
+     "versusAverage": -4.3,
+     "games": 6
+    },
+    "SF": {
+     "rank": 29,
+     "fantasyPointsAllowed": 9.4,
+     "versusAverage": -4.7,
+     "games": 6
+    },
+    "SEA": {
+     "rank": 30,
+     "fantasyPointsAllowed": 8.9,
+     "versusAverage": -5.2,
+     "games": 6
+    },
+    "LAR": {
+     "rank": 31,
+     "fantasyPointsAllowed": 8.3,
+     "versusAverage": -5.8,
+     "games": 6
+    },
+    "MIN": {
+     "rank": 32,
+     "fantasyPointsAllowed": 7.6,
+     "versusAverage": -6.5,
+     "games": 5
+    }
+   }
+  }
+ }
+}
