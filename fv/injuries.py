@@ -85,11 +85,53 @@ def index(raw: dict | None) -> dict[str, dict]:
         if not name:
             continue
         out[_norm(name)] = {
+            "name": name,
             "status": status,
             "body_part": (p.get("injury_body_part") or "").strip(),
             "note": (p.get("injury_notes") or "").strip(),
             "team": p.get("team") or "",
+            "position": p.get("position") or "",
         }
+    return out
+
+
+def role_opportunity(players: list[dict], feed: dict[str, dict]) -> dict[str, list[dict]]:
+    """
+    Same-team, same-position teammates currently blocking (Out, Doubtful, IR,
+    ...), for each player on this slate -- the nameable version of "his role
+    just opened up," rather than a usage number with no story behind it.
+
+    Position is read narrowly: RB to RB, WR to WR, TE to TE. A TE going down
+    does not obviously hand snaps to a WR, so that is not claimed here --
+    only a teammate who plays the SAME position being out is treated as a
+    concrete reason someone else's share should rise.
+
+    This is a different claim from the measured cheap/top-fifth usage signal
+    in fv/mispricing.py and has not itself been backtested; it names a
+    mechanism so a person can judge whether it is believable, not a scored
+    edge.
+    """
+    by_team_pos: dict[tuple[str, str], list[dict]] = {}
+    for rec in feed.values():
+        if rec.get("status") not in BLOCKING:
+            continue
+        key = (rec.get("team"), rec.get("position"))
+        by_team_pos.setdefault(key, []).append({
+            "name": rec.get("name") or "", "status": rec["status"],
+            "body_part": rec.get("body_part") or "",
+        })
+
+    out: dict[str, list[dict]] = {}
+    for p in players:
+        pos = p.get("position")
+        if pos not in ("RB", "WR", "TE"):
+            continue
+        hits = by_team_pos.get((p.get("team"), pos))
+        # A player's own entry would otherwise list himself as his own
+        # blocking teammate whenever he is injured but still barely active.
+        hits = [h for h in (hits or []) if _norm(h["name"]) != _norm(p.get("name") or "")]
+        if hits:
+            out[p["id"]] = hits
     return out
 
 

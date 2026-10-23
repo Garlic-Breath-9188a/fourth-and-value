@@ -1081,6 +1081,36 @@ expected.
                                "indistinguishable from a failed join, and zero touches at a "
                                "high snap share would score as strongly overpriced.")
 
+            # ---- Role changes: a teammate blocking at the same position ----
+            # A DIFFERENT claim from the cheap/top-fifth board above, and not
+            # itself backtested: it names a mechanism (who is out) rather than
+            # scoring one. Deliberately not filtered to cheap players only --
+            # the two real examples that motivated this (a backup RB taking
+            # over after the starter went down) were priced in the middle of
+            # the position, not the cheap half, so that filter would have
+            # hidden exactly the players worth seeing.
+            _opportunity = injuries.role_opportunity(pool, feed)
+            _opp_rows = [r for r in mis["ranked"]
+                        if _opportunity.get(r["id"]) and (r["edge_points"] or 0) > 0]
+            _opp_rows.sort(key=lambda r: -r["edge_points"])
+            if _opp_rows:
+                st.markdown("### Role may have changed — a teammate at his position is out")
+                st.caption(
+                    "Same team, same position, currently Out/Doubtful/IR for someone on "
+                    "this slate, alongside his own usage edge from the board above. This is "
+                    "a reason a number might be durable rather than a fluke, not a scored "
+                    "effect — a star with a third-string backup hurt will show up here too, "
+                    "and that is coincidence, not opportunity. Check who is actually listed "
+                    "as out before trusting the row."
+                )
+                st.dataframe(pd.DataFrame([{
+                    "Player": r["name"], "Pos": r["position"], "Team": r["team"],
+                    "Salary": f"${r['salary']:,.0f}",
+                    "vs price": f"{r['edge_points']:+.2f}",
+                    "Teammate(s) out": ", ".join(
+                        f"{h['name']} ({h['status']})" for h in _opportunity[r["id"]]),
+                } for r in _opp_rows[:12]]), width="stretch", hide_index=True)
+
         # ---- Injury wire, at the bottom and closed ----------------------
         # It was at the top and open. That is backwards: it is a cross-check on
         # a handful of players, not the thing the page is for, and it pushed the
