@@ -85,6 +85,7 @@ from fv import select as select_mod
 from fv import mispricing as mispricing_mod
 from fv import kalshi as kalshi_mod
 from fv import partner as partner_mod
+from fv import ownership as ownership_mod
 
 DATA = Path(__file__).resolve().parent / "data"
 
@@ -270,6 +271,12 @@ def load_usage(version: str):
     with the reason rather than an empty page.
     """
     return load_json(DATA / "usage-2026.json")
+
+
+@st.cache_resource(show_spinner=False)
+def load_ownership_model():
+    """Fitted coefficients for `fv.ownership` — see that module for what this is and is not."""
+    return ownership_mod.load_model()
 
 
 @st.cache_data(show_spinner=False)
@@ -638,6 +645,7 @@ if drop_questionable and feed:
                              _fallback_locks_before_kickoff)(p.get("kickoff"), _lock_time)}
 if blocked:
     pool = [p for p in pool if p["id"] not in blocked]
+pool = ownership_mod.attach(pool, load_usage(_data_version()), load_ownership_model())
 
 st.title("Fourth & Value")
 st.caption(f"{slate.label} · {slate.game_count} games · {len(pool)} players")
@@ -1256,6 +1264,7 @@ slates. This is 0.46 over two. Reproduce with
         "Salary": p["salary"], "Proj": round(p["projection"], 1),
         "Ceiling": round(p["ceiling"], 1),
         "Pts/$1k": round(p["projection"] / (p["salary"] / 1000), 2),
+        "Own %": round(p.get("ownership", 0), 1),
         "Lineups": used.get(p["id"], 0),
         "Context": context.summary(p),
         "Net (SD)": context.net_sd(p),
@@ -1267,12 +1276,24 @@ slates. This is 0.46 over two. Reproduce with
         df = df[df["Pos"].isin(pos)]
     c2.caption(f"{len(df)} players. Backup quarterbacks and anyone Out, Doubtful or on "
                f"injured reserve are already removed.")
-    st.dataframe(df, width="stretch", hide_index=True, height=560)
+    st.dataframe(df, width="stretch", hide_index=True, height=560,
+                 column_config={"Own %": st.column_config.NumberColumn("Own %", format="%.1f%%")})
     st.caption("**Context** lists only what this build can actually establish, with the "
                "measured effect in standard deviations of the salary residual — one SD is "
                "about 6.9 DK points. These are shown, not applied: measured at the lineup "
                "level, home and dome together are worth +1.55 points, against ~3.6 if they "
                "simply added across a roster. They do not add up.")
+    st.caption("**Own %** is a predicted share of the field, not a fact — fitted on 6,007 "
+               "real rows from 15 slates in 2020 and still ahead of a points-per-dollar guess "
+               "six years out of sample (MAE 6.30 vs 7.29, r 0.62 vs 0.35, see "
+               "`app/evidence/ownership-model-2026-oos.txt`). This build's version runs on an "
+               "approximate stand-in for two of its inputs — this week's blended projection in "
+               "place of a true trailing points average, and last game's snap share and "
+               "touches in place of a 5-game average — because that is what this app actually "
+               "has on hand. Checked against real DRAFT % from 12 Week 6 contests (41 "
+               "players): MAE 7.93, r 0.46 — still ahead of the points-per-dollar guess (8.81, "
+               "0.41) but short of the paper number. Treat it as a rough read on who is chalky "
+               "and who is not, not a precise percentage. It is not used to build lineups.")
     with st.expander("What this build cannot see, and what it would be worth"):
         for label, why in context.NOT_AVAILABLE:
             st.markdown(f"**{label}** — {why}")
