@@ -412,7 +412,7 @@ def portfolio(ids, count, seed, ceiling_weight, qb_exposure, rb_exposure, must_p
     # salary cap down to $600, in about a second, without breaking the stack,
     # the exposure caps or the distinctness of the ten.
     built = improve_portfolio(built, pool, qb_exposure, rb_exposure, other_exposure,
-                              leverage_weight=leverage_weight)
+                              leverage_weight=leverage_weight, protect=set(must_play))
     fresh = [l for l in built if ent.roster_key(l) not in avoid]
     return fresh[:count]
 

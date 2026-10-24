@@ -308,9 +308,21 @@ def improve_portfolio(lineups: list[list[dict]], players: list[dict],
                       rb_exposure: int = EXPOSURE_PCT,
                       other_exposure: int | None = None,
                       rounds: int = 6,
-                      leverage_weight: float = 0.0) -> list[list[dict]]:
+                      leverage_weight: float = 0.0,
+                      protect: set[str] | None = None) -> list[list[dict]]:
     """
     Spend the cap and raise the projection, without breaking anything measured.
+
+    BUG FIXED HERE: a must-play player survived `build_portfolio` (which
+    placed him on purpose, in the one lineup the weakest candidate was
+    sacrificed for) and then this function silently swapped him back out
+    chasing a few tenths of a point, because nothing told it he was not an
+    ordinary player. Checked on the live Week 7 pool at default settings
+    (leverage 0, ceiling 0.25): a must-play running back was placed by
+    `build_portfolio` and gone after `improve_portfolio` ran, in the same
+    call that is wired into the app today. `protect` is the fix -- a swap
+    that would remove one of these ids is rejected like any other illegal
+    swap, not attempted.
 
     A swap is judged on raw projection when `leverage_weight` is 0 (the
     default, and the only value this function was measured at). Above 0, a
@@ -343,6 +355,7 @@ def improve_portfolio(lineups: list[list[dict]], players: list[dict],
     """
     from .roster import is_stacked
 
+    protect = protect or set()
     count = len(lineups)
     if not count:
         return lineups
@@ -369,6 +382,11 @@ def improve_portfolio(lineups: list[list[dict]], players: list[dict],
         return u
 
     def legal(cand: list[dict], idx: int, u: dict) -> bool:
+        if protect:
+            cand_ids = {p["id"] for p in cand}
+            if any(pid in protect and pid not in cand_ids for pid in
+                  (q["id"] for q in lineups[idx])):
+                return False
         if sum(p["salary"] for p in cand) > SALARY_CAP:
             return False
         if not is_stacked(cand):

@@ -221,6 +221,23 @@ class MustPlay(unittest.TestCase):
         self.assertEqual(picks - placed, set(), "every must-play should be placed")
         self.assertEqual(len({tuple(sorted(p["id"] for p in l)) for l in lineups}), 10)
 
+    def test_a_must_play_survives_improve_portfolio(self):
+        # Bug, found 2026-10-23: build_portfolio placed a must-play running
+        # back on purpose (sacrificing the weakest lineup for him, exactly
+        # like the tests above confirm), and the very next call the app
+        # itself makes -- improve_portfolio -- swapped him back out chasing
+        # a few tenths of a point, with no idea he was not an ordinary
+        # player. "Must-play" silently meant nothing once the real pipeline
+        # ran. `protect` is the fix.
+        pool, _ = live_pool()
+        rb = min((p for p in pool if p["position"] == "RB"), key=lambda p: p["salary"])
+        built = build_portfolio(pool, 5, seed=1, attempts=8000, must_play={rb["id"]})
+        self.assertTrue(any(rb["id"] in {p["id"] for p in l} for l in built),
+                        "must-play has to be placed before it can be tested for survival")
+        improved = improve_portfolio(built, pool, protect={rb["id"]})
+        self.assertTrue(any(rb["id"] in {p["id"] for p in l} for l in improved),
+                        "a must-play must survive the improve step, not just the build")
+
 
 class Wr1Stack(unittest.TestCase):
     """The QB's WR1 should be in the stack when that rule is on."""
